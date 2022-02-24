@@ -31,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.models.repo.Result
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
+import com.example.e_social.ui.screens.LoginScreen
+import com.example.e_social.ui.screens.SignUpScreen
 import com.example.e_social.ui.theme.EsocialTheme
 import com.example.e_social.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
@@ -42,136 +44,10 @@ class MainActivity : ComponentActivity() {
             EsocialTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    LoginScreen()
+                    SignUpScreen()
                 }
             }
         }
     }
 }
 
-@Composable
-fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
-    val email by loginViewModel.email.observeAsState("")
-    val password by loginViewModel.password.observeAsState("")
-    val focusManager = LocalFocusManager.current
-    val coroutineScope = rememberCoroutineScope()
-    val snackBarController = SnackBarController(coroutineScope)
-    val scaffoldState = rememberScaffoldState()
-//    var data = callnetworkdata
-    Scaffold(scaffoldState = scaffoldState,
-        snackbarHost = {
-            scaffoldState.snackbarHostState
-        }) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(Color.LightGray)
-                .fillMaxSize()
-                .clickable { focusManager.clearFocus() }
-        ) {
-//            when (data) {
-//                is Result.Loading ->{ CircularProgressIndicator() }
-//
-//                is Result.Success -> {
-//                    if ( "check reponse data"?.equals("")) {
-//                        Text(text = "Login fail")
-//                    } else {
-//                        Text("Login successful", fontSize = MaterialTheme.typography.h3.fontSize)
-//                        Text(
-//                            "User name",
-//                            fontSize = MaterialTheme.typography.h4.fontSize
-//                        )
-//                    }
-//                }
-//                is Result.Error -> {
-//                    val snackbarHostState = remember { SnackbarHostState() }
-//                    val coroutineScope = rememberCoroutineScope()
-//
-//
-//                }
-//            }
-            LoginFields(
-                email,
-                password,
-                onClick = {
-                    snackBarController.getScope().launch {
-                        snackBarController.showSnackbar(
-                            snackbarHostState = scaffoldState.snackbarHostState,
-                            message = "error",
-                            actionLabel = "dismiss"
-                        )
-                    }
-                },
-                onEmailChange = { loginViewModel.onEmailChange(it) },
-                onPasswordChange = { loginViewModel.onPasswordChange(it) }
-            )
-            DefaultSnackbar(
-                snackbarHostState = scaffoldState.snackbarHostState,
-                onDismiss = {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                }
-            )
-        }
-    }
-
-
-
-}
-
-@Composable
-fun LoginFields(
-    email: String,
-    password: String,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onClick: () -> Unit,
-
-    ) {
-    val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp),
-        verticalArrangement = Arrangement.spacedBy(25.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Please login")
-
-        OutlinedTextField(
-            value = email,
-            placeholder = { Text(text = "user@email.com") },
-            label = { Text(text = "email") },
-            onValueChange = onEmailChange,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-        )
-
-        OutlinedTextField(
-            value = password,
-            placeholder = { Text(text = "password") },
-            label = { Text(text = "password") },
-            onValueChange = onPasswordChange,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
-        )
-
-        Button(onClick = {
-            onClick.invoke()
-            if (email.isBlank() == false && password.isBlank() == false) {
-                focusManager.clearFocus()
-            } else {
-//                Toast.makeText(
-//                    context,
-//                    "Please enter an email and password",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-            }
-        }) {
-            Text("Login")
-        }
-    }
-}

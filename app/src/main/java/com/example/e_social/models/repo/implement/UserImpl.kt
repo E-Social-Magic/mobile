@@ -6,8 +6,21 @@ import com.example.e_social.models.repo.Result
 import com.example.e_social.models.repo.User
 
 class UserImpl: User{
+    private val isLogin:Boolean = false
     override fun getUserInfo(): LiveData<UserModel> {
 //        return Result.Loading<Nothing>;
+        TODO("Not yet implemented")
+    }
+
+    override fun login(): LiveData<UserModel> {
+        TODO("Not yet implemented")
+    }
+
+    override fun signup(): LiveData<UserModel> {
+        TODO("Not yet implemented")
+    }
+
+    override fun isLogin(): Boolean {
         TODO("Not yet implemented")
     }
 
