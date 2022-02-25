@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 fun TextLogoApp() {
     Box(modifier = Modifier
         .fillMaxWidth()
-        .height(250.dp)){
+        .height(200.dp)){
         Text(
             text = "E-Social",
             style = TextStyle(

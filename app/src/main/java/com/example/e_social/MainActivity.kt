@@ -32,7 +32,9 @@ import com.example.e_social.models.repo.Result
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.screens.LoginScreen
+import com.example.e_social.ui.screens.OTPScreen
 import com.example.e_social.ui.screens.SignUpScreen
+import com.example.e_social.ui.screens.VerifyInput
 import com.example.e_social.ui.theme.EsocialTheme
 import com.example.e_social.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
@@ -44,7 +46,8 @@ class MainActivity : ComponentActivity() {
             EsocialTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    SignUpScreen()
+
+                    VerifyInput()
                 }
             }
         }

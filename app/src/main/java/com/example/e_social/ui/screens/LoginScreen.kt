@@ -11,6 +11,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,9 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontFamily.Companion.Monospace
 import androidx.compose.ui.text.font.FontStyle
@@ -63,7 +63,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
             scaffoldState.snackbarHostState
         }) {
         Column(
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceAround    ,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
@@ -149,8 +149,7 @@ fun LoginFields(
 //            }
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 30.dp),
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(25.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -172,7 +171,18 @@ fun LoginFields(
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            shape = RoundedCornerShape(24)
+            shape = RoundedCornerShape(24),
+            trailingIcon = {
+                IconButton(onClick = {
+//                    cPasswordVisibility.value = !cPasswordVisibility.value
+                }) {
+                    Icon(
+                        imageVector = if (true) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = "visibility",
+                        tint = Color.Black
+                    )
+                }
+            }
 
         )
 
@@ -187,11 +197,10 @@ fun ButtonLogin(modifier: Modifier = Modifier, onLoginPress: () -> Unit) {
             onLoginPress.invoke()
                   },
         modifier = modifier
-            .width(210.dp)
-            .height(64.dp)
-            .padding(bottom = 12.dp),
+            .width(197.dp)
+            .height(48.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
-        shape = RoundedCornerShape(24),
+        shape = RoundedCornerShape(25),
     ) {
         Text(
             "Log In",
@@ -205,13 +214,12 @@ fun CreateAccountButton(modifier: Modifier = Modifier, onCreateAccountClick: () 
     OutlinedButton(
         onClick = { onCreateAccountClick },
         modifier = modifier
-            .width(210.dp)
-            .height(64.dp)
-            .padding(bottom = 12.dp),
-        shape = RoundedCornerShape(24),
+            .width(197.dp)
+            .height(48.dp),
+        shape = RoundedCornerShape(25),
     ) {
         Text(
-            "Create Account",
+            "Create Account?",
             fontSize = 17.sp
         )
     }
@@ -221,7 +229,12 @@ fun CreateAccountButton(modifier: Modifier = Modifier, onCreateAccountClick: () 
 fun ForgotPassword(onForgotPasswordClick: () -> Unit) {
    Box(modifier = Modifier.fillMaxHeight()) {
        ClickableText(
-           text = AnnotatedString("Forgot Password?"),
+           text = buildAnnotatedString{
+               withStyle(style = SpanStyle(fontSize = 14.sp)){
+                   append("Forgot password? ")
+               }
+
+           },
            style = MaterialTheme.typography.caption,
            modifier =
            Modifier

@@ -90,4 +90,7 @@ dependencies {
 
         // Annotation processor
         kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+        //Icon
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+
 }
