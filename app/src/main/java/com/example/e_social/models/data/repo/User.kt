@@ -1,4 +1,4 @@
-package com.example.e_social.models.repo
+package com.example.e_social.models.data.repo
 
 import androidx.lifecycle.LiveData
 import com.example.e_social.models.domain.model.UserModel

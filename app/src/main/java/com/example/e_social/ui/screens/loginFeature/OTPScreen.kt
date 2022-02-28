@@ -1,4 +1,4 @@
-package com.example.e_social.ui.screens
+package com.example.e_social.ui.screens.loginFeature
 
 import android.text.Layout
 import android.widget.Toast
@@ -33,10 +33,12 @@ import com.example.e_social.R
 import com.example.e_social.ui.theme.Green400
 import com.example.e_social.ui.theme.Grey100
 import com.example.e_social.ui.theme.Purple500
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
-
+@Destination
 @Composable
-fun OTPScreen(modifier: Modifier = Modifier) {
+fun OTPScreen(navigator: DestinationsNavigator,modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val otpVal: String? = null
     val email = "Text email"
@@ -115,8 +117,10 @@ fun OTPScreen(modifier: Modifier = Modifier) {
 
 }
 
+@Destination
 @Composable
 fun VerifyInput(
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -127,11 +131,15 @@ fun VerifyInput(
     )
     {
         Column(
-            modifier = Modifier.shadow(elevation = 4.dp)
-                .weight(0.5f).background(Color.White)
-                .border( width = 0.1.dp,
-                color = Color.White,
-                shape = RoundedCornerShape(10.dp))
+            modifier = Modifier
+                .shadow(elevation = 4.dp)
+                .weight(0.5f)
+                .background(Color.White)
+                .border(
+                    width = 0.1.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(10.dp)
+                )
                 .padding(14.dp),
             verticalArrangement = Arrangement.Center
             ) {
@@ -147,7 +155,9 @@ fun VerifyInput(
                 text = "Verification code will be sent to your phone number",
                 modifier = Modifier.padding(top = 20.dp)
             )
-            Spacer(modifier = Modifier.height(25.dp).shadow(elevation = 6.dp))
+            Spacer(modifier = Modifier
+                .height(25.dp)
+                .shadow(elevation = 6.dp))
             Surface(
                 elevation = 6.dp
             ) {
@@ -169,6 +179,7 @@ fun VerifyInput(
                 )
             }
             SendCodeButton() {
+//                navigator.navigate()
             }
         }
         Column(modifier = Modifier.weight(0.5f)) {

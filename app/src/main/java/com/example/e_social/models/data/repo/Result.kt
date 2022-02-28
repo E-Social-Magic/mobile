@@ -1,4 +1,4 @@
-package com.example.e_social.models.repo
+package com.example.e_social.models.data.repo
 
 sealed class Result<out T>(
     val data:T?=null,

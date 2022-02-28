@@ -1,8 +1,6 @@
-package com.example.e_social.ui.screens
+package com.example.e_social.ui.screens.loginFeature
 
-import android.util.Log
-import android.widget.Space
-import androidx.compose.foundation.background
+//import com.example.e_social.ui.theme.LogInButtonColor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,42 +11,35 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontFamily.Companion.Monospace
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
-//import com.example.e_social.ui.theme.LogInButtonColor
-import com.example.e_social.ui.theme.Purple200
+import com.example.e_social.ui.screens.destinations.ForgotPasswordScreenDestination
+import com.example.e_social.ui.screens.destinations.HomeScreenDestination
+import com.example.e_social.ui.screens.destinations.SignUpScreenDestination
 import com.example.e_social.viewmodels.LoginViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 
-
+@Destination(start = true)
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = viewModel()) {
     val email by loginViewModel.email.observeAsState("")
     val password by loginViewModel.password.observeAsState("")
     val focusManager = LocalFocusManager.current
@@ -63,7 +54,7 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
             scaffoldState.snackbarHostState
         }) {
         Column(
-            verticalArrangement = Arrangement.SpaceAround    ,
+            verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
@@ -96,9 +87,9 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                 onEmailChange = { loginViewModel.onEmailChange(it) },
                 onPasswordChange = { loginViewModel.onPasswordChange(it) }
             )
-            Spacer(modifier =Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(60.dp))
 
-            ButtonLogin {
+            ButtonLogin(showMessage = {
                 snackBarController.getScope().launch {
                     snackBarController.showSnackbar(
                         snackbarHostState = scaffoldState.snackbarHostState,
@@ -106,15 +97,17 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
                         actionLabel = "dismiss"
                     )
                 }
+            }) {
+                if(loginViewModel.isLogin()) navigator.navigate(HomeScreenDestination())
             }
-            Spacer(modifier =Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            CreateAccountButton() {
-
+            CreateAccountButton {
+                navigator.navigate(SignUpScreenDestination())
             }
 
-            ForgotPassword() {
-
+            ForgotPassword {
+                navigator.navigate(ForgotPasswordScreenDestination())
             }
             DefaultSnackbar(
                 snackbarHostState = scaffoldState.snackbarHostState,
@@ -127,7 +120,6 @@ fun LoginScreen(loginViewModel: LoginViewModel = viewModel()) {
     }
 }
 
-
 @Composable
 fun LoginFields(
     email: String,
@@ -136,17 +128,10 @@ fun LoginFields(
     onPasswordChange: (String) -> Unit,
 
     ) {
+    var passwordVisualTransformation by remember {
+        mutableStateOf(false)
+    }
     val focusManager = LocalFocusManager.current
-//    val context = LocalContext.current
-//            if (email.isBlank() == false && password.isBlank() == false) {
-//                focusManager.clearFocus()
-//            } else {
-//                Toast.makeText(
-//                    context,
-//                    "Please enter an email and password",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -168,16 +153,16 @@ fun LoginFields(
             placeholder = { Text(text = "password") },
             label = { Text(text = "password") },
             onValueChange = onPasswordChange,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
             shape = RoundedCornerShape(24),
             trailingIcon = {
                 IconButton(onClick = {
-//                    cPasswordVisibility.value = !cPasswordVisibility.value
+                    passwordVisualTransformation = !passwordVisualTransformation
                 }) {
                     Icon(
-                        imageVector = if (true) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        imageVector = if (passwordVisualTransformation) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = "visibility",
                         tint = Color.Black
                     )
@@ -191,11 +176,12 @@ fun LoginFields(
 }
 
 @Composable
-fun ButtonLogin(modifier: Modifier = Modifier, onLoginPress: () -> Unit) {
+fun ButtonLogin(modifier: Modifier = Modifier, showMessage: () -> Unit, onLoginPress: () -> Unit) {
     Button(
         onClick = {
+//            if()
             onLoginPress.invoke()
-                  },
+        },
         modifier = modifier
             .width(197.dp)
             .height(48.dp),
@@ -212,7 +198,7 @@ fun ButtonLogin(modifier: Modifier = Modifier, onLoginPress: () -> Unit) {
 @Composable
 fun CreateAccountButton(modifier: Modifier = Modifier, onCreateAccountClick: () -> Unit) {
     OutlinedButton(
-        onClick = { onCreateAccountClick },
+        onClick = { onCreateAccountClick.invoke() },
         modifier = modifier
             .width(197.dp)
             .height(48.dp),
@@ -227,23 +213,23 @@ fun CreateAccountButton(modifier: Modifier = Modifier, onCreateAccountClick: () 
 
 @Composable
 fun ForgotPassword(onForgotPasswordClick: () -> Unit) {
-   Box(modifier = Modifier.fillMaxHeight()) {
-       ClickableText(
-           text = buildAnnotatedString{
-               withStyle(style = SpanStyle(fontSize = 14.sp)){
-                   append("Forgot password? ")
-               }
+    Box(modifier = Modifier.fillMaxHeight()) {
+        ClickableText(
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontSize = 14.sp)) {
+                    append("Forgot password? ")
+                }
 
-           },
-           style = MaterialTheme.typography.caption,
-           modifier =
-           Modifier
-               .padding(bottom = 36.dp)
-               .align(Alignment.BottomCenter),
-           onClick = { onForgotPasswordClick }
-       )
+            },
+            style = MaterialTheme.typography.caption,
+            modifier =
+            Modifier
+                .padding(bottom = 36.dp)
+                .align(Alignment.BottomCenter),
+            onClick = { onForgotPasswordClick }
+        )
 
-   }
+    }
 }
 
 

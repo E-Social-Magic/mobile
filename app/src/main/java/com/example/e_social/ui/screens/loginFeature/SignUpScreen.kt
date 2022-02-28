@@ -1,4 +1,4 @@
-package com.example.e_social.ui.screens
+package com.example.e_social.ui.screens.loginFeature
 
 import android.app.Activity
 import android.net.Credentials
@@ -41,11 +41,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.R
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
+import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.theme.Purple500
 import com.example.e_social.viewmodels.LoginViewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
+@Destination
 @Composable
-fun SignUpScreen(loginViewModel: LoginViewModel = viewModel()) {
+fun SignUpScreen(loginViewModel: LoginViewModel = viewModel(),navigator: DestinationsNavigator) {
     val email by loginViewModel.email.observeAsState("")
     val password by loginViewModel.password.observeAsState("")
     val focusManager = LocalFocusManager.current
@@ -62,6 +66,7 @@ fun SignUpScreen(loginViewModel: LoginViewModel = viewModel()) {
                onPasswordChange = { loginViewModel.onPasswordChange(it) })
            ButtonSignUp(){}
            RedirectLoginPage{
+               navigator.navigate(LoginScreenDestination())
            }
        }
 
@@ -164,12 +169,11 @@ fun RedirectLoginPage(onForgotPasswordClick: () -> Unit) {
 
             },
             style = MaterialTheme.typography.caption,
-
             modifier =
             Modifier
                 .padding(bottom = 36.dp)
                 .align(Alignment.BottomCenter),
-            onClick = { onForgotPasswordClick }
+            onClick = { onForgotPasswordClick.invoke() }
         )
 
     }

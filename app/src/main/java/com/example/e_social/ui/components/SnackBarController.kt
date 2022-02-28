@@ -27,7 +27,7 @@ class SnackBarController(private val scope: CoroutineScope){
             }
         }
         else{
-            cancelActiveSnack()
+//            cancelActiveSnack()
             snackBarJob = scope.launch {
                snackbarHostState.showSnackbar(message = message,actionLabel =actionLabel)
                 cancelActiveSnack()
@@ -37,9 +37,9 @@ class SnackBarController(private val scope: CoroutineScope){
         }
     }
     private fun cancelActiveSnack(){
-        snackBarJob?.let{ job ->
-            job.cancel()
-            snackBarJob = Job()
-        }
+//        snackBarJob?.let{ job ->
+//            job.cancel()
+//            snackBarJob = Job()
+//        }
     }
 }
