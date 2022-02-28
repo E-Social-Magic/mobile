@@ -1,6 +1,7 @@
 package com.example.e_social.ui.screens.loginFeature
 
 //import com.example.e_social.ui.theme.LogInButtonColor
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +26,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.e_social.models.domain.model.UserModel
+import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
@@ -35,24 +39,22 @@ import com.example.e_social.ui.screens.destinations.SignUpScreenDestination
 import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Destination(start = true)
+@Destination(start= true)
 @Composable
-fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = viewModel()) {
-    val email by loginViewModel.email.observeAsState("")
-    val password by loginViewModel.password.observeAsState("")
+fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = hiltViewModel(),scaffoldState: ScaffoldState,coroutineScope: CoroutineScope,snackBarController:SnackBarController) {
+    val email = loginViewModel.email.value
+    val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current
-    val coroutineScope = rememberCoroutineScope()
-    val snackBarController = SnackBarController(coroutineScope)
-    val scaffoldState = rememberScaffoldState()
-//    var data = loginViewMode
+    val isLoading = loginViewModel.isLoading.value
+    LaunchedEffect(key1 = loginViewModel.isLogin() ){
+        if(loginViewModel.isLogin())
+            navigator.navigate(HomeScreenDestination())
 
+    }
 
-    Scaffold(scaffoldState = scaffoldState,
-        snackbarHost = {
-            scaffoldState.snackbarHostState
-        }) {
         Column(
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -60,7 +62,31 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
                 .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
         ) {
-//            when (data) {
+
+            TextLogoApp()
+            LoginFields(
+                email,
+                password,
+                onEmailChange = { loginViewModel.onEmailChange(it) },
+                onPasswordChange = { loginViewModel.onPasswordChange(it) }
+            )
+            Spacer(modifier = Modifier.height(60.dp))
+
+            ButtonLogin(
+                showMessage = {
+                    snackBarController.getScope().launch {
+                        snackBarController.showSnackbar(
+                            snackbarHostState = scaffoldState.snackbarHostState,
+                            message = "error",
+                            actionLabel = "dismiss"
+                        )
+                    }
+                },
+                isLoading = isLoading
+            ) {
+                loginViewModel.login()
+
+                //            when (data) {
 //                is Result.Loading ->{ CircularProgressIndicator() }
 //
 //                is Result.Success -> {
@@ -80,25 +106,6 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
 //
 //
 //                }
-            TextLogoApp()
-            LoginFields(
-                email,
-                password,
-                onEmailChange = { loginViewModel.onEmailChange(it) },
-                onPasswordChange = { loginViewModel.onPasswordChange(it) }
-            )
-            Spacer(modifier = Modifier.height(60.dp))
-
-            ButtonLogin(showMessage = {
-                snackBarController.getScope().launch {
-                    snackBarController.showSnackbar(
-                        snackbarHostState = scaffoldState.snackbarHostState,
-                        message = "error",
-                        actionLabel = "dismiss"
-                    )
-                }
-            }) {
-                if(loginViewModel.isLogin()) navigator.navigate(HomeScreenDestination())
             }
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -117,8 +124,11 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
             )
 
         }
-    }
+//    }
+
 }
+
+
 
 @Composable
 fun LoginFields(
@@ -129,7 +139,7 @@ fun LoginFields(
 
     ) {
     var passwordVisualTransformation by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     val focusManager = LocalFocusManager.current
     Column(
@@ -176,7 +186,7 @@ fun LoginFields(
 }
 
 @Composable
-fun ButtonLogin(modifier: Modifier = Modifier, showMessage: () -> Unit, onLoginPress: () -> Unit) {
+fun ButtonLogin(modifier: Modifier = Modifier, showMessage: () -> Unit,isLoading:Boolean, onLoginPress: () -> Unit) {
     Button(
         onClick = {
 //            if()
@@ -187,11 +197,15 @@ fun ButtonLogin(modifier: Modifier = Modifier, showMessage: () -> Unit, onLoginP
             .height(48.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
         shape = RoundedCornerShape(25),
+        enabled = !isLoading
     ) {
-        Text(
-            "Log In",
-            fontSize = 17.sp,
-        )
+        if(isLoading)
+            CircularProgressBar(isDisplay = isLoading)
+        else
+            Text(
+                "Log In",
+                fontSize = 17.sp,
+            )
     }
 }
 

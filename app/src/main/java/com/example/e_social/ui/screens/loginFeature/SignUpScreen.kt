@@ -37,25 +37,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.R
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
+import com.example.e_social.ui.screens.destinations.HomeScreenDestination
 import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.theme.Purple500
 import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
 
 @Destination
 @Composable
-fun SignUpScreen(loginViewModel: LoginViewModel = viewModel(),navigator: DestinationsNavigator) {
-    val email by loginViewModel.email.observeAsState("")
-    val password by loginViewModel.password.observeAsState("")
+fun SignUpScreen(loginViewModel: LoginViewModel = hiltViewModel(), navigator: DestinationsNavigator,scaffoldState: ScaffoldState,coroutineScope : CoroutineScope,snackBarController:SnackBarController) {
+    val email = loginViewModel.email.value
+    val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current
-    val coroutineScope = rememberCoroutineScope()
-    val snackBarController = SnackBarController(coroutineScope)
-    val scaffoldState = rememberScaffoldState()
+
+    if (loginViewModel.isLogin())
+        navigator.navigate(HomeScreenDestination())
     Box(modifier = Modifier.fillMaxSize()) {
        Column(horizontalAlignment = Alignment.CenterHorizontally) {
            TextLogoApp()
@@ -64,7 +67,9 @@ fun SignUpScreen(loginViewModel: LoginViewModel = viewModel(),navigator: Destina
                password,
                onEmailChange = { loginViewModel.onEmailChange(it) },
                onPasswordChange = { loginViewModel.onPasswordChange(it) })
-           ButtonSignUp(){}
+           ButtonSignUp(){
+               loginViewModel.signUp()
+           }
            RedirectLoginPage{
                navigator.navigate(LoginScreenDestination())
            }
