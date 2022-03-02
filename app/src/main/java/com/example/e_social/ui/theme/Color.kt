@@ -16,6 +16,8 @@ val Blue300 = Color(0xFF91CBF9)
 
 val Green400 = Color(0xFF15CB48)
 
+val Grey300= Color(0xFFD3D3D3)
+val Grey200= Color(0xFFE4E4E4)
 val Grey100 = Color (0xFFF2F2F2)
 
 val ErrorColor= Color(0xFFB71C1C)

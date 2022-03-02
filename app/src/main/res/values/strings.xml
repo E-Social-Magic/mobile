@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">e-social</string>
+    <string name="post_group_header">%s - %s</string>
+    <string name="post_user_header">Posted by %s - %s</string>
+    <string name="share">Share</string>
+    <string name="upvote">Upvote</string>
+    <string name="post_action">Post action</string>
 </resources>

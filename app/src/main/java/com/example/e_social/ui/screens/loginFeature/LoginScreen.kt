@@ -42,7 +42,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Destination(start= true)
+@Destination
 @Composable
 fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = hiltViewModel(),scaffoldState: ScaffoldState,coroutineScope: CoroutineScope,snackBarController:SnackBarController) {
     val email = loginViewModel.email.value
@@ -54,7 +54,6 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
             navigator.navigate(HomeScreenDestination())
 
     }
-
         Column(
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,7 +61,6 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
                 .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
         ) {
-
             TextLogoApp()
             LoginFields(
                 email,
