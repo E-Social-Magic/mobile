@@ -30,23 +30,21 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
             val snackBarController = SnackBarController(coroutineScope)
             EsocialTheme {
-                // A surface container using the 'background' color from the theme
                 Scaffold(scaffoldState = scaffoldState, snackbarHost = {scaffoldState.snackbarHostState},
                 content = {
                     Surface(color = MaterialTheme.colors.background) {
                         DestinationsNavHost(navGraph = NavGraphs.root) {
-                            composable(LoginScreenDestination) { //this: DestinationScope<SomeScreenDestination.NavArgs>
+                            composable(LoginScreenDestination) {
                                 LoginScreen(
-                                    navigator = destinationsNavigator, // destinationsNavigator is a `DestinationsNavigator` (also lazily evaluated)
+                                    navigator = destinationsNavigator,
                                     scaffoldState = scaffoldState,
                                     coroutineScope = coroutineScope,
                                     snackBarController = snackBarController
                                 )
-
                             }
-                            composable(SignUpScreenDestination) { //this: DestinationScope<SomeScreenDestination.NavArgs>
+                            composable(SignUpScreenDestination) {
                                 SignUpScreen(
-                                    navigator = destinationsNavigator, // destinationsNavigator is a `DestinationsNavigator` (also lazily evaluated)
+                                    navigator = destinationsNavigator, 
                                     scaffoldState = scaffoldState,
                                     coroutineScope = coroutineScope,
                                     snackBarController=snackBarController
