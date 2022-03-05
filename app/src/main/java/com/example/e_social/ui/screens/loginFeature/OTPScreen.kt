@@ -1,25 +1,21 @@
 package com.example.e_social.ui.screens.loginFeature
 
-import android.text.Layout
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusOrder
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,16 +25,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.e_social.R
+import com.example.e_social.ui.components.NextStepButton
 import com.example.e_social.ui.theme.Green400
 import com.example.e_social.ui.theme.Grey100
-import com.example.e_social.ui.theme.Purple500
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Destination
 @Composable
-fun OTPScreen(navigator: DestinationsNavigator,modifier: Modifier = Modifier) {
+fun OTPScreen(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val otpVal: String? = null
     val email = "Text email"
@@ -84,24 +79,12 @@ fun OTPScreen(navigator: DestinationsNavigator,modifier: Modifier = Modifier) {
                         .fillMaxWidth()
                         .align(alignment = Alignment.CenterStart), onClick = {})
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            if (otpVal != null) {
-                                Toast.makeText(context, "Please Enter Otp", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(Green400),
-                        modifier = Modifier
-                            .height(45.dp)
-                            .align(alignment = Alignment.CenterEnd),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
+
+                    NextStepButton(
+                        onButtonClick = {
+                            if (otpVal != null) Toast.makeText(context, "Please Enter Otp", Toast.LENGTH_SHORT).show()
+                                    }
+                    ){
                         Text(
                             text = "Next",
                             fontSize = 15.sp,
@@ -115,7 +98,7 @@ fun OTPScreen(navigator: DestinationsNavigator,modifier: Modifier = Modifier) {
 
     }
 
-}
+
 
 @Destination
 @Composable
@@ -142,7 +125,7 @@ fun VerifyInput(
                 )
                 .padding(14.dp),
             verticalArrangement = Arrangement.Center
-            ) {
+        ) {
             Text(
                 text = "Enter your Phone Number ",
                 style = TextStyle(
@@ -155,9 +138,11 @@ fun VerifyInput(
                 text = "Verification code will be sent to your phone number",
                 modifier = Modifier.padding(top = 20.dp)
             )
-            Spacer(modifier = Modifier
-                .height(25.dp)
-                .shadow(elevation = 6.dp))
+            Spacer(
+                modifier = Modifier
+                    .height(25.dp)
+                    .shadow(elevation = 6.dp)
+            )
             Surface(
                 elevation = 6.dp
             ) {
@@ -178,7 +163,7 @@ fun VerifyInput(
                     shape = RoundedCornerShape(24)
                 )
             }
-            SendCodeButton() {
+            SendCodeButton {
 //                navigator.navigate()
             }
         }

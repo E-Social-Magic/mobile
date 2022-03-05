@@ -15,6 +15,7 @@ import com.example.e_social.models.domain.model.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.absoluteValue
 
 
 @HiltViewModel
@@ -27,6 +28,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     private val isLogin:MutableState<Boolean> = mutableStateOf(false)
     val isLoading: MutableState<Boolean> = mutableStateOf(false)
     val confirm_password: MutableState<String> = mutableStateOf("")
+    val sliderValue: MutableState<Float> = mutableStateOf(0f)
     init {
         getUserInfo()
     }
@@ -45,7 +47,9 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
 
         }
     }
-
+    fun onChangSlider(sliderValueChange:Float){
+        sliderValue.value =sliderValueChange
+    }
     fun login() {
         viewModelScope.launch {
             isLoading.value=true

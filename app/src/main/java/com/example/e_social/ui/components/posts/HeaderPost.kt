@@ -19,12 +19,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.ui.theme.Grey100
@@ -33,11 +36,12 @@ import com.example.e_social.ui.theme.Grey100
 fun HeaderPost(){
     Row(modifier = Modifier.background(Grey100).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
-            painter = rememberImagePainter(
-                data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg",
-                builder = {
-                    transformations(CircleCropTransformation())
-                }
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+                    .apply(block = fun ImageRequest.Builder.() {
+                        transformations(CircleCropTransformation())
+                    }).build()
             ),
             contentDescription = null,
             modifier = Modifier.size(35.dp)

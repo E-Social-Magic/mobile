@@ -8,11 +8,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.e_social.ui.components.BottomNavController
 import com.example.e_social.ui.components.SnackBarController
+import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 
-@Destination(start = true)
+@Destination
 @Composable
 fun MainScreen(
     navigator: DestinationsNavigator,

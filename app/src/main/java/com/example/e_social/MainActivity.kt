@@ -6,13 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
-import com.example.e_social.ui.components.BottomNavController
-import com.example.e_social.ui.components.SnackBarController
+import com.example.e_social.ui.components.*
 import com.example.e_social.ui.screens.*
 import com.example.e_social.ui.screens.destinations.*
 import com.example.e_social.ui.screens.loginFeature.LoginScreen
@@ -88,6 +89,11 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         },
+                        topBar = {TopApp(title="E-Social", icon = Icons.Outlined.Search )
+                            {
+
+                            }
+                                 },
                         bottomBar = { BottomNavController(navController = navController) }
                     )
                 }
