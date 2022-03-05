@@ -5,4 +5,12 @@
     <string name="share">Share</string>
     <string name="upvote">Upvote</string>
     <string name="post_action">Post action</string>
+    <string name="home">Home</string>
+    <string name="quiz">Quiz</string>
+    <string name="video">Video</string>
+    <string name="profile">Profile</string>
+    <string name="login">Login</string>
+    <string name="signup">SignUp</string>
+    <string name="forgotPassword">ForgotPassword</string>
+
 </resources>

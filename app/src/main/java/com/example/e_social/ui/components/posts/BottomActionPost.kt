@@ -1,6 +1,7 @@
 package com.example.e_social.ui.components.posts
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
@@ -18,11 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_social.R
+import com.example.e_social.ui.theme.Grey100
+
 @Composable
 fun BottomPostAction(){
     Row(
         modifier = Modifier
-            .fillMaxWidth().padding(vertical = 8.dp),
+            .fillMaxWidth().background(Grey100).padding(vertical = 8.dp,horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -34,7 +34,7 @@ import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
 import com.example.e_social.ui.screens.destinations.ForgotPasswordScreenDestination
-import com.example.e_social.ui.screens.destinations.HomeScreenDestination
+import com.example.e_social.ui.screens.destinations.PostScreenDestination
 import com.example.e_social.ui.screens.destinations.SignUpScreenDestination
 import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -51,7 +51,7 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
     val isLoading = loginViewModel.isLoading.value
     LaunchedEffect(key1 = loginViewModel.isLogin() ){
         if(loginViewModel.isLogin())
-            navigator.navigate(HomeScreenDestination())
+            navigator.navigate(PostScreenDestination())
 
     }
         Column(

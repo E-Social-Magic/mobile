@@ -31,7 +31,7 @@ import com.example.e_social.ui.theme.Grey100
 
 @Composable
 fun HeaderPost(){
-    Row(modifier = Modifier.padding(start = 16.dp).background(Grey100), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = Modifier.background(Grey100).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = rememberImagePainter(
                 data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg",
@@ -52,7 +52,7 @@ fun HeaderPost(){
 
                 ),
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colors.primaryVariant
+                color = Color.Black
             )
             Text(
                 text = stringResource(
@@ -65,7 +65,6 @@ fun HeaderPost(){
 
         }
         MoreActionsMenu()
-        Spacer(modifier = Modifier.width(4.dp))
     }
 }
 
@@ -76,7 +75,7 @@ fun MoreActionsMenu(){
         IconButton(onClick = { expanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                tint = Color.DarkGray,
+                tint = Color.Gray,
                 contentDescription = "more action"
             )
         }
