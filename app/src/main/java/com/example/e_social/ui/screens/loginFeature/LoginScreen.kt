@@ -34,7 +34,7 @@ import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
 import com.example.e_social.ui.screens.destinations.ForgotPasswordScreenDestination
-import com.example.e_social.ui.screens.destinations.HomeScreenDestination
+import com.example.e_social.ui.screens.destinations.PostScreenDestination
 import com.example.e_social.ui.screens.destinations.SignUpScreenDestination
 import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -42,7 +42,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Destination(start= true)
+@Destination
 @Composable
 fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = hiltViewModel(),scaffoldState: ScaffoldState,coroutineScope: CoroutineScope,snackBarController:SnackBarController) {
     val email = loginViewModel.email.value
@@ -51,10 +51,9 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
     val isLoading = loginViewModel.isLoading.value
     LaunchedEffect(key1 = loginViewModel.isLogin() ){
         if(loginViewModel.isLogin())
-            navigator.navigate(HomeScreenDestination())
+            navigator.navigate(PostScreenDestination())
 
     }
-
         Column(
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,7 +61,6 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
                 .fillMaxSize()
                 .clickable { focusManager.clearFocus() }
         ) {
-
             TextLogoApp()
             LoginFields(
                 email,

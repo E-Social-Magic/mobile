@@ -42,8 +42,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.R
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
-import com.example.e_social.ui.screens.destinations.HomeScreenDestination
-import com.example.e_social.ui.screens.destinations.LoginScreenDestination
+import com.example.e_social.ui.components.posts.PostComponent
+import com.example.e_social.ui.screens.destinations.*
+
 import com.example.e_social.ui.theme.Purple500
 import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -58,7 +59,7 @@ fun SignUpScreen(loginViewModel: LoginViewModel = hiltViewModel(), navigator: De
     val focusManager = LocalFocusManager.current
 
     if (loginViewModel.isLogin())
-        navigator.navigate(HomeScreenDestination())
+        navigator.navigate(PostScreenDestination())
     Box(modifier = Modifier.fillMaxSize()) {
        Column(horizontalAlignment = Alignment.CenterHorizontally) {
            TextLogoApp()
