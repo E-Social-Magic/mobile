@@ -1,15 +1,5 @@
-package com.example.e_social.ui.screens.loginFeature
+package com.example.e_social.ui.screens.featureLogin
 
-import android.app.Activity
-import android.net.Credentials
-import android.net.wifi.hotspot2.pps.Credential
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -17,43 +7,30 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.e_social.R
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
-import com.example.e_social.ui.components.posts.PostComponent
 import com.example.e_social.ui.screens.destinations.*
 
-import com.example.e_social.ui.theme.Purple500
-import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 
 @Destination
 @Composable
-fun SignUpScreen(loginViewModel: LoginViewModel = hiltViewModel(), navigator: DestinationsNavigator,scaffoldState: ScaffoldState,coroutineScope : CoroutineScope,snackBarController:SnackBarController) {
+fun SignUpScreen(loginViewModel: LoginViewModel = hiltViewModel(), navigator: DestinationsNavigator, scaffoldState: ScaffoldState, coroutineScope : CoroutineScope, snackBarController:SnackBarController) {
     val email = loginViewModel.email.value
     val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current

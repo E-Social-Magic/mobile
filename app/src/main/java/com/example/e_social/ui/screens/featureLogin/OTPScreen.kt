@@ -1,4 +1,4 @@
-package com.example.e_social.ui.screens.loginFeature
+package com.example.e_social.ui.screens.featureLogin
 
 import android.widget.Toast
 import androidx.compose.foundation.background

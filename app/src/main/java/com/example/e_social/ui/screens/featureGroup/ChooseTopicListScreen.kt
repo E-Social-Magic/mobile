@@ -1,11 +1,7 @@
 package com.example.e_social.ui.screens.featureGroup
 
 
-import android.content.Context
-import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,9 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomEnd
@@ -26,7 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -44,20 +37,16 @@ import com.example.e_social.models.domain.model.TopicIndexListEntry
 import com.example.e_social.ui.components.NextStepButton
 import com.example.e_social.ui.screens.destinations.MainScreenDestination
 import com.example.e_social.ui.theme.Grey100
-import com.example.e_social.ui.theme.Grey200
-import com.example.e_social.viewmodels.LoginViewModel
-import com.example.e_social.viewmodels.TopicListViewModel
+import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlin.math.absoluteValue
 
 
 @Destination(start=true)
 @Composable
 fun TopicListScreen(
     navigator: DestinationsNavigator,
-    loginViewModel: LoginViewModel=hiltViewModel()
+    loginViewModel: LoginViewModel =hiltViewModel()
 ) {
     Surface(
         color = MaterialTheme.colors.background,

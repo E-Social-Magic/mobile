@@ -2,9 +2,9 @@ package com.example.e_social.dependencyinjection
 
 import com.example.e_social.models.Constants
 import com.example.e_social.models.data.remote.TopicApi
-import com.example.e_social.models.data.remote.UserAPI
-import com.example.e_social.models.data.repo.TopicRepository
-import com.example.e_social.models.data.repo.UserRepository
+import com.example.e_social.models.data.remote.UserApi
+import com.example.e_social.models.data.repo.topic.impl.TopicRepositoryImpl
+import com.example.e_social.models.data.repo.user.impl.UserRepositoryImpl
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -24,23 +24,22 @@ object AppModule{
         .create()
     @Provides
     @Singleton
-    fun provideUserRepository (api: UserAPI) = UserRepository(api)
-
+    fun provideUserRepository (api: UserApi) = UserRepositoryImpl(api)
     @Singleton
     @Provides
     fun provideTopicRepository(
         api: TopicApi
-    ) = TopicRepository(api)
+    ) = TopicRepositoryImpl(api)
 
     @Provides
     @Singleton
-    fun provideUserApi(): UserAPI {
+    fun provideUserApi(): UserApi {
         return Retrofit.Builder()
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson))
             .baseUrl(Constants.BASE_URL)
             .build()
-            .create(UserAPI::class.java)
+            .create(UserApi::class.java)
     }
     @Singleton
     @Provides

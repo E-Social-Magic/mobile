@@ -1,6 +1,7 @@
-package com.example.e_social.models.data.repo
+package com.example.e_social.models.data.repo.topic.impl
 
 import com.example.e_social.models.data.remote.TopicApi
+import com.example.e_social.models.data.repo.topic.TopicRepository
 import com.example.e_social.models.data.response.Topic
 import com.example.e_social.models.data.response.TopicList
 import com.example.e_social.util.Resource
@@ -9,11 +10,11 @@ import dagger.hilt.android.scopes.ActivityScoped
 import javax.inject.Inject
 
 @ActivityScoped
-class TopicRepository @Inject constructor(
+class TopicRepositoryImpl @Inject constructor(
     private val api: TopicApi
-) {
+):TopicRepository {
 
-    suspend fun getTopicList(limit: Int, offset: Int): Resource<TopicList> {
+    override suspend fun getTopicList(limit: Int, offset: Int): Resource<TopicList> {
         val response = try {
             api.getTopicList(limit, offset)
         } catch(e: Exception) {
@@ -22,7 +23,7 @@ class TopicRepository @Inject constructor(
         return Resource.Success(response)
     }
 
-    suspend fun getTopicInfo(pokemonName: String): Resource<Topic> {
+    override suspend fun getTopicInfo(pokemonName: String): Resource<Topic> {
         val response = try {
             api.getTopicInfo(pokemonName)
         } catch(e: Exception) {

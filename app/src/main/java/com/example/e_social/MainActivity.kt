@@ -9,19 +9,16 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.example.e_social.ui.components.*
 import com.example.e_social.ui.screens.*
 import com.example.e_social.ui.screens.destinations.*
-import com.example.e_social.ui.screens.loginFeature.LoginScreen
-import com.example.e_social.ui.screens.loginFeature.SignUpScreen
+import com.example.e_social.ui.screens.featureLogin.LoginScreen
+import com.example.e_social.ui.screens.featureLogin.SignUpScreen
 import com.example.e_social.ui.theme.EsocialTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

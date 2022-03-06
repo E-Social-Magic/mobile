@@ -1,7 +1,6 @@
-package com.example.e_social.ui.screens.loginFeature
+package com.example.e_social.ui.screens.featureLogin
 
 //import com.example.e_social.ui.theme.LogInButtonColor
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,8 +25,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.e_social.models.domain.model.UserModel
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
@@ -36,7 +32,6 @@ import com.example.e_social.ui.components.TextLogoApp
 import com.example.e_social.ui.screens.destinations.ForgotPasswordScreenDestination
 import com.example.e_social.ui.screens.destinations.PostScreenDestination
 import com.example.e_social.ui.screens.destinations.SignUpScreenDestination
-import com.example.e_social.viewmodels.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +39,7 @@ import kotlinx.coroutines.launch
 
 @Destination
 @Composable
-fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = hiltViewModel(),scaffoldState: ScaffoldState,coroutineScope: CoroutineScope,snackBarController:SnackBarController) {
+fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = hiltViewModel(), scaffoldState: ScaffoldState, coroutineScope: CoroutineScope, snackBarController:SnackBarController) {
     val email = loginViewModel.email.value
     val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current

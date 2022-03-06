@@ -1,4 +1,4 @@
-package com.example.e_social.viewmodels
+package com.example.e_social.ui.screens.featureLogin
 
 //import androidx.hilt.lifecycle.ViewModelInject
 import android.util.Log
@@ -8,14 +8,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.e_social.models.data.repo.UserRepository
+import com.example.e_social.models.data.repo.user.UserRepository
+import com.example.e_social.models.data.repo.user.impl.UserRepositoryImpl
 import com.example.e_social.models.data.request.LoginRequest
 import com.example.e_social.models.data.request.SignUpRequest
 import com.example.e_social.models.domain.model.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.absoluteValue
 
 
 @HiltViewModel
@@ -43,7 +44,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     fun getUserInfo() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
 
         }
     }
@@ -51,7 +52,8 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
         sliderValue.value =sliderValueChange
     }
     fun login() {
-        viewModelScope.launch {
+
+        viewModelScope.launch(Dispatchers.IO) {
             isLoading.value=true
             try {
                 val userModelRequest =  LoginRequest(
@@ -70,7 +72,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
 }
 fun signUp(){
 
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
         isLoading.value=true
         try {
             val signUpRequest =  SignUpRequest( email = email.value, password = password.value,confirm_password=confirm_password.value, username = email.value)

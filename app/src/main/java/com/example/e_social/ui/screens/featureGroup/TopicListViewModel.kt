@@ -1,4 +1,4 @@
-package com.example.e_social.viewmodels
+package com.example.e_social.ui.screens.featureGroup
 
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -9,10 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.palette.graphics.Palette
 import androidx.lifecycle.viewModelScope
 import com.example.e_social.models.Constants
-import com.example.e_social.models.data.repo.TopicRepository
+import com.example.e_social.models.data.repo.topic.TopicRepository
+import com.example.e_social.models.data.repo.topic.impl.TopicRepositoryImpl
 import com.example.e_social.models.domain.model.TopicIndexListEntry
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -33,7 +35,7 @@ class TopicListViewModel @Inject constructor(
     }
 
     fun loadTopicPaginated() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             isLoading.value = true
             val result = repository.getTopicList(Constants.PAGE_SIZE, curPage * Constants.PAGE_SIZE)
             when(result) {
