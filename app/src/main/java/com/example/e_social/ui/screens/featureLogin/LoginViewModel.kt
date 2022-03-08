@@ -14,10 +14,12 @@ import com.example.e_social.models.data.request.LoginRequest
 import com.example.e_social.models.data.request.SignUpRequest
 import com.example.e_social.models.domain.model.UserModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.android.scopes.ViewScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+import javax.inject.Singleton
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
@@ -26,10 +28,11 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     private val _user = MutableLiveData<UserModel>()
     val user: LiveData<UserModel> = _user
     val errorMessage: MutableState<String> = mutableStateOf("")
-    private val isLogin:MutableState<Boolean> = mutableStateOf(false)
-    val isLoading: MutableState<Boolean> = mutableStateOf(false)
+    val isLogin = mutableStateOf(true)
+    val isLoading = mutableStateOf(false)
     val confirm_password: MutableState<String> = mutableStateOf("")
     val sliderValue: MutableState<Float> = mutableStateOf(0f)
+    val steps = mutableStateOf(1f)
     init {
         getUserInfo()
     }
@@ -51,22 +54,15 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     fun onChangSlider(sliderValueChange:Float){
         sliderValue.value =sliderValueChange
     }
-    fun login() {
-
+    fun login(loginRequest:LoginRequest) {
         viewModelScope.launch(Dispatchers.IO) {
             isLoading.value=true
             try {
-                val userModelRequest =  LoginRequest(
-                    email = email.value,
-                    password = password.value,
-                    username = email.value
-                )
-                isLogin.value= userRepository.login(userModelRequest).data!!.success
+                isLogin.value= userRepository.login(loginRequest).data?.success ?: false
         } catch (e: Exception) {
             Log.d("Login",e.toString())
         }finally {
                 isLoading.value=false
-
             }
     }
 }
@@ -84,8 +80,5 @@ fun signUp(){
 
         }
     }
-}
-fun isLogin(): Boolean {
-    return isLogin.value
 }
 }

@@ -35,7 +35,7 @@ fun SignUpScreen(loginViewModel: LoginViewModel = hiltViewModel(), navigator: De
     val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current
 
-    if (loginViewModel.isLogin())
+    if (loginViewModel.isLogin.value)
         navigator.navigate(PostScreenDestination())
     Box(modifier = Modifier.fillMaxSize()) {
        Column(horizontalAlignment = Alignment.CenterHorizontally) {

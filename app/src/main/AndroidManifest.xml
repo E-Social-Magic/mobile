@@ -11,6 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Esocial">
         <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"

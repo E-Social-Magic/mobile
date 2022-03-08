@@ -1,6 +1,7 @@
 package com.example.e_social
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
@@ -9,23 +10,33 @@ import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.e_social.ui.components.*
 import com.example.e_social.ui.screens.*
 import com.example.e_social.ui.screens.destinations.*
 import com.example.e_social.ui.screens.featureLogin.LoginScreen
+import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
+import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.theme.EsocialTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val loginViewModel:LoginViewModel= hiltViewModel()
+            val isShowBar =loginViewModel.isLogin.value
             val scaffoldState = rememberScaffoldState()
             val coroutineScope = rememberCoroutineScope()
             val snackBarController = SnackBarController(coroutineScope)
@@ -41,7 +52,8 @@ class MainActivity : ComponentActivity() {
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController
+                                        snackBarController = snackBarController,
+                                        loginViewModel= loginViewModel
                                     )
                                 }
                                 composable(LoginScreenDestination) {
@@ -49,7 +61,8 @@ class MainActivity : ComponentActivity() {
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController
+                                        snackBarController = snackBarController,
+                                        loginViewModel=loginViewModel
                                     )
                                 }
                                 composable(SignUpScreenDestination) {
@@ -57,7 +70,8 @@ class MainActivity : ComponentActivity() {
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController
+                                        snackBarController = snackBarController,
+                                        loginViewModel=loginViewModel
                                     )
                                 }
                                 composable(ProfileScreenDestination) {
@@ -65,7 +79,8 @@ class MainActivity : ComponentActivity() {
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController
+                                        snackBarController = snackBarController,
+                                        loginViewModel=loginViewModel
                                     )
                                 }
                                 composable(VideoScreenDestination) {
@@ -81,17 +96,18 @@ class MainActivity : ComponentActivity() {
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController
+                                        snackBarController = snackBarController,
+                                        loginViewModel=loginViewModel
                                     )
                                 }
                             }
                         },
-                        topBar = {TopApp(title="E-Social", icon = Icons.Outlined.Search )
+                        topBar = {if(isShowBar)TopApp(title="E-Social", icon = Icons.Outlined.Search )
                             {
 
                             }
                                  },
-                        bottomBar = { BottomNavController(navController = navController) }
+                        bottomBar = { if(isShowBar) BottomNavController(navController = navController) }
                     )
                 }
             }

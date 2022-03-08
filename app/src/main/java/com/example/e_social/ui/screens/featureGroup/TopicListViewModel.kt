@@ -21,9 +21,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class TopicListViewModel @Inject constructor(
-    private val repository: TopicRepository
-) : ViewModel() {
+class TopicListViewModel @Inject constructor(private val repository: TopicRepository ) : ViewModel() {
     private var curPage = 0
     var topicList = mutableStateOf<List<TopicIndexListEntry>>(listOf())
     var loadError = mutableStateOf("")

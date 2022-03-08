@@ -30,7 +30,8 @@ import com.example.e_social.ui.screens.UserViewModel
 
 @Composable
 fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:ImageVector, onIconClick:()->Unit){
-    var searchBarState by remember{ mutableStateOf(false)}
+    val searchBarState  = userViewModel.searchBarState.value
+    val searchValue = userViewModel.searchValue.value
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,9 +44,12 @@ fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:Im
         if (searchBarState)
             SearchBar(
                 hint = "Search...",
+                searchValue=searchValue,
+                onSearchValueChange = {userViewModel.onSearchChange(it)},
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                onSearchBarStateChange= {userViewModel.onSearchBarStateChange(it)}
             ) {
 
             }
@@ -69,7 +73,7 @@ fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:Im
                 modifier = Modifier
                     .clickable(onClick = {
                         onIconClick.invoke()
-                        searchBarState =true
+                        userViewModel.onSearchBarStateChange(true)
                     })
                     .padding(16.dp)
                     .align(Alignment.CenterVertically)

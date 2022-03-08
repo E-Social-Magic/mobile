@@ -16,10 +16,10 @@ interface UserApi {
     suspend fun login(@Body user: LoginRequest):Response<LoginResponse>
 
     @POST("singup")
-    suspend fun signUp(@Body signUpRequest: SignUpRequest):SignUpResponse
+    suspend fun signUp(@Body signUpRequest: SignUpRequest):Response<SignUpResponse>
 
     @GET("user/info")
-    suspend fun getUserInfo(@Path("id") id:String): UserModel
+    suspend fun getUserInfo(@Path("id") id:String): Response<UserModel>
 
     @GET (".")
     suspend fun testAPI(): LoginResponse

@@ -30,10 +30,11 @@ import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
+import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.ui.theme.Grey100
 
 @Composable
-fun HeaderPost(){
+fun HeaderPost(postEntry: PostEntry){
     Row(modifier = Modifier.background(Grey100).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = rememberAsyncImagePainter(

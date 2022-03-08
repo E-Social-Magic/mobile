@@ -1,3 +1,16 @@
 package com.example.e_social.models.data.response
 
-data class PostResponse(val id:String)
+import com.google.gson.annotations.SerializedName
+
+data class PostResponse(
+    val comments: List<Comment>,
+    val content: String,
+    val createdAt: String,
+    val id: String,
+    val img: List<String>,
+    val title: String,
+    val updatedAt: String,
+    @SerializedName("user_id")
+    val userId: String,
+    val visible: Int
+)

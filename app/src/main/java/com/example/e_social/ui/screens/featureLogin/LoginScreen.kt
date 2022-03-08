@@ -1,6 +1,7 @@
 package com.example.e_social.ui.screens.featureLogin
 
 //import com.example.e_social.ui.theme.LogInButtonColor
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.e_social.models.data.request.LoginRequest
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
@@ -44,10 +46,10 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
     val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current
     val isLoading = loginViewModel.isLoading.value
-    LaunchedEffect(key1 = loginViewModel.isLogin() ){
-        if(loginViewModel.isLogin())
+    val isLogin = loginViewModel.isLogin.value
+    LaunchedEffect(key1 = isLogin ){
+        if(isLogin)
             navigator.navigate(PostScreenDestination())
-
     }
         Column(
             verticalArrangement = Arrangement.SpaceAround,
@@ -77,7 +79,7 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
                 },
                 isLoading = isLoading
             ) {
-                loginViewModel.login()
+                loginViewModel.login(LoginRequest(email = email, password = password, username = email))
 
                 //            when (data) {
 //                is Result.Loading ->{ CircularProgressIndicator() }

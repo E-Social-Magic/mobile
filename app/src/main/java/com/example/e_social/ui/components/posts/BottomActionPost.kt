@@ -19,10 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_social.R
+import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.ui.theme.Grey100
 
 @Composable
-fun BottomPostAction(){
+fun BottomPostAction(postEntry: PostEntry){
     Row(
         modifier = Modifier
             .fillMaxWidth().background(Grey100).padding(vertical = 8.dp,horizontal = 16.dp),

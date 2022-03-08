@@ -24,12 +24,14 @@ import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
+import com.example.e_social.models.domain.model.PostEntry
+
 @Composable
-fun ContentPost() {
-   Box{
+fun ContentPost(postEntry: PostEntry) {
+   Column{
        Column(modifier = Modifier.padding(8.dp)) {
-           TitlePost("It’s difficult for me")
-           TextContent("It’s difficult for me. I don’t know this question. Can you help me? ")
+           TitlePost(postEntry.title)
+           TextContent(postEntry.content)
        }
        ImageContent("https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
    }

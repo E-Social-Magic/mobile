@@ -42,7 +42,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
-@Destination(start=true)
+@Destination
 @Composable
 fun TopicListScreen(
     navigator: DestinationsNavigator,
@@ -53,29 +53,31 @@ fun TopicListScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         val sliderPosition =loginViewModel.sliderValue.value
+        val steps = loginViewModel.steps.value
 
         Column {
-            Column(modifier = Modifier.weight(1f).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Column(modifier = Modifier.weight(1f).fillMaxSize(), horizontalAlignment = CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Text(
                     text = "Choose your favorite topics?",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary,
                     fontSize = 20.sp,
+                    modifier = Modifier.padding(top=10.dp)
                     )
-                SliderBar(sliderPosition=sliderPosition,onChange={loginViewModel.onChangSlider(it)})
+                SliderBar(sliderPosition=sliderPosition,steps=steps,onChange={loginViewModel.onChangSlider(it)})
             }
             Row(modifier = Modifier.weight(1f)) {
                 ComposeMenu()
             }
             Row(modifier = Modifier.weight(6f)) {
-                Spacer(modifier = Modifier.height(20.dp))
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 TopicList(navigator = navigator)
+                Spacer(modifier = Modifier.height(10.dp))
             }
             Row(modifier = Modifier
-                .weight(2f)
-                .padding(10.dp)){
+                .weight(1.5f)
+                .padding(10.dp), verticalAlignment = Alignment.CenterVertically){
                 NextStepButton(
                     onButtonClick = {
                         navigator.navigate(MainScreenDestination)
@@ -301,9 +303,9 @@ fun ComposeMenu(){
     }
 }
 @Composable
-fun SliderBar(sliderPosition:Float,onChange:(Float)->Unit){
+fun SliderBar(sliderPosition:Float,steps:Float,onChange:(Float)->Unit){
 
     Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(24.dp)){
-        Slider(value = sliderPosition, onValueChange =onChange, valueRange = 0f..1f,steps=1 )
+        Slider(value = sliderPosition, onValueChange =onChange, valueRange = 1f..2f,steps=2 )
     }
 }
