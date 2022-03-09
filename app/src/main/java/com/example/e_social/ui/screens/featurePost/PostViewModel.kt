@@ -34,7 +34,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 is Resource.Success -> {
                     endReached.value = currentPage >=result.data!!.totalPages
                     val postListEntry = result.data.posts.mapIndexed{ index, entry ->
-                        PostEntry(entry.title,entry.content,images=entry.img,entry.userId,entry.visible, createdAt = entry.createdAt,updatedAt=entry.updatedAt)
+                        PostEntry(entry.title,entry.content,images=entry.images,entry.userId,entry.visible, createdAt = entry.createdAt,updatedAt=entry.updatedAt)
                     }
                     currentPage++
                     loadError.value = ""

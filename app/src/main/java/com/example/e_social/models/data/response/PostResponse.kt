@@ -7,7 +7,8 @@ data class PostResponse(
     val content: String,
     val createdAt: String,
     val id: String,
-    val img: List<String>,
+    val images: List<String>,
+    val videos:List<String>,
     val title: String,
     val updatedAt: String,
     @SerializedName("user_id")

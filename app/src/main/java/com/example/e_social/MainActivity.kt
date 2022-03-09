@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -22,7 +23,9 @@ import com.example.e_social.ui.screens.featureLogin.LoginScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
 import com.example.e_social.ui.screens.featureProfile.ProfileScreen
+import com.example.e_social.ui.screens.featureVideo.VideosScreen
 import com.example.e_social.ui.theme.EsocialTheme
+import com.google.accompanist.insets.ProvideWindowInsets
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,77 +45,82 @@ class MainActivity : ComponentActivity() {
             val snackBarController = SnackBarController(coroutineScope)
             var navController = rememberNavController()
             EsocialTheme {
-                Surface(color = MaterialTheme.colors.background) {
-                    Scaffold(scaffoldState = scaffoldState,
-                        snackbarHost = { scaffoldState.snackbarHostState },
-                        content = {
-                            DestinationsNavHost(navGraph = NavGraphs.root, navController = navController) {
-                                composable(MainScreenDestination) {
-                                    MainScreen(
-                                        navigator = destinationsNavigator,
-                                        scaffoldState = scaffoldState,
-                                        coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController,
-                                        loginViewModel= loginViewModel
-                                    )
-                                }
-                                composable(LoginScreenDestination) {
-                                    LoginScreen(
-                                        navigator = destinationsNavigator,
-                                        scaffoldState = scaffoldState,
-                                        coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController,
-                                        loginViewModel=loginViewModel
-                                    )
-                                }
-                                composable(SignUpScreenDestination) {
-                                    SignUpScreen(
-                                        navigator = destinationsNavigator,
-                                        scaffoldState = scaffoldState,
-                                        coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController,
-                                        loginViewModel=loginViewModel
-                                    )
-                                }
-                                composable(ProfileScreenDestination) {
-                                    ProfileScreen(
-                                        navigator = destinationsNavigator,
-                                        scaffoldState = scaffoldState,
-                                        coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController,
-                                        loginViewModel=loginViewModel
-                                    )
-                                }
-                                composable(VideoScreenDestination) {
-                                    VideoScreen(
+                    Surface(color = MaterialTheme.colors.background) {
+                        Scaffold(scaffoldState = scaffoldState,
+                            snackbarHost = { scaffoldState.snackbarHostState },
+                            content = {
+                                DestinationsNavHost(
+                                    navGraph = NavGraphs.root,
+                                    navController = navController
+                                ) {
+                                    composable(MainScreenDestination) {
+                                        MainScreen(
+                                            navigator = destinationsNavigator,
+                                            scaffoldState = scaffoldState,
+                                            coroutineScope = coroutineScope,
+                                            snackBarController = snackBarController,
+                                            loginViewModel = loginViewModel
+                                        )
+                                    }
+                                    composable(LoginScreenDestination) {
+                                        LoginScreen(
+                                            navigator = destinationsNavigator,
+                                            scaffoldState = scaffoldState,
+                                            coroutineScope = coroutineScope,
+                                            snackBarController = snackBarController,
+                                            loginViewModel = loginViewModel
+                                        )
+                                    }
+                                    composable(SignUpScreenDestination) {
+                                        SignUpScreen(
+                                            navigator = destinationsNavigator,
+                                            scaffoldState = scaffoldState,
+                                            coroutineScope = coroutineScope,
+                                            snackBarController = snackBarController,
+                                            loginViewModel = loginViewModel
+                                        )
+                                    }
+                                    composable(ProfileScreenDestination) {
+                                        ProfileScreen(
+                                            navigator = destinationsNavigator,
+                                            scaffoldState = scaffoldState,
+                                            coroutineScope = coroutineScope,
+                                            snackBarController = snackBarController,
+                                            loginViewModel = loginViewModel
+                                        )
+                                    }
+                                composable(VideosScreenDestination) {
+                                    VideosScreen(
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
                                         snackBarController = snackBarController
                                     )
                                 }
-                                composable(QuizScreenDestination) {
-                                    QuizScreen(
-                                        navigator = destinationsNavigator,
-                                        scaffoldState = scaffoldState,
-                                        coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController,
-                                        loginViewModel=loginViewModel
-                                    )
+                                    composable(QuizScreenDestination) {
+                                        QuizScreen(
+                                            navigator = destinationsNavigator,
+                                            scaffoldState = scaffoldState,
+                                            coroutineScope = coroutineScope,
+                                            snackBarController = snackBarController,
+                                            loginViewModel = loginViewModel
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                        topBar = {if(isShowBar)TopApp(title="E-Social", icon = Icons.Outlined.Search )
-                            {
+                            },
+                            topBar = {
+                                if (isShowBar) TopApp(
+                                    title = "E-Social",
+                                    icon = Icons.Outlined.Search
+                                )
+                                {
 
-                            }
-                                 },
-                        bottomBar = { if(isShowBar) BottomNavController(navController = navController) }
-                    )
+                                }
+                            },
+                            bottomBar = { if (isShowBar) BottomNavController(navController = navController) }
+                        )
+                    }
                 }
             }
-
         }
-
-    }
 }

@@ -39,7 +39,7 @@ enum class BottomBarDestination(
         contentDescriptionResourceId = R.string.quiz
     ),
     Video(
-        VideoScreenDestination,
+        VideosScreenDestination,
         icon = Icons.Outlined.VideoLibrary,
         contentDescriptionResourceId = R.string.video
     ),
