@@ -17,7 +17,7 @@ import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Composable
-fun PostEntry(post:PostEntry,navigator: DestinationsNavigator,modifier: Modifier=Modifier,postViewModel: PostViewModel= hiltViewModel()){
+fun PostEntry(post:PostEntry,navigator: DestinationsNavigator,modifier: Modifier=Modifier,postViewModel: PostViewModel){
     Card(shape = RoundedCornerShape(8.dp),elevation = 6.dp, modifier = Modifier
         .fillMaxSize()
         .padding(horizontal = 10.dp)
@@ -26,7 +26,6 @@ fun PostEntry(post:PostEntry,navigator: DestinationsNavigator,modifier: Modifier
             HeaderPost(post)
             ContentPost(post)
             BottomPostAction(post, postViewModel =postViewModel )
-
         }
     }
 }

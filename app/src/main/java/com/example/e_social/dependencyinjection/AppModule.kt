@@ -82,8 +82,7 @@ object AppModule{
     @Provides
     fun provideGroupApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): GroupApi{
         return Retrofit.Builder()
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .baseUrl(Constants.BASE_URL)
             .build()
@@ -93,8 +92,7 @@ object AppModule{
     @Provides
     fun providePostApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): PostApi{
         return Retrofit.Builder()
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .baseUrl(Constants.BASE_URL)
             .build()

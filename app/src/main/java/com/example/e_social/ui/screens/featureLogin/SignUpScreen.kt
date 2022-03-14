@@ -1,7 +1,9 @@
 package com.example.e_social.ui.screens.featureLogin
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -10,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,38 +57,51 @@ fun SignUpScreen(
     val focusManager = LocalFocusManager.current
     val isLoading = loginViewModel.isLoading.value
 
-    Box(modifier = Modifier.fillMaxSize().wrapContentSize(),contentAlignment = Alignment.BottomCenter) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.fillMaxSize().wrapContentHeight(), verticalArrangement = Arrangement.Center) {
-            TextLogoApp()
-            SignUpFields(
-                email = email,
-                password = password,
-                confirmPassword = confirmPassword,
-                phone = phone,
-                onEmailChange = { loginViewModel.onEmailChange(it) },
-                onPhoneChange = { loginViewModel.onPhoneChange(it) },
-                onPasswordChange = { loginViewModel.onPasswordChange(it) },
-                onConfirmPasswordChange = { loginViewModel.onConfirmPasswordChange(it) }
-            )
-            ButtonSignUp(isLoading = isLoading) {
-                coroutineScope.launch(Dispatchers.Main) {
-                    loginViewModel.signUp()
-                    if (loginViewModel.errorMessage.value.isEmpty()) {
-                        navigator.navigate(TopicListScreenDestination)
-                    } else {
-                        snackBarController.getScope().launch {
-                            snackBarController.showSnackbar(
-                                snackbarHostState = scaffoldState.snackbarHostState,
-                                message = loginViewModel.errorMessage.value[0],
-                                actionLabel = "dismiss"
-                            )
-                            loginViewModel.errorMessage.value = listOf()
+    Box(contentAlignment = Alignment.BottomCenter) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+            Row(Modifier.weight(2f)) {
+                TextLogoApp()
+            }
+            Column(
+                Modifier
+                    .weight(6f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                SignUpFields(
+                    email = email,
+                    password = password,
+                    confirmPassword = confirmPassword,
+                    phone = phone,
+                    onEmailChange = { loginViewModel.onEmailChange(it) },
+                    onPhoneChange = { loginViewModel.onPhoneChange(it) },
+                    onPasswordChange = { loginViewModel.onPasswordChange(it) },
+                    onConfirmPasswordChange = { loginViewModel.onConfirmPasswordChange(it) }
+                )
+            }
+
+            Row(Modifier.weight(2f)) {
+                ButtonSignUp(isLoading = isLoading) {
+                    coroutineScope.launch(Dispatchers.Main) {
+                        loginViewModel.signUp()
+                        if (loginViewModel.errorMessage.value.isEmpty()) {
+                            navigator.navigate(TopicListScreenDestination)
+                        } else {
+                            snackBarController.getScope().launch {
+                                snackBarController.showSnackbar(
+                                    snackbarHostState = scaffoldState.snackbarHostState,
+                                    message = loginViewModel.errorMessage.value[0],
+                                    actionLabel = "dismiss"
+                                )
+                                loginViewModel.errorMessage.value = listOf()
+                            }
                         }
                     }
                 }
             }
-            RedirectLoginPage {
-                navigator.navigate(LoginScreenDestination())
+            Row(Modifier.weight(1f)) {
+                RedirectLoginPage {
+                    navigator.navigate(LoginScreenDestination())
+                }
             }
         }
         DefaultSnackbar(snackbarHostState = scaffoldState.snackbarHostState, onDismiss = {
@@ -114,64 +130,67 @@ fun SignUpFields(
     }
     val focusManager = LocalFocusManager.current
     Column(
-        modifier = Modifier
-            .fillMaxWidth().wrapContentHeight().verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            value = email,
-            placeholder = { Text(text = "user@email.com") },
-            label = { Text(text = "Email ") },
-            onValueChange = onEmailChange,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Email
-            ),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            shape = RoundedCornerShape(24)
-        )
-        OutlinedTextField(
-            value = phone,
-            placeholder = { Text(text = "Eg:098654321") },
-            label = { Text(text = "Phone") },
-            onValueChange = onPhoneChange,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Phone
-            ),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            shape = RoundedCornerShape(24)
+            OutlinedTextField(
+                value = email,
+                placeholder = { Text(text = "user@email.com") },
+                label = { Text(text = "Email ") },
+                onValueChange = onEmailChange,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Email
+                ),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                shape = RoundedCornerShape(24),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            OutlinedTextField(
+                value = phone,
+                placeholder = { Text(text = "Eg:098654321") },
+                label = { Text(text = "Phone") },
+                onValueChange = onPhoneChange,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Phone
+                ),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                shape = RoundedCornerShape(24),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            OutlinedTextField(
+                value = password,
+                placeholder = { Text(text = "Password") },
+                label = { Text(text = "Password") },
+                onValueChange = onPasswordChange,
+                visualTransformation = if (passwordVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                shape = RoundedCornerShape(24),
+                modifier = Modifier.padding(vertical = 8.dp)
 
-        )
-        OutlinedTextField(
-            value = password,
-            placeholder = { Text(text = "Password") },
-            label = { Text(text = "Password") },
-            onValueChange = onPasswordChange,
-            visualTransformation = if (passwordVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            shape = RoundedCornerShape(24)
 
-        )
-        OutlinedTextField(
-            value = confirmPassword,
-            placeholder = { Text(text = "Confirm password") },
-            label = { Text(text = "confirm password") },
-            onValueChange = onConfirmPasswordChange,
-            visualTransformation = if (passwordConfirmVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-            shape = RoundedCornerShape(24)
+            )
+            OutlinedTextField(
+                value = confirmPassword,
+                placeholder = { Text(text = "Confirm password") },
+                label = { Text(text = "Confirm password") },
+                onValueChange = onConfirmPasswordChange,
+                visualTransformation = if (passwordConfirmVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                shape = RoundedCornerShape(24),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
 
-        )
     }
 }
 
 @Composable
 fun ButtonSignUp(modifier: Modifier = Modifier, isLoading: Boolean, onSignUpPress: () -> Unit) {
-    Column(verticalArrangement = Arrangement.Center, modifier = Modifier.height(210.dp)) {
+    Column(verticalArrangement = Arrangement.Center) {
         Button(
             onClick = {
                 onSignUpPress.invoke()

@@ -9,5 +9,4 @@ data class UserModel(
     val id: String,
     val role: String,
     val token: String,
-    val updatedAt: String,
     )

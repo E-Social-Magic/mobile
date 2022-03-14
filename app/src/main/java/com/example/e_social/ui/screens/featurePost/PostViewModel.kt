@@ -1,10 +1,14 @@
 package com.example.e_social.ui.screens.featurePost
 
+import android.icu.text.CaseMap
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
+import com.example.e_social.models.data.request.NewPostRequest
+import com.example.e_social.models.data.request.PostRequest
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,20 +22,19 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
-
+    val newPost = mutableStateOf(NewPostRequest(title = "", content = "", files = listOf()))
     init {
         loadPostPaginated()
     }
 
     fun loadPostPaginated() {
-
         viewModelScope.launch {
             isLoading.value = true
             val result = postRepository.getPosts(Constants.POST_SIZE, currentPage)
             when (result) {
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
-                    val postListEntry = result.data.posts.mapIndexed { index, entry ->
+                    var postListEntry = result.data.posts.mapIndexed { index, entry ->
                         PostEntry(
                             id = entry.id,
                             entry.title,
@@ -58,27 +61,30 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
-    fun voteUp(postId: String): Int {
-        var votes = 0
-        viewModelScope.launch {
+    fun voteUp(postId: String) {
+        viewModelScope.launch(Dispatchers.IO){
+            var votes = 0
             isLoading.value = true
             val result = postRepository.voteUp(postId)
             when (result) {
                 is Resource.Success -> {
-                    votes = result.data?.votes ?: 0
+                    votes = result.data?.votes!!
                 }
                 is Resource.Error -> {
-                    votes = result.data?.votes ?: 0
-                    isLoading.value = false
+                    votes = result.data?.votes!!
                 }
             }
+            val replacement= postList.value.map { if(it.id==postId) it.copy(votes = votes) else it }
+            postList.value=replacement
+            isLoading.value = false
         }
-        return votes
+
+
     }
 
-    fun voteDown(postId: String): Int {
+    fun voteDown(postId: String) {
         var votes = 0
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             isLoading.value = true
             val result = postRepository.voteDown(postId)
             when (result) {
@@ -90,8 +96,21 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                     isLoading.value = false
                 }
             }
+            val replacement= postList.value.map { if(it.id==postId) it.copy(votes = votes) else it }
+            postList.value=replacement
+            isLoading.value = false
         }
-        return votes
     }
 
+    fun onTitleChange(title: String){
+        newPost.value = newPost.value.copy(title=title)
+    }
+    fun onContentChange(content:String){
+        newPost.value=newPost.value.copy(content=content)
+    }
+    fun createPost(){
+        viewModelScope.launch(Dispatchers.IO) {
+            postRepository.newPost(newPostRequest = newPost.value)
+        }
+    }
 }

@@ -3,6 +3,8 @@ package com.example.e_social.ui.screens.featureLogin
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -80,7 +82,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
                 email = userResponse.email,
                 id = userResponse.id,
                 role = userResponse.role,
-                updatedAt = userResponse.updatedAt
             )
             sessionManager.saveAuthToken(userResponse.token)
             isLogin.value=true

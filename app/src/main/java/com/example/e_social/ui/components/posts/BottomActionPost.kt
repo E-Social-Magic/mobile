@@ -1,5 +1,6 @@
 package com.example.e_social.ui.components.posts
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
