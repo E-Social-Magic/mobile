@@ -13,6 +13,7 @@ import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
+import com.example.e_social.ui.screens.featurePost.PostScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +32,7 @@ fun MainScreen(
             navigator.navigate(LoginScreenDestination)
         }
     }
-//    PostScreen()
+    PostScreen(navigator =navigator)
 }
 
 

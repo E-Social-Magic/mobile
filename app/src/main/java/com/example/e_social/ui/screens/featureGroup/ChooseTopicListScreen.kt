@@ -70,7 +70,7 @@ fun TopicListScreen(
             Row(modifier = Modifier.weight(1f)) {
                 ComposeMenu()
             }
-            Row(modifier = Modifier.weight(6f)) {
+            Row(modifier = Modifier.weight(7f)) {
                 Spacer(modifier = Modifier.height(10.dp))
                 TopicList(navigator = navigator)
                 Spacer(modifier = Modifier.height(10.dp))
@@ -81,6 +81,8 @@ fun TopicListScreen(
                 NextStepButton(
                     onButtonClick = {
                         navigator.navigate(MainScreenDestination)
+                        loginViewModel.isLogin.value=true
+                        loginViewModel.isShowBar.value=true
                     }
                 ){
                     Text(
@@ -153,7 +155,7 @@ fun TopicIndexEntry(
     var sizeImage by remember { mutableStateOf(IntSize.Zero) }
     val gradient = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color.Black),
-        startY = sizeImage.height.toFloat() / 1.5f,  // 1/3
+        startY = sizeImage.height.toFloat() / 3f,  // 1/3
         endY = sizeImage.height.toFloat()
     )
     val checkedState = remember { mutableStateOf(false) }
@@ -179,7 +181,7 @@ fun TopicIndexEntry(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data("https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+                .data(entry.avatar)
                 .crossfade(true).build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
@@ -198,7 +200,7 @@ fun TopicIndexEntry(
             colors = CheckboxDefaults.colors(uncheckedColor = Color.White, checkmarkColor = MaterialTheme.colors.primary, checkedColor = Color.White)
         )
         Text(
-            text = entry.pokemonName,
+            text = entry.groupName,
             fontSize = 20.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
@@ -260,12 +262,12 @@ fun RetrySection(
 @Composable
 fun ComposeMenu(){
     var expanded = remember { mutableStateOf(false) }
-    val items = listOf(1,2,3,4,5,6,7,8,9,10,11,12)
+    val items = listOf(6,7,8,9,10,11,12)
     val disabledValue = "B"
     var selectedIndex = remember { mutableStateOf(0) }
     Box(modifier = Modifier.fillMaxSize()
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 20.dp)) {
             Text("Curriculum:", textAlign = TextAlign.Center, color = MaterialTheme.colors.primary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Column {
                 Row(horizontalArrangement = Arrangement.SpaceBetween){

@@ -1,6 +1,12 @@
 package com.example.e_social.models.data.response
 
 data class LoginResponse(
-    val message: String,
-    val success: Boolean
+    val email: String,
+    val id: String,
+    val role: String,
+    val subjects: List<Subject>,
+    val token: String,
+    val updatedAt: String,
+    val username: String,
+    val message:String?,
 )

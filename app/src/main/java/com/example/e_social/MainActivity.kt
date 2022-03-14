@@ -2,6 +2,7 @@ package com.example.e_social
 
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
@@ -16,15 +17,19 @@ import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.e_social.router.Router
 import com.example.e_social.ui.components.*
 import com.example.e_social.ui.screens.*
 import com.example.e_social.ui.screens.destinations.*
+import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.example.e_social.ui.screens.featureLogin.LoginScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
+import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
 import com.example.e_social.ui.theme.EsocialTheme
+import com.example.e_social.util.SessionManager
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
@@ -34,16 +39,17 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val loginViewModel:LoginViewModel= hiltViewModel()
-            val isShowBar =loginViewModel.isLogin.value
+            val postViewModel:PostViewModel= hiltViewModel()
+            val isShowBar =loginViewModel.isShowBar.value
             val scaffoldState = rememberScaffoldState()
             val coroutineScope = rememberCoroutineScope()
             val snackBarController = SnackBarController(coroutineScope)
             var navController = rememberNavController()
+
             EsocialTheme {
                     Surface(color = MaterialTheme.colors.background) {
                         Scaffold(scaffoldState = scaffoldState,
@@ -94,7 +100,7 @@ class MainActivity : ComponentActivity() {
                                         navigator = destinationsNavigator,
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
-                                        snackBarController = snackBarController
+                                        snackBarController = snackBarController,
                                     )
                                 }
                                     composable(QuizScreenDestination) {
@@ -106,7 +112,13 @@ class MainActivity : ComponentActivity() {
                                             loginViewModel = loginViewModel
                                         )
                                     }
+                                    composable(TopicListScreenDestination){
+                                        TopicListScreen(navigator = destinationsNavigator,
+                                        loginViewModel = loginViewModel
+                                        )
+                                    }
                                 }
+
                             },
                             topBar = {
                                 if (isShowBar) TopApp(

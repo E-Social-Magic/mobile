@@ -25,7 +25,7 @@ fun PostEntry(post:PostEntry,navigator: DestinationsNavigator,modifier: Modifier
         Column {
             HeaderPost(post)
             ContentPost(post)
-            BottomPostAction(post)
+            BottomPostAction(post, postViewModel =postViewModel )
 
         }
     }

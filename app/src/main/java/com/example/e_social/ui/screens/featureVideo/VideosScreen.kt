@@ -13,9 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.ScaffoldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Pause
-import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -27,41 +25,64 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
+import com.example.e_social.ESocialApplication
 import com.example.e_social.R
 import com.example.e_social.ui.components.SnackBarController
+import com.example.e_social.ui.components.posts.TextContent
+import com.example.e_social.ui.components.posts.TitlePost
 import com.example.e_social.ui.theme.Shapes
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.HttpDataSource
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource
+import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 
+
 @Destination
 @Composable
-fun VideosScreen(navigator: DestinationsNavigator,
-                 scaffoldState: ScaffoldState,
-                 coroutineScope: CoroutineScope,
-                 snackBarController: SnackBarController, viewModel: VideosViewModel = hiltViewModel()) {
+fun VideosScreen(
+    navigator: DestinationsNavigator,
+    scaffoldState: ScaffoldState,
+    coroutineScope: CoroutineScope,
+    snackBarController: SnackBarController,
+    viewModel: VideosViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    val exoPlayer = remember(context) { SimpleExoPlayer.Builder(context).build() }
+    val simpleCache: SimpleCache = ESocialApplication.simpleCache
+    val httpDataSourceFactory: HttpDataSource.Factory =
+        DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
+    var cacheDataSourceFactory: DataSource.Factory = CacheDataSource.Factory()
+        .setCache(simpleCache)
+        .setUpstreamDataSourceFactory(httpDataSourceFactory)
+        .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+    val exoPlayer = remember(context) {
+        SimpleExoPlayer.Builder(context).setMediaSourceFactory(
+            DefaultMediaSourceFactory(cacheDataSourceFactory)
+        ).build()
+    }
     val listState = rememberLazyListState()
-
-    val videos by viewModel.videos.observeAsState(listOf())
+    val videos = viewModel.videos.value
     val playingItemIndex by viewModel.currentlyPlayingIndex.observeAsState()
     val isCurrentItemVisible = remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         snapshotFlow {
@@ -143,6 +164,7 @@ private fun LazyListState.visibleAreaContainsItem(
         }
     }
 }
+
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun VideoCard(
@@ -150,41 +172,58 @@ fun VideoCard(
     videoItem: VideoItem,
     isPlaying: Boolean,
     exoPlayer: SimpleExoPlayer,
-    onClick: ()->Unit
+    onClick: () -> Unit
 ) {
     val isPlayerUiVisible = remember { mutableStateOf(false) }
     val isPlayButtonVisible = if (isPlayerUiVisible.value) true else !isPlaying
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(Color.Black, Shapes.medium)
             .clip(Shapes.medium),
         contentAlignment = Alignment.Center
     ) {
-        if (isPlaying) {
-            VideoPlayer(exoPlayer) { uiVisible ->
-                if (isPlayerUiVisible.value) {
-                    isPlayerUiVisible.value = uiVisible
+        Column {
+            HeaderVideo(videoItem)
+            Column(modifier = Modifier.padding(8.dp)) {
+                TitlePost(videoItem.title)
+                Text(
+                    text = videoItem.content,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    maxLines = 3
+                )
+            }
+            Box {
+                if (isPlaying) {
+                    VideoPlayer(exoPlayer) { uiVisible ->
+                        if (isPlayerUiVisible.value) {
+                            isPlayerUiVisible.value = uiVisible
+                        } else {
+                            isPlayerUiVisible.value = true
+                        }
+                    }
                 } else {
-                    isPlayerUiVisible.value = true
+                    VideoThumbnail(videoItem.thumbnail)
+                }
+                if (isPlayButtonVisible) {
+                    Icon(
+                        painter = painterResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play),
+                        contentDescription = "",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(percent = 50))
+                            .clickable { onClick() })
                 }
             }
-        } else {
-            VideoThumbnail(videoItem.thumbnail)
-        }
-        if (isPlayButtonVisible) {
-            Icon(
-                painter = painterResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play),
-                contentDescription = "",
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(percent = 50))
-                    .clickable { onClick() })
+
         }
     }
 }
+
 @Composable
 fun VideoPlayer(
     exoPlayer: SimpleExoPlayer,
@@ -200,17 +239,24 @@ fun VideoPlayer(
         }
     }
 
-    AndroidView({ playerView }, Modifier.height(256.dp).background(Color.Black))
+    AndroidView(
+        { playerView },
+        Modifier
+            .height(256.dp)
+            .background(Color.Black)
+    )
 }
+
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun VideoThumbnail(url: String) {
     Image(
         painter = rememberAsyncImagePainter(
-            ImageRequest.Builder(LocalContext.current).data(data = url).apply(block = fun ImageRequest.Builder.() {
-                crossfade(true)
-                size(512, 512)
-            }).build()
+            ImageRequest.Builder(LocalContext.current).data(data = url)
+                .apply(block = fun ImageRequest.Builder.() {
+                    crossfade(true)
+                    size(512, 512)
+                }).build()
         ),
         contentDescription = null,
         modifier = Modifier

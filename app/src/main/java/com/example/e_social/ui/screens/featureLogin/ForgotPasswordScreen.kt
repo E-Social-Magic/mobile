@@ -1,12 +1,19 @@
 package com.example.e_social.ui.screens.featureLogin
 
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Destination
 @Composable
-fun ForgotPasswordScreen(navigator: DestinationsNavigator){
-    Text("This is forgot password")
+fun ForgotPasswordScreen(
+    navigator: DestinationsNavigator,
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
+    val email = loginViewModel.email.value
+    VerifyInput(
+        navigator = navigator,
+        email = email,
+        onEmailChange = { loginViewModel.onEmailChange(it) })
 }

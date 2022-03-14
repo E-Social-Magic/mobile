@@ -124,10 +124,10 @@ fun ProfileSection(
         }
         ProfileDescription(
             displayName = "Programming Mentor",
-            description = "10 years of coding experience\n" +
+            description = "3 years of coding experience\n" +
                     "Want me to make your app? Send me an email!\n" +
-                    "Subscribe to my YouTube channel!",
-            url = "https://youtube.com/c/PhilippLackner",
+                    "Follow to my Github !",
+            url = "https://github.com/longnguyen-2k",
             followedBy = listOf("codinginflow", "miakhalifa"),
             otherCount = 17
         )

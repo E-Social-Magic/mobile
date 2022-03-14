@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TopicListViewModel @Inject constructor(private val repository: TopicRepository ) : ViewModel() {
-    private var curPage = 0
+    private var curPage = 1
     var topicList = mutableStateOf<List<TopicIndexListEntry>>(listOf())
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
@@ -33,20 +33,16 @@ class TopicListViewModel @Inject constructor(private val repository: TopicReposi
     }
 
     fun loadTopicPaginated() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             isLoading.value = true
-            val result = repository.getTopicList(Constants.PAGE_SIZE, curPage * Constants.PAGE_SIZE)
+            val result = repository.getTopicList(Constants.PAGE_SIZE, curPage)
             when(result) {
                 is Resource.Success-> {
-                    endReached.value = curPage * Constants.PAGE_SIZE >= result.data!!.count
-                    val topicIndexEntries = result.data.results.mapIndexed { index, entry ->
-                        val number = if(entry.url.endsWith("/")) {
-                            entry.url.dropLast(1).takeLastWhile { it.isDigit() }
-                        } else {
-                            entry.url.takeLastWhile { it.isDigit() }
-                        }
+                    endReached.value = curPage  >= result.data!!.totalPages
+
+                    val topicIndexEntries = result.data.groups.filter { !topicList.value.map {topicIndexListEntry -> topicIndexListEntry.id}.contains(it.id)  }.mapIndexed{ index, entry ->
                         val url = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg"
-                        TopicIndexListEntry(entry.name.capitalize(Locale.ROOT), url, number.toInt())
+                        TopicIndexListEntry(groupName = if(entry.groupName.isNullOrBlank()) "Math" else entry.groupName, avatar = if(entry.avatar.isNullOrBlank())url else entry.avatar ,visible= entry.visible, id = entry.id)
                     }
                     curPage++
                     loadError.value = ""

@@ -20,20 +20,18 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.e_social.models.data.request.LoginRequest
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.DefaultSnackbar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TextLogoApp
-import com.example.e_social.ui.screens.destinations.ForgotPasswordScreenDestination
-import com.example.e_social.ui.screens.destinations.PostScreenDestination
-import com.example.e_social.ui.screens.destinations.SignUpScreenDestination
+import com.example.e_social.ui.screens.destinations.*
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
@@ -41,24 +39,35 @@ import kotlinx.coroutines.launch
 
 @Destination
 @Composable
-fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel = hiltViewModel(), scaffoldState: ScaffoldState, coroutineScope: CoroutineScope, snackBarController:SnackBarController) {
+fun LoginScreen(
+    navigator: DestinationsNavigator,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    scaffoldState: ScaffoldState,
+    coroutineScope: CoroutineScope,
+    snackBarController: SnackBarController
+) {
     val email = loginViewModel.email.value
     val password = loginViewModel.password.value
     val focusManager = LocalFocusManager.current
     val isLoading = loginViewModel.isLoading.value
     val isLogin = loginViewModel.isLogin.value
-    LaunchedEffect(key1 = isLogin ){
-        if(isLogin)
+    LaunchedEffect(key1 = isLogin) {
+        if (isLogin)
             navigator.navigate(PostScreenDestination())
     }
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { focusManager.clearFocus() }
+    ) {
+        TextLogoApp()
         Column(
-            verticalArrangement = Arrangement.SpaceAround,
+            Modifier.weight(5f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable { focusManager.clearFocus() }
+            verticalArrangement = Arrangement.Center
         ) {
-            TextLogoApp()
             LoginFields(
                 email,
                 password,
@@ -79,50 +88,46 @@ fun LoginScreen(navigator: DestinationsNavigator, loginViewModel: LoginViewModel
                 },
                 isLoading = isLoading
             ) {
-                loginViewModel.login(LoginRequest(email = email, password = password, username = email))
-
-                //            when (data) {
-//                is Result.Loading ->{ CircularProgressIndicator() }
-//
-//                is Result.Success -> {
-//                    if ( "check reponse data"?.equals("")) {
-//                        Text(text = "Login fail")
-//                    } else {
-//                        Text("Login successful", fontSize = MaterialTheme.typography.h3.fontSize)
-//                        Text(
-//                            "User name",
-//                            fontSize = MaterialTheme.typography.h4.fontSize
-//                        )
-//                    }
-//                }
-//                is Result.Error -> {
-//                    val snackbarHostState = remember { SnackbarHostState() }
-//                    val coroutineScope = rememberCoroutineScope()
-//
-//
-//                }
+                coroutineScope.launch {
+                    loginViewModel.login()
+                    if (loginViewModel.errorMessage.value.isEmpty()) {
+                        navigator.navigate(ProfileScreenDestination)
+                        loginViewModel.isShowBar.value=true
+                    } else {
+                        snackBarController.getScope().launch {
+                            snackBarController.showSnackbar(
+                                snackbarHostState = scaffoldState.snackbarHostState,
+                                message = loginViewModel.errorMessage.value[0],
+                                actionLabel = "dismiss"
+                            )
+                            loginViewModel.errorMessage.value = listOf()
+                        }
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(10.dp))
 
             CreateAccountButton {
                 navigator.navigate(SignUpScreenDestination())
             }
-
-            ForgotPassword {
-                navigator.navigate(ForgotPasswordScreenDestination())
-            }
-            DefaultSnackbar(
-                snackbarHostState = scaffoldState.snackbarHostState,
-                onDismiss = {
-                    scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
-                }
-            )
-
         }
+
+        Row(Modifier.weight(1f)) {
+            ForgotPassword {
+                navigator.navigate(ForgotPasswordScreenDestination)
+            }
+        }
+        DefaultSnackbar(
+            snackbarHostState = scaffoldState.snackbarHostState,
+            onDismiss = {
+                scaffoldState.snackbarHostState.currentSnackbarData?.dismiss()
+            }
+        )
+
+    }
 //    }
 
 }
-
 
 
 @Composable
@@ -146,10 +151,14 @@ fun LoginFields(
         OutlinedTextField(
             value = email,
             placeholder = { Text(text = "user@email.com") },
-            label = { Text(text = "phone or email ") },
+            label = { Text(text = "email ") },
             onValueChange = onEmailChange,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
             keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+
             shape = RoundedCornerShape(24)
         )
 
@@ -173,15 +182,17 @@ fun LoginFields(
                     )
                 }
             }
-
         )
-
-
     }
 }
 
 @Composable
-fun ButtonLogin(modifier: Modifier = Modifier, showMessage: () -> Unit,isLoading:Boolean, onLoginPress: () -> Unit) {
+fun ButtonLogin(
+    modifier: Modifier = Modifier,
+    showMessage: () -> Unit,
+    isLoading: Boolean,
+    onLoginPress: () -> Unit
+) {
     Button(
         onClick = {
 //            if()
@@ -194,7 +205,7 @@ fun ButtonLogin(modifier: Modifier = Modifier, showMessage: () -> Unit,isLoading
         shape = RoundedCornerShape(25),
         enabled = !isLoading
     ) {
-        if(isLoading)
+        if (isLoading)
             CircularProgressBar(isDisplay = isLoading)
         else
             Text(
@@ -235,7 +246,7 @@ fun ForgotPassword(onForgotPasswordClick: () -> Unit) {
             Modifier
                 .padding(bottom = 36.dp)
                 .align(Alignment.BottomCenter),
-            onClick = { onForgotPasswordClick }
+            onClick = { onForgotPasswordClick.invoke() }
         )
 
     }

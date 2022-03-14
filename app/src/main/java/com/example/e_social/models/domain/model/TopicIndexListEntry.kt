@@ -1,8 +1,9 @@
 package com.example.e_social.models.domain.model
 
 data class TopicIndexListEntry(
-    val pokemonName: String,
-    val imageUrl: String,
-    val number: Int,
+    val id:String,
+    val groupName: String,
+    val avatar: String,
+    val visible: Int,
     val isCheck:Boolean=false
 )

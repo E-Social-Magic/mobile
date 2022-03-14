@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.compose.ImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
@@ -33,17 +33,17 @@ fun ContentPost(postEntry: PostEntry) {
            TitlePost(postEntry.title)
            TextContent(postEntry.content)
        }
-       ImageContent("https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+       if(postEntry.images.isNotEmpty())
+       ImageContent(postEntry.images[0])
    }
 }
 
 @Composable
 fun ImageContent(url: String) {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).build(),
+    Image(
+        painter = rememberAsyncImagePainter(ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).placeholder(R.drawable.placeholder_image).build()),
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        placeholder = painterResource(id = R.drawable.placeholder_image)
         )
 }
 @Composable
@@ -56,7 +56,7 @@ fun TextContent(text: String) {
     )
 }
 @Composable
-private  fun TitlePost(text: String) {
+ fun TitlePost(text: String) {
     Text(
         text = text,
         maxLines = 3,

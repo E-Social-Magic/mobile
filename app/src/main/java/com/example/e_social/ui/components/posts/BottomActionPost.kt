@@ -20,17 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.PostEntry
+import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.theme.Grey100
 
 @Composable
-fun BottomPostAction(postEntry: PostEntry){
+fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel){
     Row(
         modifier = Modifier
             .fillMaxWidth().background(Grey100).padding(vertical = 8.dp,horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        VotingAction(text = "109", onUpVoteAction = {}, onDownVoteAction = {})
+        VotingAction(text = postEntry.votes.toString(), onUpVoteAction = {postViewModel.voteUp(postEntry.id)}, onDownVoteAction = {postViewModel.voteDown(postEntry.id)})
         PostAction(
             vectorResourceId = R.drawable.ic_baseline_comment_24,
             text = "20",

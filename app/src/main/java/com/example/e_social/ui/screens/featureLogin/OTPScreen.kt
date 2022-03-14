@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_social.ui.components.NextStepButton
+import com.example.e_social.ui.screens.destinations.OTPScreenDestination
 import com.example.e_social.ui.theme.Green400
 import com.example.e_social.ui.theme.Grey100
 import com.ramcosta.composedestinations.annotation.Destination
@@ -49,7 +50,7 @@ fun OTPScreen(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Enter your PIN",
+                text = "Enter code",
                 style = TextStyle(
                     color = MaterialTheme.colors.primary,
                     fontSize = 24.sp,
@@ -105,6 +106,8 @@ fun OTPScreen(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
 fun VerifyInput(
     navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
+    email :String,
+    onEmailChange:(String)-> Unit
 ) {
     Column(
         modifier = modifier
@@ -147,24 +150,24 @@ fun VerifyInput(
                 elevation = 6.dp
             ) {
                 OutlinedTextField(
-                    textStyle = MaterialTheme.typography.body1.copy(
-                        textAlign = TextAlign.Start, color = Color.Black
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    value=email,
+                    modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    value = "088888877777",
-                    onValueChange = { value: String ->
-                    },
+                    placeholder = { Text(text = "user@email.com") },
+                    label = { Text(text = "email ") },
+                    onValueChange = onEmailChange,
                     keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Phone,
+                        keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
                     ),
-                    shape = RoundedCornerShape(24)
+                    shape = RoundedCornerShape(24),
+                    textStyle = MaterialTheme.typography.body1.copy(
+                        textAlign = TextAlign.Start, color = Color.Black
+                    )
                 )
             }
             SendCodeButton {
-//                navigator.navigate()
+                navigator.navigate(OTPScreenDestination)
             }
         }
         Column(modifier = Modifier.weight(0.5f)) {
@@ -172,7 +175,6 @@ fun VerifyInput(
         }
     }
 }
-
 
 @Composable
 fun OTPTextFields(

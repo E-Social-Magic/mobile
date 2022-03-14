@@ -29,7 +29,7 @@ fun PostScreen(navigator: DestinationsNavigator,postViewModel: PostViewModel= hi
               if (it >= postList.size-1 && !endReached) {
                   postViewModel.loadPostPaginated()
               }
-              PostEntry(post=postList[it],navigator)
+              PostEntry(post=postList[it],navigator,postViewModel=postViewModel)
           }
       }
   }

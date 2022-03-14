@@ -7,6 +7,7 @@ data class PostResponse(
     val content: String,
     val createdAt: String,
     val id: String,
+    val votes:Int,
     val images: List<String>,
     val videos:List<String>,
     val title: String,
