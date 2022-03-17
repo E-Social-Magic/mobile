@@ -1,5 +1,9 @@
 package com.example.e_social.models.data.repo.post.impl
 
+import android.util.Log
+import android.webkit.MimeTypeMap
+import androidx.core.content.ContentResolverCompat
+import androidx.core.net.toUri
 import com.example.e_social.models.data.remote.PostApi
 import com.example.e_social.models.data.repo.post.PostRepository
 import com.example.e_social.models.data.request.NewPostRequest
@@ -117,12 +121,25 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi):PostRepos
     override suspend fun newPost(newPostRequest: NewPostRequest): Resource<PostResponse> {
         val title = newPostRequest.title.toRequestBody(MultipartBody.FORM)
         val content = newPostRequest.content.toRequestBody(MultipartBody.FORM)
+
         val files = newPostRequest.files?.map{ file->
-             MultipartBody.Part.createFormData("files", filename = file.name,file.asRequestBody())
+             MultipartBody.Part.createFormData(name = "files", filename = file.name,file.asRequestBody(
+                 MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
+                     ?.toMediaTypeOrNull()
+             ))
         }
 
         val response = api.newPost(files = files, title = title, content = content)
+        Log.d("File",response.body().toString())
         return when (response.code()) {
+            HttpURLConnection.HTTP_INTERNAL_ERROR -> {
+                val errorBody = response.errorBody() ?: run {
+                    throw NullPointerException()
+                }
+                Log.d("File",ErrorUtils.parseError<String>(errorBody=errorBody).toString())
+
+                return Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
             HttpURLConnection.HTTP_BAD_METHOD -> {
                 val errorBody = response.errorBody() ?: run {
                     throw NullPointerException()

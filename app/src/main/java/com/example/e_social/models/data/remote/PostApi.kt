@@ -19,7 +19,7 @@ interface PostApi {
     @Multipart
     @POST("post/new")
     suspend fun newPost(
-        @Part files:List<MultipartBody.Part>?,
+        @Part files: List<MultipartBody.Part>?,
         @Part("title") title: RequestBody?,
         @Part("content") content: RequestBody?
     ):Response<PostResponse>

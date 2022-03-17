@@ -28,7 +28,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     private val _user = MutableLiveData<UserModel>()
     val user: LiveData<UserModel> = _user
     var errorMessage: MutableState<List<String>> = mutableStateOf(listOf())
-    val isLogin = mutableStateOf(false)
+    val isLogin = mutableStateOf(true)
     val isShowBar = mutableStateOf(isLogin.value)
     val isLoading = mutableStateOf(false)
     val sliderValue: MutableState<Float> = mutableStateOf(0f)
