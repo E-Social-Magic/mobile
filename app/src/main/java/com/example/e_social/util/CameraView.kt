@@ -114,35 +114,20 @@ fun CameraControls(cameraUIAction: (CameraUIAction) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.Black)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(top = 8.dp),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        CameraControl(
-            Icons.Sharp.FlipCameraAndroid,
-            R.string.icn_camera_view_view_gallery_content_description,
-            modifier= Modifier.size(64.dp),
-            onClick = { cameraUIAction(CameraUIAction.OnSwitchCameraClick) }
-        )
 
         CameraControl(
             Icons.Sharp.Lens,
             R.string.icn_camera_view_view_gallery_content_description,
             modifier= Modifier
-                .size(64.dp)
+                .size(48.dp)
                 .padding(1.dp)
                 .border(1.dp, Color.White, CircleShape),
             onClick = { cameraUIAction(CameraUIAction.OnCameraClick) }
         )
-
-        CameraControl(
-            Icons.Sharp.PhotoLibrary,
-            R.string.icn_camera_view_view_gallery_content_description,
-            modifier= Modifier.size(64.dp),
-            onClick = { cameraUIAction(CameraUIAction.OnGalleryViewClick) }
-        )
-
     }
 }
 

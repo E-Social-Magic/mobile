@@ -1,22 +1,20 @@
 package com.example.e_social.ui.screens.featurePost
 
 import android.Manifest
-import android.content.Context
+import android.net.Uri
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -24,20 +22,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.example.e_social.ui.theme.Grey300
 import com.example.e_social.util.CameraView
+import com.example.e_social.util.FileUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.ramcosta.composedestinations.annotation.Destination
@@ -45,14 +47,15 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import gun0912.tedimagepicker.builder.TedImagePicker
 import kotlinx.coroutines.launch
 import java.io.File
-import com.example.e_social.MainActivity
 
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Destination
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SavePostScreen(
     navigator: DestinationsNavigator,
+    scaffoldState: ScaffoldState,
     postViewModel: PostViewModel = hiltViewModel()
 ) {
     val bottomDrawerState: BottomDrawerState =
@@ -68,17 +71,17 @@ fun SavePostScreen(
     if (isCameraOpen) {
         CameraView(
             onImageCaptured = { uri, fromGallery ->
-                newPostRequest.files = listOf(uri.toFile())
+                newPostRequest.files = listOf(uri.toFile()).plus(newPostRequest.files)
                 isCameraOpen = false
             }, onError = { imageCaptureException ->
                 coroutineScope.launch {
-//                    scaffoldState.snackbarHostState.showSnackbar("An error occurred while trying to take a picture")
+                    scaffoldState.snackbarHostState.showSnackbar("An error occurred while trying to take a picture")
                 }
             })
     } else
         Scaffold(
             topBar = {
-                val isEditingMode: Boolean = false
+                val isEditingMode = false
                 SavePostTopAppBar(
                     isEditingMode = isEditingMode,
                     onBackClick = { navigator.navigateUp() },
@@ -96,33 +99,45 @@ fun SavePostScreen(
                     content = newPostRequest.content,
                     files = newPostRequest.files,
                     onTitleChange = { postViewModel.onTitleChange(it) },
-                    onContentChange = { postViewModel.onContentChange(it) }
-                ) { it -> isCameraOpen = true }
+                    onContentChange = { postViewModel.onContentChange(it)},
+                    onFilesChange= {list: List<File> -> newPostRequest.files = list.plus(newPostRequest.files) },
+                    onCameraClick = { it -> isCameraOpen = true }
+                )
             }
         )
 }
 
 
-@OptIn(ExperimentalPermissionsApi::class)
+@RequiresApi(Build.VERSION_CODES.Q)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun SavePostContent(
     title: String,
     content: String,
-    files: List<File>?,
+    files: List<File>,
     onTitleChange: (String) -> Unit,
     onContentChange: (String) -> Unit,
-    onCameraClick: (Boolean) -> Unit
+    onCameraClick: (Boolean) -> Unit,
+    onFilesChange:(List<File>)->Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+
     val cameraPermissionState = rememberPermissionState(
         permission = Manifest.permission.CAMERA
     )
+    val storePermissionState = rememberPermissionState(
+        permission = Manifest.permission.ACCESS_MEDIA_LOCATION
+    )
     val context = LocalContext.current
+    val countGrid = if (files.size <= 2) 1 else 2
+    val fee = listOf(SavePostOption(index=1,Icons.Default.FreeBreakfast,"Miễn phí"),SavePostOption(index=2,Icons.Default.Money,"Tính phí"))
+    val hideName = listOf(SavePostOption(index=1,Icons.Default.Public,"Hiển thị tên"),SavePostOption(index=2,Icons.Default.PrivacyTip,"Ẩn tên"))
+    val time = listOf(SavePostOption(index=1,Icons.Default.FreeBreakfast,"Hiển thị tên"),SavePostOption(index=2,Icons.Default.FreeBreakfast,"Ẩn tên"))
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
+            Modifier
+                .padding(bottom = 50.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -130,17 +145,17 @@ fun SavePostContent(
                     .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 DropDown(
-                    text = "Free",
+                    items=fee,
                     modifier = Modifier.padding(15.dp)
                 ) {
                 }
                 DropDown(
-                    text = "Free",
+                    items=hideName,
                     modifier = Modifier.padding(15.dp)
                 ) {
                 }
                 DropDown(
-                    text = "Free",
+                    items=time,
                     modifier = Modifier.padding(15.dp)
                 ) {
                 }
@@ -151,31 +166,56 @@ fun SavePostContent(
                 onTextChange = onTitleChange
             )
             ContentTextField(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 50.dp),
+                modifier = Modifier.heightIn(max = 600.dp),
                 label = "Describe your problems",
                 text = content,
                 onTextChange = onContentChange
             )
-            if (files != null){
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(files.size) { index ->
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
-                                    .data(data = files[index])
-                                    .build()
-                            ),
-                            contentDescription = null,
-                            modifier = Modifier.size(200.dp),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
+            LazyVerticalGrid(cells = GridCells.Fixed(countGrid)) {
+                if (files.size <= 2) items(files.size) { index ->
+                    ImageBuilder(480.dp, file = files[index])
                 }
+                else
+                    if (files.size < 5)
+                        items(files.size) { index ->
+                            ImageBuilder(240.dp, file = files[index])
+                        }
+                    else {
+                        items(4) { index ->
+                            if (index == 3) {
+                                    Box(contentAlignment = Alignment.Center){
+                                        Image(
+                                            painter = rememberAsyncImagePainter(
+                                                ImageRequest.Builder(LocalContext.current)
+                                                    .crossfade(true)
+                                                    .data(data = files[index])
+                                                    .build()
+                                            ),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(240.dp)
+                                                .padding(4.dp)
+                                                .background(color = Color.Black),
+                                            alpha = 0.6F,
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                        Text(
+                                            text = "+ ${files.size-4}",
+                                            fontSize = 28.sp,
+                                            textAlign = TextAlign.Center,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = Color.White
+                                        )
+                                    }
+                            } else
+                                ImageBuilder(240.dp, file = files[index])
+
+                        }
+                    }
 
             }
         }
+
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -210,10 +250,12 @@ fun SavePostContent(
                     .padding(start = 4.dp)
                     .wrapContentWidth(Alignment.CenterHorizontally),
                 onClick = {
-                    cameraPermissionState.launchPermissionRequest()
-                    onCameraClick.invoke(true)
+                    storePermissionState.launchPermissionRequest()
                     TedImagePicker.with(context)
-                        .startMultiImage { uriList ->  }
+                        .startMultiImage { uriList ->
+                            uriList.map{ uri->FileUtils.getFile(context = context,uri) }
+                                .let { onFilesChange.invoke(it as List<File>) }
+                        }
                 }
             ) {
                 Icon(
@@ -226,6 +268,7 @@ fun SavePostContent(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun SavePostTopAppBar(
     isEditingMode: Boolean,
@@ -236,6 +279,7 @@ private fun SavePostTopAppBar(
     onPostClick: () -> Unit
 
 ) {
+
     TopAppBar(
         backgroundColor = Color.White,
         title = { Text(text = "Create Post") },
@@ -299,7 +343,7 @@ private fun ContentTextField(
 
 @Composable
 fun DropDown(
-    text: String,
+    items:List<SavePostOption>,
     modifier: Modifier = Modifier,
     initiallyOpened: Boolean = false,
     content: @Composable () -> Unit
@@ -307,7 +351,6 @@ fun DropDown(
     var isOpen by remember {
         mutableStateOf(initiallyOpened)
     }
-    val items = listOf("Miễn Phí", "Tính Phí")
     val alpha = animateFloatAsState(
         targetValue = if (isOpen) 1f else 0f,
         animationSpec = tween(
@@ -337,9 +380,15 @@ fun DropDown(
                 )
                 .padding(8.dp)
         ) {
+            Icon(
+                imageVector = items[selectedIndex.value].icon,
+                contentDescription =null ,
+                tint = Color.Gray,
+                modifier = Modifier.size(14.dp)
+            )
             Text(
-                text = "${items[selectedIndex.value]}",
-                fontSize = 16.sp,
+                text = "${items[selectedIndex.value].text}",
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Gray
             )
@@ -356,7 +405,7 @@ fun DropDown(
             onDismissRequest = { isOpen = false },
             modifier = Modifier
                 .shadow(elevation = 2.dp)
-                .width(120.dp)
+                .width(140.dp)
                 .graphicsLayer {
                     transformOrigin = TransformOrigin(0.5f, 0f)
                     rotationX = rotateX.value
@@ -368,9 +417,41 @@ fun DropDown(
                     selectedIndex.value = index
                     isOpen = false
                 }) {
-                    Text(text = value, textAlign = TextAlign.Center)
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = value.icon,
+                            contentDescription =null ,
+                            tint = Color.Gray,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = value.text, textAlign = TextAlign.Center)
+                    }
+
                 }
             }
         }
     }
 }
+@Composable
+fun ImageBuilder(size: Dp, file: File){
+    Image(
+        painter = rememberAsyncImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .crossfade(true)
+                .data(data = file)
+                .build()
+        ),
+        contentDescription = null,
+        modifier = Modifier
+            .size(size)
+            .padding(4.dp),
+        contentScale = ContentScale.Crop,
+    )
+}
+data class SavePostOption(
+    val index:Int,
+    val icon:ImageVector,
+    val text:String,
+
+)

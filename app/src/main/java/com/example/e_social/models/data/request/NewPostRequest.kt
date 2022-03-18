@@ -7,6 +7,6 @@ import java.io.File
 data class NewPostRequest(
     var title: String,
     var content: String,
-    var files: List<File>?,
+    var files: List<File>,
     var isHide:Boolean=false,
 )

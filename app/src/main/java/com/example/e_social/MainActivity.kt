@@ -28,6 +28,7 @@ import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
 import com.example.e_social.ui.screens.featurePost.PostScreen
 import com.example.e_social.ui.screens.featurePost.PostViewModel
+import com.example.e_social.ui.screens.featurePost.SavePostScreen
 import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
 import com.example.e_social.ui.theme.EsocialTheme
@@ -84,6 +85,9 @@ class MainActivity : ComponentActivity() {
                                         snackBarController = snackBarController,
                                         loginViewModel = loginViewModel
                                     )
+                                }
+                                composable(SavePostScreenDestination){
+                                    SavePostScreen(navigator = destinationsNavigator, scaffoldState =scaffoldState )
                                 }
                                 composable(SignUpScreenDestination) {
                                     SignUpScreen(

@@ -122,11 +122,11 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi):PostRepos
         val title = newPostRequest.title.toRequestBody(MultipartBody.FORM)
         val content = newPostRequest.content.toRequestBody(MultipartBody.FORM)
 
-        val files = newPostRequest.files?.map{ file->
-             MultipartBody.Part.createFormData(name = "files", filename = file.name,file.asRequestBody(
-                 MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
-                     ?.toMediaTypeOrNull()
-             ))
+        val files = newPostRequest.files.map{ file->
+            MultipartBody.Part.createFormData(name = "files", filename = file.name,file.asRequestBody(
+                MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
+                    ?.toMediaTypeOrNull()
+            ))
         }
 
         val response = api.newPost(files = files, title = title, content = content)
