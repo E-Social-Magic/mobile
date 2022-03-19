@@ -1,7 +1,15 @@
 package com.example.e_social.models.data.response
 
+import com.google.gson.annotations.SerializedName
+
 data class Comment(
     val _id: String,
+    @SerializedName("username")
+    val userName:String,
+    val correct :Boolean,
     val comment: String,
-    val user_id: String
+    @SerializedName("user_id")
+    val userId: String,
+    val images:List<String>,
+    val avatar:String?,
 )

@@ -32,8 +32,10 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     val isShowBar = mutableStateOf(isLogin.value)
     val isLoading = mutableStateOf(false)
     val sliderValue: MutableState<Float> = mutableStateOf(0f)
-    val steps = mutableStateOf(1f)
-
+    val steps = mutableStateOf(1.5f)
+    val levels = listOf(6,7,8,9,10,11,12)
+    var level = mutableStateOf(levels[0])
+    var topicSelected= mutableListOf<String>()
     init {
         getUserInfo()
     }
@@ -56,7 +58,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
 
     fun getUserInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-
         }
     }
 
@@ -65,7 +66,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     suspend fun login() {
-
         isLoading.value=true
         val loginRequest = LoginRequest(
             email = email.value,
@@ -98,7 +98,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
         val signUpRequest = SignUpRequest(
             email = email.value,
             password = password.value,
-            confirmPassword = confirmPassword.value,
+            confirm = confirmPassword.value,
             username = email.value
         )
         val response = userRepository.signUp(signUpRequest)

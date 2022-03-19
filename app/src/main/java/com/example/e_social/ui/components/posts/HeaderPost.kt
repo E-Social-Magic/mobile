@@ -1,9 +1,13 @@
 package com.example.e_social.ui.components.posts
 
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
@@ -14,6 +18,7 @@ import androidx.compose.material.icons.outlined.ReportProblem
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,27 +37,34 @@ import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.ui.theme.Grey100
+import com.example.e_social.util.TimeConverter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HeaderPost(postEntry: PostEntry){
+fun HeaderPost(authorAvatar:String,userName:String,createdAt:String){
     Row(modifier = Modifier.background(Grey100).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
-                    .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+                    .data(data = authorAvatar)
+                    .error(R.drawable.default_avatar)
                     .apply(block = fun ImageRequest.Builder.() {
                         transformations(CircleCropTransformation())
                     }).build()
             ),
             contentDescription = null,
-            modifier = Modifier.size(35.dp)
+            modifier = Modifier
+                .size(35.dp)
+                .clip(CircleShape)
+                .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape),
+
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = stringResource(
                     R.string.post_group_header,
-                    "Math",
+                    userName,
                     "Group giai toan"
 
                 ),
@@ -62,8 +74,8 @@ fun HeaderPost(postEntry: PostEntry){
             Text(
                 text = stringResource(
                     R.string.post_user_header,
-                    "username",
-                    "3 day ago"
+                    userName,
+                    TimeConverter.converter(createdAt)
                 ),
                 color = Color.Gray
             )

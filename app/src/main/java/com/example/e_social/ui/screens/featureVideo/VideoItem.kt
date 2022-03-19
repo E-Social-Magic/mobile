@@ -1,13 +1,20 @@
 package com.example.e_social.ui.screens.featureVideo
 
 import androidx.compose.runtime.Immutable
+import com.example.e_social.models.domain.model.Message
 
 @Immutable
 data class VideoItem(
     val id: String,
     val title:String,
+    val content: String,
     val mediaUrl: String,
     val thumbnail: String,
     val lastPlayedPosition: Long = 0,
-    val content: String,
-)
+    val comments:List<Message>,
+    val userName:String,
+    val createdAt: String,
+    val updatedAt: String,
+    var votes: Int,
+    val authorAvatar:String,
+    )

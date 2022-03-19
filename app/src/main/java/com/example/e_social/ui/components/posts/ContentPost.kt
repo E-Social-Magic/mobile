@@ -6,6 +6,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,6 +28,7 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.PostEntry
+import com.example.e_social.ui.screens.featurePost.ListComment
 
 @Composable
 fun ContentPost(postEntry: PostEntry) {
@@ -35,6 +39,7 @@ fun ContentPost(postEntry: PostEntry) {
        }
        if(postEntry.images.isNotEmpty())
        ImageContent(postEntry.images[0])
+
    }
 }
 

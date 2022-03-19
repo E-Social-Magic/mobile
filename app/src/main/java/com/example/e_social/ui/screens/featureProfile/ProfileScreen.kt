@@ -90,7 +90,6 @@ fun ProfileScreen(navigator: DestinationsNavigator,
                     painterResource(id = R.drawable.unsplash5),
                     painterResource(id = R.drawable.unsplash6),
                     painterResource(id = R.drawable.unsplash8),
-
                     ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -112,6 +111,7 @@ fun ProfileSection(
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(LocalContext.current)
                         .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+                        .error(R.drawable.default_avatar)
                         .apply(block = fun ImageRequest.Builder.() {
                             transformations(CircleCropTransformation())
                         }).build()

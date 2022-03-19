@@ -7,12 +7,12 @@ data class PostEntry(
     val title: String,
     val content: String,
     val images: List<String>,
+    val comments:List<Message>,
     var votes: Int,
     val videos: List<String>,
-    @SerializedName("user_id")
     val userId: String,
-    val visible: Int,
+    val userName:String,
     val createdAt: String,
     val updatedAt: String,
-    val isShowComment: Boolean = false
+    val authorAvatar:String,
 )

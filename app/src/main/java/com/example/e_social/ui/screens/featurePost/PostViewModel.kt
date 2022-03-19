@@ -9,6 +9,7 @@ import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
 import com.example.e_social.models.data.request.NewPostRequest
 import com.example.e_social.models.data.request.PostRequest
+import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,21 +36,27 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
                     var postListEntry = result.data.posts.mapIndexed { index, entry ->
+                        val comments = if (!entry.comments.isNullOrEmpty())
+                            entry.comments.map{ Message(authorName = it.userName,avatarAuthor = it.avatar, message = it.comment,images=it.images)}
+                                        else listOf()
                         PostEntry(
                             id = entry.id,
-                            entry.title,
-                            entry.content,
+                            title=entry.title,
+                            content= entry.content,
                             images = entry.images,
                             userId = entry.userId,
-                            visible = entry.visible,
+                            authorAvatar= entry.authorAvatar,
+                            userName =entry.userName,
                             createdAt = entry.createdAt,
                             updatedAt = entry.updatedAt,
                             votes = entry.votes,
-                            videos = entry.videos
+                            videos = entry.videos,
+                            comments = comments,
+
                         )
                     }
                     currentPage++
-                    loadError.value = ""
+                    loadError.value =   ""
                     isLoading.value = false
                     postList.value += postListEntry
                 }
