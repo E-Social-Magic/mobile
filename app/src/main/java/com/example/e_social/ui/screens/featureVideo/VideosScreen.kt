@@ -1,7 +1,9 @@
 package com.example.e_social.ui.screens.featureVideo
 
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,11 +33,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.e_social.ESocialApplication
 import com.example.e_social.R
 import com.example.e_social.ui.components.SnackBarController
+import com.example.e_social.ui.components.posts.HeaderPost
 import com.example.e_social.ui.components.posts.TextContent
 import com.example.e_social.ui.components.posts.TitlePost
 import com.example.e_social.ui.theme.Shapes
@@ -53,8 +56,10 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectIndexed
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Destination
 @Composable
 fun VideosScreen(
@@ -87,7 +92,7 @@ fun VideosScreen(
     LaunchedEffect(Unit) {
         snapshotFlow {
             listState.visibleAreaContainsItem(playingItemIndex, videos)
-        }.collect { isItemVisible ->
+        }.collectIndexed { index, isItemVisible ->
             isCurrentItemVisible.value = isItemVisible
         }
     }
@@ -115,6 +120,8 @@ fun VideosScreen(
             when (event) {
                 Lifecycle.Event.ON_START -> exoPlayer.play()
                 Lifecycle.Event.ON_STOP -> exoPlayer.pause()
+                else -> {
+                }
             }
         }
 
@@ -165,6 +172,7 @@ private fun LazyListState.visibleAreaContainsItem(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun VideoCard(
@@ -185,7 +193,7 @@ fun VideoCard(
         contentAlignment = Alignment.Center
     ) {
         Column {
-            HeaderVideo(videoItem)
+            HeaderPost(authorAvatar = videoItem.authorAvatar, userName = videoItem.userName, createdAt = videoItem.createdAt)
             Column(modifier = Modifier.padding(8.dp)) {
                 TitlePost(videoItem.title)
                 Text(
@@ -251,7 +259,7 @@ fun VideoPlayer(
 @Composable
 fun VideoThumbnail(url: String) {
     Image(
-        painter = rememberAsyncImagePainter(
+        painter = rememberImagePainter(
             ImageRequest.Builder(LocalContext.current).data(data = url)
                 .apply(block = fun ImageRequest.Builder.() {
                     crossfade(true)

@@ -22,9 +22,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+//import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import com.example.e_social.R
 import com.example.e_social.ui.screens.UserViewModel
 
 
@@ -32,6 +34,11 @@ import com.example.e_social.ui.screens.UserViewModel
 fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:ImageVector, onIconClick:()->Unit){
     val searchBarState  = userViewModel.searchBarState.value
     val searchValue = userViewModel.searchValue.value
+    val painter = rememberImagePainter(data ="https://gaplo.tech/content/images/2020/03/android-jetpack.jpg", builder = {
+        crossfade(true)
+        placeholder(R.drawable.placeholder_image)
+        transformations(CircleCropTransformation())
+    } )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,13 +95,7 @@ fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:Im
                     .align(Alignment.CenterVertically)
             )
             Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
-                        .apply(block = fun ImageRequest.Builder.() {
-                            transformations(CircleCropTransformation())
-                        }).build()
-                ),
+                painter = painter,
                 contentDescription = null,
                 modifier = Modifier.size(30.dp).align(Alignment.CenterVertically)
             )

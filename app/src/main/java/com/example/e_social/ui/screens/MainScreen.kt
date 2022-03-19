@@ -14,25 +14,27 @@ import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featurePost.PostScreen
+import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 
-@Destination(start = true)
+@Destination
 @Composable
 fun MainScreen(
     navigator: DestinationsNavigator,
     scaffoldState: ScaffoldState,
     coroutineScope: CoroutineScope,
     snackBarController: SnackBarController,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    changeBarState:(Boolean)->Unit
 ) {
     LaunchedEffect(key1 = loginViewModel.isLogin.value ){
         if(!loginViewModel.isLogin.value){
             navigator.navigate(LoginScreenDestination)
         }
     }
-    PostScreen(navigator =navigator)
+//    PostScreen(navigator =navigator, changeBarState = changeBarState)
 }
 
 

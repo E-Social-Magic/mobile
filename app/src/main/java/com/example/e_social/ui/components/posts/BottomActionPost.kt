@@ -1,5 +1,6 @@
 package com.example.e_social.ui.components.posts
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +25,7 @@ import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.theme.Grey100
 
 @Composable
-fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel){
+fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel,onCommentIconClick:()->Unit){
     Row(
         modifier = Modifier
             .fillMaxWidth().background(Grey100).padding(vertical = 8.dp,horizontal = 16.dp),
@@ -34,15 +35,13 @@ fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel){
         VotingAction(text = postEntry.votes.toString(), onUpVoteAction = {postViewModel.voteUp(postEntry.id)}, onDownVoteAction = {postViewModel.voteDown(postEntry.id)})
         PostAction(
             vectorResourceId = R.drawable.ic_baseline_comment_24,
-            text = "20",
-            onClickAction = {}
+            text = postEntry.comments.size.toString(),
+            onClickAction = onCommentIconClick
         )
         PostAction(
             vectorResourceId = R.drawable.ic_baseline_share_24,
-            text = stringResource(R.string.share),
-            onClickAction = {}
-        )
-
+            text = stringResource(R.string.share)
+        ) {}
     }
 }
 @Composable

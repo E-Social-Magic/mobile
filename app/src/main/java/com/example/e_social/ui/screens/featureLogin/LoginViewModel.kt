@@ -3,6 +3,8 @@ package com.example.e_social.ui.screens.featureLogin
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,12 +15,14 @@ import com.example.e_social.models.data.request.SignUpRequest
 import com.example.e_social.models.domain.model.UserModel
 import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.models.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userRepository: UserRepository,private val sessionManager: SessionManager) : ViewModel() {
+class LoginViewModel @Inject constructor(private val userRepository: UserRepository, val sessionManager: SessionManager) : ViewModel() {
     val email: MutableState<String> = mutableStateOf("")
     val password: MutableState<String> = mutableStateOf("")
     val confirmPassword = mutableStateOf("")
@@ -27,10 +31,14 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     val user: LiveData<UserModel> = _user
     var errorMessage: MutableState<List<String>> = mutableStateOf(listOf())
     val isLogin = mutableStateOf(false)
-    val isShowBar = mutableStateOf(isLogin.value)
+    val isShowTopBar = mutableStateOf(isLogin.value)
+    val isShowBottomBar = mutableStateOf(isLogin.value)
     val isLoading = mutableStateOf(false)
     val sliderValue: MutableState<Float> = mutableStateOf(0f)
-    val steps = mutableStateOf(1f)
+    val steps = mutableStateOf(1.5f)
+    val levels = listOf(6,7,8,9,10,11,12)
+    var level = mutableStateOf(levels[0])
+    var topicSelected= mutableListOf<String>()
 
     init {
         getUserInfo()
@@ -54,7 +62,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
 
     fun getUserInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-
         }
     }
 
@@ -63,7 +70,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     suspend fun login() {
-
         isLoading.value=true
         val loginRequest = LoginRequest(
             email = email.value,
@@ -80,7 +86,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
                 email = userResponse.email,
                 id = userResponse.id,
                 role = userResponse.role,
-                updatedAt = userResponse.updatedAt
             )
             sessionManager.saveAuthToken(userResponse.token)
             isLogin.value=true
@@ -97,7 +102,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
         val signUpRequest = SignUpRequest(
             email = email.value,
             password = password.value,
-            confirmPassword = confirmPassword.value,
+            confirm = confirmPassword.value,
             username = email.value
         )
         val response = userRepository.signUp(signUpRequest)

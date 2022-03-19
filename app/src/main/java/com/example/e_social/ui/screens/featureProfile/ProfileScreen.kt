@@ -34,7 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+//import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
@@ -90,7 +91,6 @@ fun ProfileScreen(navigator: DestinationsNavigator,
                     painterResource(id = R.drawable.unsplash5),
                     painterResource(id = R.drawable.unsplash6),
                     painterResource(id = R.drawable.unsplash8),
-
                     ),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -109,9 +109,10 @@ fun ProfileSection(
                 .padding(horizontal = 20.dp)
         ) {
             Image(
-                painter = rememberAsyncImagePainter(
+                painter = rememberImagePainter(
                     ImageRequest.Builder(LocalContext.current)
                         .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+                        .error(R.drawable.default_avatar)
                         .apply(block = fun ImageRequest.Builder.() {
                             transformations(CircleCropTransformation())
                         }).build()

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
+import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,79 +31,80 @@ class VideosViewModel @Inject constructor(private val postRepository: PostReposi
     }
 
     private fun populateListWithFakeData() {
-        val testVideos = listOf(
-            VideoItem(
-                "1",
-                title =   "Java",
-                content = "Can you help me this question ?",
-                mediaUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg"
-            ),
-            VideoItem(
-                "2",
-                title =   "Kotlin",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                thumbnail =  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg"
-            ),
-            VideoItem(
-                "3",
-                title =   "Python",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg"
-            ),
-            VideoItem(
-                "4",
-                title =  "C# C++",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerEscapes.jpg"
-            ),
-            VideoItem(
-                "5",
-                title = "Rust",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerFun.jpg"
-            ),
-            VideoItem(
-                "6",
-                title =   "Ruby",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerJoyrides.jpg"
-            ),
-            VideoItem(
-                "7",
-                title =  "Math",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerMeltdowns.jpg"
-            ),
-            VideoItem(
-                "8",
-                title =  "English",
-                content = "Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/Sintel.jpg"
-            ),
-            VideoItem(
-                "9",
-                title =  "Programming",
-                content =  "Can you help me this question ?",
-                mediaUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/SubaruOutbackOnStreetAndDirt.jpg"
-            ),
-            VideoItem(
-                "10",
-               title =  "Fix bug",
-                content ="Can you help me this question ?",
-                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg"
-            ),
-        )
-        videos.value+=testVideos
+//        val testVideos = listOf(
+//            VideoItem(
+//                "1",
+//                title =   "Java",
+//                content = "Can you help me this question ?",
+//                mediaUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
+//
+//            ),
+//            VideoItem(
+//                "2",
+//                title =   "Kotlin",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+//                thumbnail =  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg"
+//            ),
+//            VideoItem(
+//                "3",
+//                title =   "Python",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg"
+//            ),
+//            VideoItem(
+//                "4",
+//                title =  "C# C++",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerEscapes.jpg"
+//            ),
+//            VideoItem(
+//                "5",
+//                title = "Rust",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerFun.jpg"
+//            ),
+//            VideoItem(
+//                "6",
+//                title =   "Ruby",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerJoyrides.jpg"
+//            ),
+//            VideoItem(
+//                "7",
+//                title =  "Math",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerMeltdowns.jpg"
+//            ),
+//            VideoItem(
+//                "8",
+//                title =  "English",
+//                content = "Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/Sintel.jpg"
+//            ),
+//            VideoItem(
+//                "9",
+//                title =  "Programming",
+//                content =  "Can you help me this question ?",
+//                mediaUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/SubaruOutbackOnStreetAndDirt.jpg"
+//            ),
+//            VideoItem(
+//                "10",
+//               title =  "Fix bug",
+//                content ="Can you help me this question ?",
+//                mediaUrl ="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+//                thumbnail = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg"
+//            ),
+//        )
+//        videos.value+=testVideos
     }
 
     fun onPlayVideoClick(playbackPosition: Long, videoIndex: Int) {
@@ -134,19 +136,27 @@ class VideosViewModel @Inject constructor(private val postRepository: PostReposi
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
                     val videoItem = result.data.posts.filter { it.videos.isNotEmpty() }.map{ entry ->
+                        val comments = if (!entry.comments.isNullOrEmpty())
+                            entry.comments.map{ Message(authorName = it.userName,avatarAuthor = null, message = it.comment,images=it.images) }
+                        else listOf()
                         VideoItem(
                             id = entry.id,
                             content=entry.content,
                             title=entry.title,
                             mediaUrl = entry.videos[0],
                             thumbnail = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg",
+                            userName = entry.userName,
+                            votes = entry.votes,
+                            createdAt = entry.createdAt,
+                            updatedAt = entry.updatedAt,
+                            comments = comments,
+                            authorAvatar = entry.authorAvatar,
                         )
                     }
                     currentPage++
                     loadError.value = ""
                     isLoading.value = false
                     videos.value += videoItem
-                    populateListWithFakeData()
                 }
                 is Resource.Error -> {
                     loadError.value = result.message!!

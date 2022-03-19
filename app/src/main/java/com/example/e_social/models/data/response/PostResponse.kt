@@ -14,5 +14,8 @@ data class PostResponse(
     val updatedAt: String,
     @SerializedName("user_id")
     val userId: String,
-    val visible: Int
+    @SerializedName("username")
+    val userName:String,
+    @SerializedName("author_avatar")
+    val authorAvatar:String,
 )

@@ -6,6 +6,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -18,13 +21,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
+//import coil.compose.AsyncImage
+//import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.PostEntry
+import com.example.e_social.ui.screens.featurePost.ListComment
 
 @Composable
 fun ContentPost(postEntry: PostEntry) {
@@ -35,13 +39,18 @@ fun ContentPost(postEntry: PostEntry) {
        }
        if(postEntry.images.isNotEmpty())
        ImageContent(postEntry.images[0])
+
    }
 }
 
 @Composable
 fun ImageContent(url: String) {
+    val painter = rememberImagePainter(data =url, builder = {
+        crossfade(true)
+        placeholder(R.drawable.placeholder_image)
+    } )
     Image(
-        painter = rememberAsyncImagePainter(ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).placeholder(R.drawable.placeholder_image).build()),
+        painter = painter,
         contentDescription = null,
         contentScale = ContentScale.Crop,
         )

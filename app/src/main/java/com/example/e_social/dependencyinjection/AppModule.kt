@@ -15,6 +15,7 @@ import com.example.e_social.models.data.repo.topic.impl.TopicRepositoryImpl
 import com.example.e_social.models.data.repo.user.UserRepository
 import com.example.e_social.models.data.repo.user.impl.UserRepositoryImpl
 import com.example.e_social.util.AuthInterceptor
+import com.example.e_social.util.RetrofitBuilderUtils
 import com.example.e_social.util.SessionManager
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -34,9 +35,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule{
-    private val gson = GsonBuilder()
-        .setLenient()
-        .create()
 
     @Provides
     @Singleton
@@ -60,50 +58,29 @@ object AppModule{
     @Provides
     @Singleton
     fun provideUserApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): UserApi {
-        return Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(Constants.BASE_URL)
-            .build()
+        return RetrofitBuilderUtils.retrofitBuilder(okHttpClient)
             .create(UserApi::class.java)
     }
     @Singleton
     @Provides
     fun provideTopicApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): TopicApi {
-        return Retrofit.Builder()
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(okHttpClient)
-            .baseUrl(Constants.BASE_URL)
-            .build()
-            .create(TopicApi::class.java)
+        return RetrofitBuilderUtils.retrofitBuilder(okHttpClient).create(TopicApi::class.java)
     }
 
     @Singleton
     @Provides
     fun provideGroupApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): GroupApi{
-        return Retrofit.Builder()
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(okHttpClient)
-            .baseUrl(Constants.BASE_URL)
-            .build()
-            .create(GroupApi::class.java)
+        return RetrofitBuilderUtils.retrofitBuilder(okHttpClient).create(GroupApi::class.java)
     }
     @Singleton
     @Provides
     fun providePostApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): PostApi{
-        return Retrofit.Builder()
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(okHttpClient)
-            .baseUrl(Constants.BASE_URL)
-            .build()
-            .create(PostApi::class.java)
+        return RetrofitBuilderUtils.retrofitBuilder(okHttpClient).create(PostApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun ProvideSessionManager(@ApplicationContext context: Context)= SessionManager(context)
+    fun provideSessionManager(@ApplicationContext context: Context)= SessionManager(context)
 
     @Singleton
     @Provides

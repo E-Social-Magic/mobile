@@ -12,5 +12,6 @@
     <string name="login">Login</string>
     <string name="signup">SignUp</string>
     <string name="forgotPassword">ForgotPassword</string>
+    <string name="icn_camera_view_view_gallery_content_description">icn_camera_view_view_gallery_content_description</string>
 
 </resources>

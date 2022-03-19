@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+//import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.TopicIndexListEntry
@@ -54,7 +54,7 @@ fun TopicListScreen(
     ) {
         val sliderPosition =loginViewModel.sliderValue.value
         val steps = loginViewModel.steps.value
-
+        val listTopicSelected = mutableListOf<String>()
         Column {
             Column(modifier = Modifier.weight(1f).fillMaxSize(), horizontalAlignment = CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Text(
@@ -68,7 +68,7 @@ fun TopicListScreen(
                 SliderBar(sliderPosition=sliderPosition,steps=steps,onChange={loginViewModel.onChangSlider(it)})
             }
             Row(modifier = Modifier.weight(1f)) {
-                ComposeMenu()
+                ComposeMenu(loginViewModel.levels, onSelectLevel = {levelSelected-> loginViewModel.level.value=levelSelected })
             }
             Row(modifier = Modifier.weight(7f)) {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -82,7 +82,8 @@ fun TopicListScreen(
                     onButtonClick = {
                         navigator.navigate(MainScreenDestination)
                         loginViewModel.isLogin.value=true
-                        loginViewModel.isShowBar.value=true
+                        loginViewModel.isShowTopBar.value=true
+                        loginViewModel.isShowBottomBar.value=true
                     }
                 ){
                     Text(
@@ -100,11 +101,10 @@ fun TopicListScreen(
 }
 
 
-
 @Composable
 fun TopicList(
     navigator: DestinationsNavigator,
-    viewModel: TopicListViewModel = hiltViewModel()
+    viewModel: TopicListViewModel = hiltViewModel(),
 ) {
     val topicList by remember { viewModel.topicList }
     val endReached by remember { viewModel.endReached }
@@ -121,7 +121,7 @@ fun TopicList(
             if (it >= itemCount-2 && !endReached) {
                 viewModel.loadTopicPaginated()
             }
-            TopicIndexRow(rowIndex = it, entries = topicList, navigator = navigator)
+            TopicIndexRow(rowIndex = it, entries = topicList, navigator = navigator, selectedTopic = {idSelected->})
         }
     }
 
@@ -146,7 +146,8 @@ fun TopicIndexEntry(
     entry: TopicIndexListEntry,
     navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
-    viewModel: TopicListViewModel = hiltViewModel()
+    viewModel: TopicListViewModel = hiltViewModel(),
+    selectedTopic:(String)->Unit
 ) {
     val defaultDominantColor = MaterialTheme.colors.surface
     var dominantColor by remember {
@@ -179,24 +180,27 @@ fun TopicIndexEntry(
 //                )
             }
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(entry.avatar)
-                .crossfade(true).build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(id = R.drawable.placeholder_image),
-            modifier = Modifier.onGloballyPositioned {
-                sizeImage = it.size
-            }
-        )
+//        AsyncImage(
+//            model = ImageRequest.Builder(LocalContext.current)
+//                .data(entry.avatar)
+//                .crossfade(true).build(),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop,
+//            placeholder = painterResource(id = R.drawable.placeholder_image),
+//            modifier = Modifier.onGloballyPositioned {
+//                sizeImage = it.size
+//            }
+//        )
         Box(modifier = Modifier
             .matchParentSize()
             .background(gradient))
         Checkbox(
             checked = checkedState.value,
             modifier = Modifier.align(BottomEnd),
-            onCheckedChange = { checkedState.value = it },
+            onCheckedChange = {checkedState.value = it
+                                if (it)
+                                    selectedTopic.invoke(entry.id)
+                              },
             colors = CheckboxDefaults.colors(uncheckedColor = Color.White, checkmarkColor = MaterialTheme.colors.primary, checkedColor = Color.White)
         )
         Text(
@@ -215,25 +219,29 @@ fun TopicIndexEntry(
 fun TopicIndexRow(
     rowIndex: Int,
     entries: List<TopicIndexListEntry>,
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    selectedTopic:(String)->Unit
 ) {
     Column {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TopicIndexEntry(
                 entry = entries[rowIndex * 3],
                 navigator = navigator,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                selectedTopic=selectedTopic
             )
             if (entries.size >= rowIndex * 3 + 2) {
                 TopicIndexEntry(
                     entry = entries[rowIndex * 3 + 1],
                     navigator = navigator,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    selectedTopic=selectedTopic
                 )
                 TopicIndexEntry(
                     entry = entries[rowIndex * 3 + 2],
                     navigator = navigator,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    selectedTopic=selectedTopic
                 )
             }
         }
@@ -260,10 +268,8 @@ fun RetrySection(
 
 
 @Composable
-fun ComposeMenu(){
+fun ComposeMenu(levels:List<Int>,onSelectLevel:(Int)->Unit){
     var expanded = remember { mutableStateOf(false) }
-    val items = listOf(6,7,8,9,10,11,12)
-    val disabledValue = "B"
     var selectedIndex = remember { mutableStateOf(0) }
     Box(modifier = Modifier.fillMaxSize()
     ) {
@@ -277,8 +283,9 @@ fun ComposeMenu(){
                         shape = RoundedCornerShape(10.dp),
                         onClick = {
                             expanded.value = true
+                            onSelectLevel.invoke(levels[selectedIndex.value])
                         },content = {
-                            Text("Level ${items[selectedIndex.value]}")
+                            Text("Lớp ${levels[selectedIndex.value]}")
                             Icon( Icons.Default.ArrowDropDown, contentDescription = null)
 
                         })
@@ -291,7 +298,7 @@ fun ComposeMenu(){
                         .shadow(elevation = 2.dp)
                         .width(120.dp),
                 ) {
-                    items.forEachIndexed { index, s ->
+                    levels.forEachIndexed { index, s ->
                         DropdownMenuItem(onClick = {
                             selectedIndex.value = index
                             expanded.value = false
