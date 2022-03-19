@@ -37,7 +37,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Destination(start = true)
+@Destination(start=true)
 @Composable
 fun LoginScreen(
     navigator: DestinationsNavigator,
@@ -93,7 +93,9 @@ fun LoginScreen(
                     loginViewModel.login()
                     if (loginViewModel.errorMessage.value.isEmpty()) {
                         navigator.navigate(ProfileScreenDestination)
-                        loginViewModel.isShowBar.value=true
+                        loginViewModel.isShowBottomBar.value=true
+                        loginViewModel.isShowTopBar.value=true
+
                     } else {
                         snackBarController.getScope().launch {
                             snackBarController.showSnackbar(

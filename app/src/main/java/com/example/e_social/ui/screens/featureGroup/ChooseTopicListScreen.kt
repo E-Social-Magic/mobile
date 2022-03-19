@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+//import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.TopicIndexListEntry
@@ -82,7 +82,8 @@ fun TopicListScreen(
                     onButtonClick = {
                         navigator.navigate(MainScreenDestination)
                         loginViewModel.isLogin.value=true
-                        loginViewModel.isShowBar.value=true
+                        loginViewModel.isShowTopBar.value=true
+                        loginViewModel.isShowBottomBar.value=true
                     }
                 ){
                     Text(
@@ -179,17 +180,17 @@ fun TopicIndexEntry(
 //                )
             }
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(entry.avatar)
-                .crossfade(true).build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(id = R.drawable.placeholder_image),
-            modifier = Modifier.onGloballyPositioned {
-                sizeImage = it.size
-            }
-        )
+//        AsyncImage(
+//            model = ImageRequest.Builder(LocalContext.current)
+//                .data(entry.avatar)
+//                .crossfade(true).build(),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop,
+//            placeholder = painterResource(id = R.drawable.placeholder_image),
+//            modifier = Modifier.onGloballyPositioned {
+//                sizeImage = it.size
+//            }
+//        )
         Box(modifier = Modifier
             .matchParentSize()
             .background(gradient))

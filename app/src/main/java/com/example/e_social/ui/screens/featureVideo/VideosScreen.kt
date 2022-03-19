@@ -33,7 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import coil.annotation.ExperimentalCoilApi
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.e_social.ESocialApplication
 import com.example.e_social.R
@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectIndexed
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -91,7 +92,7 @@ fun VideosScreen(
     LaunchedEffect(Unit) {
         snapshotFlow {
             listState.visibleAreaContainsItem(playingItemIndex, videos)
-        }.collect { isItemVisible ->
+        }.collectIndexed { index, isItemVisible ->
             isCurrentItemVisible.value = isItemVisible
         }
     }
@@ -258,7 +259,7 @@ fun VideoPlayer(
 @Composable
 fun VideoThumbnail(url: String) {
     Image(
-        painter = rememberAsyncImagePainter(
+        painter = rememberImagePainter(
             ImageRequest.Builder(LocalContext.current).data(data = url)
                 .apply(block = fun ImageRequest.Builder.() {
                     crossfade(true)

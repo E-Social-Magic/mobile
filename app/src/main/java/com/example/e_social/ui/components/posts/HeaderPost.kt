@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+//import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
@@ -44,7 +44,7 @@ import com.example.e_social.util.TimeConverter
 fun HeaderPost(authorAvatar:String,userName:String,createdAt:String){
     Row(modifier = Modifier.background(Grey100).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
-            painter = rememberAsyncImagePainter(
+            painter = rememberImagePainter(
                 ImageRequest.Builder(LocalContext.current)
                     .data(data = authorAvatar)
                     .error(R.drawable.default_avatar)

@@ -34,7 +34,7 @@ enum class BottomBarDestination(
         contentDescriptionResourceId = R.string.home
     ),
     Quiz(
-        QuizScreenDestination,
+        QuizScreenDestination as DirectionDestinationSpec,
         icon = Icons.Outlined.QuestionAnswer,
         contentDescriptionResourceId = R.string.quiz
     ),

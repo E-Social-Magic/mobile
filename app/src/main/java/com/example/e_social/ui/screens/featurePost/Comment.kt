@@ -33,7 +33,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+//import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
@@ -57,16 +58,15 @@ fun ListCommentEntry(messages: List<Message>){
 
 @Composable
 fun MessageCard(msg: Message) {
+    val painter = rememberImagePainter(data =msg.avatarAuthor, builder = {
+        crossfade(true)
+        placeholder(R.drawable.placeholder_image)
+        error(R.drawable.default_avatar)
+        transformations(CircleCropTransformation())
+    } )
     Row(modifier = Modifier.padding(all = 8.dp)) {
         Image(
-            painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current)
-                    .data(data = msg.avatarAuthor)
-                    .error(R.drawable.default_avatar)
-                    .apply(block = fun ImageRequest.Builder.() {
-                        transformations(CircleCropTransformation())
-                    }).build()
-            ),
+            painter = painter,
             contentDescription = null,
             modifier = Modifier
                 .size(35.dp)
@@ -111,7 +111,7 @@ fun MessageCard(msg: Message) {
             if (!msg.images.isNullOrEmpty()){
                 msg.images.map { image->
                     Image(
-                        painter = rememberAsyncImagePainter(
+                        painter = rememberImagePainter(
                             ImageRequest.Builder(LocalContext.current)
                                 .data(data = image)
                                 .placeholder(R.drawable.placeholder_image)
@@ -137,17 +137,15 @@ fun CommentInput(modifier: Modifier=Modifier,commentValue:String, hint: String,o
     var isHintDisplayed by remember {
         mutableStateOf(hint != "")
     }
-
+    val painter = rememberImagePainter(data ="user avatar", builder = {
+        crossfade(true)
+        placeholder(R.drawable.placeholder_image)
+        error(R.drawable.default_avatar)
+        transformations(CircleCropTransformation())
+    } )
     Row(modifier = Modifier.padding(all = 8.dp)) {
         Image(
-            painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current)
-                    .data(data = "msg")
-                    .error(R.drawable.default_avatar)
-                    .apply(block = fun ImageRequest.Builder.() {
-                        transformations(CircleCropTransformation())
-                    }).build()
-            ),
+            painter = painter,
             contentDescription = null,
             modifier = Modifier
                 .size(35.dp)

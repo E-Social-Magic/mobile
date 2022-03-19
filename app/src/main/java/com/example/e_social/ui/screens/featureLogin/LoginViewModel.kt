@@ -15,12 +15,14 @@ import com.example.e_social.models.data.request.SignUpRequest
 import com.example.e_social.models.domain.model.UserModel
 import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.models.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userRepository: UserRepository,private val sessionManager: SessionManager) : ViewModel() {
+class LoginViewModel @Inject constructor(private val userRepository: UserRepository, val sessionManager: SessionManager) : ViewModel() {
     val email: MutableState<String> = mutableStateOf("")
     val password: MutableState<String> = mutableStateOf("")
     val confirmPassword = mutableStateOf("")
@@ -28,14 +30,16 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     private val _user = MutableLiveData<UserModel>()
     val user: LiveData<UserModel> = _user
     var errorMessage: MutableState<List<String>> = mutableStateOf(listOf())
-    val isLogin = mutableStateOf(true)
-    val isShowBar = mutableStateOf(isLogin.value)
+    val isLogin = mutableStateOf(false)
+    val isShowTopBar = mutableStateOf(isLogin.value)
+    val isShowBottomBar = mutableStateOf(isLogin.value)
     val isLoading = mutableStateOf(false)
     val sliderValue: MutableState<Float> = mutableStateOf(0f)
     val steps = mutableStateOf(1.5f)
     val levels = listOf(6,7,8,9,10,11,12)
     var level = mutableStateOf(levels[0])
     var topicSelected= mutableListOf<String>()
+
     init {
         getUserInfo()
     }

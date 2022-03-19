@@ -21,8 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
+//import coil.compose.AsyncImage
+//import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
@@ -45,8 +45,12 @@ fun ContentPost(postEntry: PostEntry) {
 
 @Composable
 fun ImageContent(url: String) {
+    val painter = rememberImagePainter(data =url, builder = {
+        crossfade(true)
+        placeholder(R.drawable.placeholder_image)
+    } )
     Image(
-        painter = rememberAsyncImagePainter(ImageRequest.Builder(LocalContext.current).data(url).crossfade(true).placeholder(R.drawable.placeholder_image).build()),
+        painter = painter,
         contentDescription = null,
         contentScale = ContentScale.Crop,
         )
