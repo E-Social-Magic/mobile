@@ -4,7 +4,7 @@ data class LoginResponse(
     val email: String,
     val id: String,
     val role: String,
-    val subjects: List<Subject>,
+    val subjects: List<Topic>,
     val token: String,
     val updatedAt: String,
     val username: String,

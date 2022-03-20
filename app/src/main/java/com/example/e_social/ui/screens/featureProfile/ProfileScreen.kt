@@ -56,6 +56,7 @@ fun ProfileScreen(navigator: DestinationsNavigator,
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
+    var tenbien = "string"
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(4.dp))
         ProfileSection()

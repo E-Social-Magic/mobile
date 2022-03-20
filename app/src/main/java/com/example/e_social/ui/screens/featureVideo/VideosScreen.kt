@@ -57,6 +57,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.collectLatest
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -92,7 +93,7 @@ fun VideosScreen(
     LaunchedEffect(Unit) {
         snapshotFlow {
             listState.visibleAreaContainsItem(playingItemIndex, videos)
-        }.collectIndexed { index, isItemVisible ->
+        }.collectLatest { isItemVisible ->
             isCurrentItemVisible.value = isItemVisible
         }
     }
