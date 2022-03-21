@@ -83,7 +83,7 @@ fun MessageCard(msg: Message) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .clickable { isExpanded = !isExpanded }
-            .background(color = Grey100, shape = RoundedCornerShape(12.dp))) {
+            .background(color = Color(0xFFDBECFE), shape = RoundedCornerShape(12.dp))) {
             Text(
                 text = msg.authorName,
                 color = MaterialTheme.colors.secondaryVariant,
@@ -153,7 +153,7 @@ fun CommentInput(modifier: Modifier=Modifier,commentValue:String, hint: String,o
                 .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Surface(modifier = modifier.shadow(5.dp, CircleShape).background(color = Color.LightGray).wrapContentSize()) {
+        Surface(modifier = modifier.shadow(5.dp, CircleShape).background(color = Color(0xFFDBECFE)).wrapContentSize()) {
             TextField(
                 value = commentValue,
                 onValueChange = {
@@ -205,6 +205,5 @@ fun CommentInput(modifier: Modifier=Modifier,commentValue:String, hint: String,o
             )
 
         }
-
     }
 }

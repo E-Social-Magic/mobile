@@ -169,4 +169,44 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi):PostRepos
         }
     }
 
+    override suspend fun getPostById(postId: String): Resource<PostResponse> {
+        val response = api.getPostById(postId)
+        return when (response.code()) {
+            HttpURLConnection.HTTP_INTERNAL_ERROR -> {
+                val errorBody = response.errorBody() ?: run {
+                    throw NullPointerException()
+                }
+                Log.d("File",ErrorUtils.parseError<String>(errorBody=errorBody).toString())
+
+                return Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_BAD_METHOD -> {
+                val errorBody = response.errorBody() ?: run {
+                    throw NullPointerException()
+                }
+                return Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_NOT_FOUND -> {
+                val errorBody = response.errorBody() ?: run {
+                    throw NullPointerException()
+                }
+                return Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_UNAUTHORIZED -> {
+                val errorBody = response.errorBody() ?: run {
+                    throw NullPointerException()
+                }
+                return Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_FORBIDDEN -> {
+                Resource.Error(data = response.body(), message = "HTTP_FORBIDDEN")
+            }
+            else -> {
+                response.body()?.let {
+                    Resource.Success(data = it)
+                } ?: Resource.Error("Empty response")
+            }
+        }
+    }
+
 }

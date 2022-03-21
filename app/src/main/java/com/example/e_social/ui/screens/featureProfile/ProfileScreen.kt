@@ -1,26 +1,19 @@
 package com.example.e_social.ui.screens.featureProfile
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+//import coil.compose.rememberAsyncImagePainter
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,18 +21,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
-//import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
-import com.example.e_social.ui.components.BottomNavController
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -48,68 +39,103 @@ import kotlinx.coroutines.CoroutineScope
 
 @Destination
 @Composable
-fun ProfileScreen(navigator: DestinationsNavigator,
-                  scaffoldState: ScaffoldState,
-                  coroutineScope: CoroutineScope,
-                  snackBarController: SnackBarController,
-                  loginViewModel: LoginViewModel) {
+fun ProfileScreen(
+    navigator: DestinationsNavigator,
+    scaffoldState: ScaffoldState,
+    coroutineScope: CoroutineScope,
+    snackBarController: SnackBarController,
+    loginViewModel: LoginViewModel
+) {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
-    Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(modifier = Modifier.height(4.dp))
-        ProfileSection()
-        Spacer(modifier = Modifier.height(25.dp))
-        Spacer(modifier = Modifier.height(25.dp))
-        Spacer(modifier = Modifier.height(10.dp))
-        PostTabView(
-            imageWithTexts = listOf(
-                ImageWithText(
-                    image = painterResource(id = R.drawable.ic_grid),
-                    text = "Posts"
-                ),
-                ImageWithText(
-                    image = painterResource(id = R.drawable.ic_reels),
-                    text = "Reels"
-                ),
-                ImageWithText(
-                    image = painterResource(id = R.drawable.ic_igtv),
-                    text = "IGTV"
-                ),
-            )
+    var tenbien = "string"
+    Scaffold(topBar = {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.White)
+                .shadow(elevation = 2.dp)
+                .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
-            selectedTabIndex = it
-        }
-        when(selectedTabIndex) {
-            0 -> PostSection(
-                posts = listOf(
-                    painterResource(id = R.drawable.unsplash),
-                    painterResource(id = R.drawable.unsplash1),
-                    painterResource(id = R.drawable.unsplash2),
-                    painterResource(id = R.drawable.unsplash3),
-                    painterResource(id = R.drawable.unsplash4),
-                    painterResource(id = R.drawable.unsplash5),
-                    painterResource(id = R.drawable.unsplash6),
-                    painterResource(id = R.drawable.unsplash8),
-                    ),
-                modifier = Modifier.fillMaxWidth()
+            Text(
+                text = "Profile",
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth(Alignment.Start),
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.15.sp
+                ),
             )
+            Button(
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .weight(1f)
+                    .wrapContentWidth(Alignment.End), shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(text = "Đăng xuất")
+            }
+
         }
+    }) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            ProfileSection()
+            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            PostTabView(
+                imageWithTexts = listOf(
+                    ImageWithText(
+                        image = painterResource(id = R.drawable.ic_grid),
+                        text = "Posts"
+                    ),
+                    ImageWithText(
+                        image = painterResource(id = R.drawable.ic_reels),
+                        text = "Reels"
+                    ),
+                    ImageWithText(
+                        image = painterResource(id = R.drawable.ic_igtv),
+                        text = "IGTV"
+                    ),
+                )
+            ) {
+                selectedTabIndex = it
+            }
+            when (selectedTabIndex) {
+                0 -> PostSection(
+                    posts = listOf(
+                        painterResource(id = R.drawable.unsplash),
+                        painterResource(id = R.drawable.unsplash1),
+                        painterResource(id = R.drawable.unsplash2),
+                        painterResource(id = R.drawable.unsplash3),
+                        painterResource(id = R.drawable.unsplash4),
+                        painterResource(id = R.drawable.unsplash5),
+                        painterResource(id = R.drawable.unsplash6),
+                        painterResource(id = R.drawable.unsplash8),
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
     }
 }
+
 @Composable
 fun ProfileSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
         ) {
-            Image(
-                painter = rememberImagePainter(
+            RoundImage(
+                image = rememberImagePainter(
                     ImageRequest.Builder(LocalContext.current)
                         .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
                         .error(R.drawable.default_avatar)
@@ -117,12 +143,12 @@ fun ProfileSection(
                             transformations(CircleCropTransformation())
                         }).build()
                 ),
-                contentDescription = null,
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            StatSection(modifier = Modifier.weight(7f))
+            StatSection()
         }
+        HorizontalDivider()
         ProfileDescription(
             displayName = "Programming Mentor",
             description = "3 years of coding experience\n" +
@@ -157,14 +183,55 @@ fun RoundImage(
 
 @Composable
 fun StatSection(modifier: Modifier = Modifier) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround,
+    Column(
         modifier = modifier
     ) {
-        ProfileStat(numberText = "601", text = "Posts")
-        ProfileStat(numberText = "100K", text = "Followers")
-        ProfileStat(numberText = "72", text = "Following")
+        ProfileHeader()
+        HorizontalDivider()
+        Row(
+            modifier = Modifier.height(64.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+                Row(
+                    Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    VerticalDivider()
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { }
+                        .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfileStat(numberText = "601", text = "Posts")
+                    }
+
+                    VerticalDivider()
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { }
+                        .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfileStat(numberText = "100K", text = "Followers")
+                    }
+                    VerticalDivider()
+                    Row(Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .clickable { }
+                        .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ProfileStat(numberText = "72", text = "Following")
+
+                    }
+                }
+        }
+
     }
 }
 
@@ -174,19 +241,11 @@ fun ProfileStat(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        Text(
-            text = numberText,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = text)
+    Column(Modifier.fillMaxWidth().padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = numberText, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text(text = text, color = Color.Gray, fontSize = 12.sp)
     }
+
 }
 
 @Composable
@@ -221,9 +280,9 @@ fun ProfileDescription(
             letterSpacing = letterSpacing,
             lineHeight = lineHeight
         )
-        if(followedBy.isNotEmpty()) {
+        if (followedBy.isNotEmpty()) {
             Text(
-                text = buildAnnotatedString{
+                text = buildAnnotatedString {
                     val boldStyle = SpanStyle(
                         color = Color.Black,
                         fontWeight = FontWeight.Bold
@@ -233,11 +292,11 @@ fun ProfileDescription(
                         pushStyle(boldStyle)
                         append(name)
                         pop()
-                        if(index < followedBy.size - 1) {
+                        if (index < followedBy.size - 1) {
                             append(", ")
                         }
                     }
-                    if(otherCount > 2) {
+                    if (otherCount > 2) {
                         append(" and ")
                         pushStyle(boldStyle)
                         append("$otherCount others")
@@ -267,14 +326,14 @@ fun ActionButton(
             )
             .padding(6.dp)
     ) {
-        if(text != null) {
+        if (text != null) {
             Text(
                 text = text,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
             )
         }
-        if(icon != null) {
+        if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
@@ -313,7 +372,7 @@ fun PostTabView(
                 Icon(
                     painter = item.image,
                     contentDescription = item.text,
-                    tint = if(selectedTabIndex == index) Color.Black else inactiveColor,
+                    tint = if (selectedTabIndex == index) Color.Black else inactiveColor,
                     modifier = Modifier
                         .padding(10.dp)
                         .size(20.dp)

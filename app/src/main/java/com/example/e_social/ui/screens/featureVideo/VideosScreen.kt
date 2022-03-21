@@ -94,8 +94,7 @@ fun VideosScreen(
     LaunchedEffect (Unit) {
         snapshotFlow {
             listState.visibleAreaContainsItem(playingItemIndex, videos)
-        }.collect{
-                isItemVisible ->
+        }.collect{ isItemVisible ->
             isCurrentItemVisible.value = isItemVisible
         }
     }

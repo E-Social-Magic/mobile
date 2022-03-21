@@ -36,15 +36,7 @@ fun PostEntry(
                 createdAt = post.createdAt
             )
             ContentPost(onClickAction = {
-                navigator.navigate(
-                    PostDetailDestination(
-                        title = post.title,
-                        content = post.content,
-                        authorAvatar = post.authorAvatar,
-                        userName = post.userName,
-                        createdAt = post.createdAt,
-                    )
-                )
+                navigator.navigate(PostDetailDestination(postId = post.id))
             }, post)
             BottomPostAction(
                 post,

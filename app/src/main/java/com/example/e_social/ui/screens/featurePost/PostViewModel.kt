@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
 import com.example.e_social.models.data.request.NewPostRequest
+import com.example.e_social.models.data.response.Comment
 import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.util.Resource
@@ -137,9 +138,53 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
     }
 
-    fun findPostById(id: String): PostEntry {
-       return postList.value.find { post -> post.id == id }
-            ?:postList.value[0]
+    fun findPostById(id: String): PostEntry? {
+        var post: PostEntry? = null
+        viewModelScope.launch(Dispatchers.IO) {
+            isLoading.value = true
+            val result = postRepository.getPostById(id)
+            try {
+                when (result) {
+                    is Resource.Success -> {
+                        post = PostEntry(
+                            title = result.data!!.title,
+                            createdAt = result.data.createdAt,
+                            images = result.data.images,
+                            comments = commentToMessage(result.data.comments),
+                            authorAvatar = result.data.authorAvatar,
+                            userName = result.data.userName,
+                            id = result.data.id,
+                            content = result.data.content,
+                            votes = result.data.votes,
+                            updatedAt = result.data.updatedAt,
+                            userId = result.data.userId,
+                            videos = result.data.videos
+                        )
+                    }
+                    is Resource.Error -> {
+                        post = null
+                    }
+                    else -> {
+                        post = null
+                    }
+                }
+            } catch(e:Exception) {
+                post = null
+            }
 
+            isLoading.value = false
+        }
+        return post
+    }
+
+    private fun commentToMessage(comments: List<Comment>): List<Message> {
+        return comments.map {
+            Message(
+                authorName = it.userName,
+                avatarAuthor = it.avatar,
+                message = it.comment,
+                images = it.images
+            )
+        }
     }
 }

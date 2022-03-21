@@ -74,7 +74,6 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
         val loginRequest = LoginRequest(
             email = email.value,
             password = password.value,
-            username = email.value
         )
         val response = userRepository.login(loginRequest)
         val checkError= response.data?.message

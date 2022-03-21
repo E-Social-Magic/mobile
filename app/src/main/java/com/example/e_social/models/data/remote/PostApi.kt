@@ -16,6 +16,9 @@ interface PostApi {
     @GET("post/{post-id}/vote")
     suspend fun voteUp(@Path("post-id")postId:String, @Query("up")up:String="false", @Query("down")down:String= "false"):Response<VoteResponse>
 
+    @GET("post/{post-id}")
+    suspend fun getPostById(@Path("post-id")postId: String):Response<PostResponse>
+
     @Multipart
     @POST("post/new")
     suspend fun newPost(

@@ -19,8 +19,9 @@ interface UserApi {
     suspend fun signUp(@Body signUpRequest: SignUpRequest):Response<SignUpResponse>
 
     @GET("user/info")
+    suspend fun getUserInfo(): Response<UserModel>
+
+    @GET("user/info/{id}")
     suspend fun getUserInfo(@Path("id") id:String): Response<UserModel>
-
-
 
 }

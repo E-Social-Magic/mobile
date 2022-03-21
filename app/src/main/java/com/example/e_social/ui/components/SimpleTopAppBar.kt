@@ -2,11 +2,7 @@ package com.example.e_social.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +25,13 @@ fun SimpleTopAppBar(title: String, onIconBackClick: () -> Unit) {
             .fillMaxWidth()
             .heightIn(56.dp)
             .background(color = Color.White)
-            .shadow(elevation = 1.dp)
-            .padding(horizontal = 16.dp)
-            .clickable { }
+            .shadow(elevation = 1.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
     ) {
-        IconButton(onClick = onIconBackClick) {
+        IconButton(
+            onClick = onIconBackClick
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_back_arrow),
                 contentDescription = null
@@ -41,9 +39,6 @@ fun SimpleTopAppBar(title: String, onIconBackClick: () -> Unit) {
         }
         Text(
             text = title,
-            modifier = Modifier
-                .weight(0.5f)
-                .align(Alignment.CenterVertically),
             style = TextStyle(
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold,
