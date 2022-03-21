@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberImagePainter
 //import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.e_social.ui.theme.Grey300
@@ -173,7 +174,7 @@ fun SavePostContent(
             )
             LazyVerticalGrid(cells = GridCells.Fixed(countGrid)) {
                 if (files.size <= 2) items(files.size) { index ->
-                    ImageBuilder(480.dp, file = files[index])
+                    ImageBuilder(Int.MAX_VALUE.dp, file = files[index])
                 }
                 else
                     if (files.size < 5)
@@ -184,21 +185,21 @@ fun SavePostContent(
                         items(4) { index ->
                             if (index == 3) {
                                     Box(contentAlignment = Alignment.Center){
-//                                        Image(
-//                                            painter = rememberAsyncImagePainter(
-//                                                ImageRequest.Builder(LocalContext.current)
-//                                                    .crossfade(true)
-//                                                    .data(data = files[index])
-//                                                    .build()
-//                                            ),
-//                                            contentDescription = null,
-//                                            modifier = Modifier
-//                                                .size(240.dp)
-//                                                .padding(4.dp)
-//                                                .background(color = Color.Black),
-//                                            alpha = 0.6F,
-//                                            contentScale = ContentScale.Crop,
-//                                        )
+                                        Image(
+                                            painter = rememberImagePainter(
+                                                ImageRequest.Builder(LocalContext.current)
+                                                    .crossfade(true)
+                                                    .data(data = files[index])
+                                                    .build()
+                                            ),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(240.dp)
+                                                .padding(4.dp)
+                                                .background(color = Color.Black),
+                                            alpha = 0.6F,
+                                            contentScale = ContentScale.Crop,
+                                        )
                                         Text(
                                             text = "+ ${files.size-4}",
                                             fontSize = 28.sp,
@@ -434,20 +435,21 @@ fun DropDown(
     }
 }
 @Composable
-fun ImageBuilder(size: Dp, file: File){
-//    Image(
-//        painter = rememberAsyncImagePainter(
-//            ImageRequest.Builder(LocalContext.current)
-//                .crossfade(true)
-//                .data(data = file)
-//                .build()
-//        ),
-//        contentDescription = null,
-//        modifier = Modifier
-//            .size(size)
-//            .padding(4.dp),
-//        contentScale = ContentScale.Crop,
-//    )
+fun ImageBuilder(size:Dp, file: File){
+    Image(
+        painter = rememberImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .crossfade(true)
+                .data(data = file)
+                .build()
+
+        ),
+        contentDescription = null,
+        modifier = Modifier
+            .size(size)
+            .padding(4.dp),
+        contentScale = ContentScale.Crop,
+    )
 }
 data class SavePostOption(
     val index:Int,

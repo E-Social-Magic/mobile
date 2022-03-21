@@ -38,8 +38,7 @@ fun SearchBar(
         mutableStateOf(hint != "")
     }
 
-    Surface(modifier = modifier.shadow(5.dp, CircleShape)
-        .height(45.dp)) {
+    Surface(modifier = modifier.shadow(5.dp, CircleShape)) {
         TextField(
             value = searchValue,
             onValueChange = {
@@ -96,8 +95,6 @@ fun SearchBar(
                 Text(
                     text = hint,
                     color = Color.LightGray,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             },
             colors = TextFieldDefaults.textFieldColors(

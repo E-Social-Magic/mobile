@@ -1,7 +1,8 @@
 package com.example.e_social.dependencyinjection
 
 import android.content.Context
-import com.example.e_social.models.Constants
+import com.example.e_social.MessagesActivity
+import com.example.e_social.R
 import com.example.e_social.models.data.remote.GroupApi
 import com.example.e_social.models.data.remote.PostApi
 import com.example.e_social.models.data.remote.TopicApi
@@ -17,85 +18,117 @@ import com.example.e_social.models.data.repo.user.impl.UserRepositoryImpl
 import com.example.e_social.util.AuthInterceptor
 import com.example.e_social.util.RetrofitBuilderUtils
 import com.example.e_social.util.SessionManager
-import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.getstream.chat.android.client.ChatClient
+import io.getstream.chat.android.client.notifications.handler.NotificationConfig
+import io.getstream.chat.android.client.notifications.handler.NotificationHandlerFactory
+import io.getstream.chat.android.core.ExperimentalStreamChatApi
+import io.getstream.chat.android.core.internal.InternalStreamChatApi
+import io.getstream.chat.android.offline.experimental.plugin.Config
+import io.getstream.chat.android.offline.experimental.plugin.OfflinePlugin
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
+import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Named
 import javax.inject.Singleton
 
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule{
+object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository (api: UserApi):UserRepository = UserRepositoryImpl(api)
+    fun provideUserRepository(api: UserApi): UserRepository = UserRepositoryImpl(api)
 
     @Singleton
     @Provides
     fun provideTopicRepository(
         api: TopicApi
-    ):TopicRepository = TopicRepositoryImpl(api)
+    ): TopicRepository = TopicRepositoryImpl(api)
 
     @Singleton
     @Provides
-    fun providePostRepository(api:PostApi):PostRepository = PostRepositoryImpl(api)
+    fun providePostRepository(api: PostApi): PostRepository = PostRepositoryImpl(api)
 
     @Singleton
     @Provides
-    fun provideGroupRepository(api:GroupApi):GroupRepository = GroupRepositoryImpl(api)
+    fun provideGroupRepository(api: GroupApi): GroupRepository = GroupRepositoryImpl(api)
 
 
     @Provides
     @Singleton
-    fun provideUserApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): UserApi {
+    fun provideUserApi(@Named("OkHttpClientInterceptor") okHttpClient: OkHttpClient): UserApi {
         return RetrofitBuilderUtils.retrofitBuilder(okHttpClient)
             .create(UserApi::class.java)
     }
+
     @Singleton
     @Provides
-    fun provideTopicApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): TopicApi {
+    fun provideTopicApi(@Named("OkHttpClientInterceptor") okHttpClient: OkHttpClient): TopicApi {
         return RetrofitBuilderUtils.retrofitBuilder(okHttpClient).create(TopicApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideGroupApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): GroupApi{
+    fun provideGroupApi(@Named("OkHttpClientInterceptor") okHttpClient: OkHttpClient): GroupApi {
         return RetrofitBuilderUtils.retrofitBuilder(okHttpClient).create(GroupApi::class.java)
     }
+
     @Singleton
     @Provides
-    fun providePostApi(@Named("OkHttpClientInterceptor")okHttpClient: OkHttpClient): PostApi{
+    fun providePostApi(@Named("OkHttpClientInterceptor") okHttpClient: OkHttpClient): PostApi {
         return RetrofitBuilderUtils.retrofitBuilder(okHttpClient).create(PostApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideSessionManager(@ApplicationContext context: Context)= SessionManager(context)
+    fun provideSessionManager(@ApplicationContext context: Context) = SessionManager(context)
 
     @Singleton
     @Provides
     @Named("AuthInterceptor")
-    fun provideAuthInterceptor(sessionManager: SessionManager):Interceptor=AuthInterceptor(sessionManager)
+    fun provideAuthInterceptor(sessionManager: SessionManager): Interceptor =
+        AuthInterceptor(sessionManager)
 
     @Singleton
     @Provides
     @Named("OkHttpClientInterceptor")
     fun provideOkHttpClient(@Named("AuthInterceptor") interceptor: Interceptor): OkHttpClient {
+//        val loggingInterceptor = HttpLoggingInterceptor()
+//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         return OkHttpClient
             .Builder()
             .addInterceptor(interceptor)
             .build()
     }
+
+    @OptIn(InternalStreamChatApi::class, ExperimentalStreamChatApi::class)
+    @Singleton
+    @Provides
+    fun provideChatClient(@ApplicationContext context: Context): ChatClient {
+        val notificationConfig = NotificationConfig()
+        val notificationHandler = NotificationHandlerFactory.createNotificationHandler(
+            context = context,
+            newMessageIntent = { _: String, channelType: String, channelId: String ->
+                MessagesActivity.createIntent(
+                    context = context,
+                    channelId = "$channelType:$channelId"
+                )
+            }
+        )
+        val offlinePlugin = OfflinePlugin(Config(userPresence = true, persistenceEnabled = true))
+        return ChatClient.Builder(context.getString(R.string.api_key), context)
+            .notifications(notificationConfig, notificationHandler)
+            .withPlugin(offlinePlugin)
+            .build()
+    }
+
+
 }
 
 

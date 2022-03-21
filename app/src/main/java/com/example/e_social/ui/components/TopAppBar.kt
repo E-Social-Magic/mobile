@@ -34,7 +34,9 @@ import com.example.e_social.ui.screens.UserViewModel
 fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:ImageVector, onIconClick:()->Unit){
     val searchBarState  = userViewModel.searchBarState.value
     val searchValue = userViewModel.searchValue.value
-    val painter = rememberImagePainter(data ="https://gaplo.tech/content/images/2020/03/android-jetpack.jpg", builder = {
+    val painter = rememberImagePainter(
+        data ="https://gaplo.tech/content/images/2020/03/android-jetpack.jpg",
+        builder = {
         crossfade(true)
         placeholder(R.drawable.placeholder_image)
         transformations(CircleCropTransformation())

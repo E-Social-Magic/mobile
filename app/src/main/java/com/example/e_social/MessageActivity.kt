@@ -46,6 +46,8 @@ import io.getstream.chat.android.compose.viewmodel.messages.AttachmentsPickerVie
 import io.getstream.chat.android.compose.viewmodel.messages.MessageComposerViewModel
 import io.getstream.chat.android.compose.viewmodel.messages.MessageListViewModel
 import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 class MessagesActivity : AppCompatActivity() {
@@ -61,7 +63,7 @@ class MessagesActivity : AppCompatActivity() {
 
     private val attachmentsPickerViewModel by viewModels<AttachmentsPickerViewModel>(factoryProducer = { factory })
     private val composerViewModel by viewModels<MessageComposerViewModel>(factoryProducer = { factory })
-    lateinit var dateFormatter: DateFormatter
+    val dateFormatter: DateFormatter = DateFormatter.from(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val channelId = intent.getStringExtra(KEY_CHANNEL_ID) ?: return
@@ -71,7 +73,7 @@ class MessagesActivity : AppCompatActivity() {
                 MessagesScreen(
                     channelId = channelId,
                     onBackPressed = { finish() },
-                    onHeaderActionClick = {}
+                    onHeaderActionClick = {},
                 )
 
                 // MyCustomUi()

@@ -23,8 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val userRepository: UserRepository, val sessionManager: SessionManager) : ViewModel() {
-    val email: MutableState<String> = mutableStateOf("")
-    val password: MutableState<String> = mutableStateOf("")
+    val email: MutableState<String> = mutableStateOf("long2000@gmail.com")
+    val password: MutableState<String> = mutableStateOf("123456")
     val confirmPassword = mutableStateOf("")
     val phone = mutableStateOf("")
     private val _user = MutableLiveData<UserModel>()
@@ -86,6 +86,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
                 email = userResponse.email,
                 id = userResponse.id,
                 role = userResponse.role,
+                avatar = userResponse.avatar?:"https://gaplo.tech/content/images/2020/03/android-jetpack.jpg"
             )
             sessionManager.saveAuthToken(userResponse.token)
             isLogin.value=true

@@ -9,4 +9,5 @@ data class LoginResponse(
     val updatedAt: String,
     val username: String,
     val message:String?,
+    val avatar:String="https://gaplo.tech/content/images/2020/03/android-jetpack.jpg",
 )

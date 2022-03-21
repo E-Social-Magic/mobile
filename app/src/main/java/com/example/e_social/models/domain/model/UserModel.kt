@@ -9,4 +9,5 @@ data class UserModel(
     val id: String,
     val role: String,
     val token: String,
+    val avatar: String?,
     )

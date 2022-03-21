@@ -11,4 +11,5 @@ interface PostRepository {
     suspend fun voteUp(postId:String):Resource<VoteResponse>
     suspend fun voteDown(postId:String):Resource<VoteResponse>
     suspend fun newPost(newPostRequest: NewPostRequest):Resource<PostResponse>
+//    suspend fun getPostByID():Re
 }

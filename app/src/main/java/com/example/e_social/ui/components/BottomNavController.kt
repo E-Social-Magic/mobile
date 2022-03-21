@@ -34,9 +34,9 @@ enum class BottomBarDestination(
         contentDescriptionResourceId = R.string.home
     ),
     Quiz(
-        QuizScreenDestination as DirectionDestinationSpec,
+        ChatScreenDestination as DirectionDestinationSpec,
         icon = Icons.Outlined.QuestionAnswer,
-        contentDescriptionResourceId = R.string.quiz
+        contentDescriptionResourceId = R.string.chat
     ),
     Video(
         VideosScreenDestination,

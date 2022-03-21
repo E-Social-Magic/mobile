@@ -18,14 +18,16 @@ import androidx.navigation.compose.rememberNavController
 import com.example.e_social.ui.components.BottomNavController
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.TopApp
+import com.example.e_social.ui.screens.ChatScreen
 import com.example.e_social.ui.screens.NavGraphs
-import com.example.e_social.ui.screens.QuizScreen
 import com.example.e_social.ui.screens.destinations.*
 import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.example.e_social.ui.screens.featureLogin.LoginScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
+import com.example.e_social.ui.screens.featurePost.PostDetail
 import com.example.e_social.ui.screens.featurePost.PostScreen
+import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.screens.featurePost.SavePostScreen
 import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
@@ -45,6 +47,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var sessionManager: SessionManager
 
+    @Inject
+    lateinit var client: ChatClient
+
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,21 +61,20 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
             val snackBarController = SnackBarController(coroutineScope)
             var navController = rememberNavController()
+            val postViewModel :PostViewModel = hiltViewModel()
             LaunchedEffect(key1 = loginViewModel.isLogin.value) {
                 val user = loginViewModel.user.value
                 if (user != null) {
-                    val client = ChatClient.Builder(apiKey = "qx5us2v6xvmh", applicationContext).build()
                     ChatDomain.Builder(client, appContext = applicationContext).build()
                     val userChat = User().apply {
-                        id = "jc"
-                        name = "Jc Miñarro"
-                        image = "https://ca.slack-edge.com/T02RM6X6B-U011KEXDPB2-891dbb8df64f-128"
+                        id = user.id
+                        name = user.username
+                        image = user.avatar.toString()
                     }
-                    client.connectUser(user = userChat, token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiamMifQ.2_5Hae3LKjVSfA0gQxXlZn54Bq6xDlhjPx2J7azUNB4d")
+                    client.connectUser(user = userChat, token = sessionManager.fetchAuthToken()!!)
                         .enqueue()
                 }
             }
-
 
             EsocialTheme {
                 Surface(color = MaterialTheme.colors.background) {
@@ -80,8 +84,10 @@ class MainActivity : ComponentActivity() {
                         content = {
                             DestinationsNavHost(
                                 navGraph = NavGraphs.root,
-                                navController = navController
-                            ) {
+                                navController = navController,
+
+                                ) {
+
                                 composable(PostScreenDestination) {
                                     PostScreen(
                                         navigator = destinationsNavigator,
@@ -89,7 +95,8 @@ class MainActivity : ComponentActivity() {
                                         changeBarState = { bar ->
                                             loginViewModel.isShowBottomBar.value = bar
                                             loginViewModel.isShowTopBar.value = bar
-                                        }
+                                        },
+                                        postViewModel = postViewModel
                                     )
                                 }
                                 composable(LoginScreenDestination) {
@@ -133,15 +140,22 @@ class MainActivity : ComponentActivity() {
                                         snackBarController = snackBarController,
                                     )
                                 }
-                                composable(QuizScreenDestination) {
-                                    QuizScreen(
+                                composable(ChatScreenDestination) {
+                                    ChatScreen(
                                         navigator = destinationsNavigator,
                                         loginViewModel = loginViewModel,
                                         changeBarState = { bar ->
                                             loginViewModel.isShowTopBar.value = bar
                                         },
-                                        onItemClick={channel ->  startActivity(MessagesActivity.createIntent(this@MainActivity, channelId = channel.cid))},
-                                        onBackPressed = {finish()}
+                                        onItemClick = { channel ->
+                                            startActivity(
+                                                MessagesActivity.createIntent(
+                                                    this@MainActivity,
+                                                    channelId = channel.cid
+                                                )
+                                            )
+                                        },
+                                        onBackPressed = { finish() }
                                     )
                                 }
                                 composable(TopicListScreenDestination) {
@@ -152,19 +166,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         },
-                        topBar = {
-                            if (isShowTopBar) TopApp(
-                                title = "E-Social",
-                                icon = Icons.Outlined.Search
-                            )
-                            {}
-                        },
                         bottomBar = { if (isShowBottomBar) BottomNavController(navController = navController) },
                     )
                 }
             }
         }
     }
+
 
 }
 

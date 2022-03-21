@@ -56,7 +56,9 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.collectLatest
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -89,10 +91,11 @@ fun VideosScreen(
     val isCurrentItemVisible = remember { mutableStateOf(false) }
 
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect (Unit) {
         snapshotFlow {
             listState.visibleAreaContainsItem(playingItemIndex, videos)
-        }.collectIndexed { index, isItemVisible ->
+        }.collect{
+                isItemVisible ->
             isCurrentItemVisible.value = isItemVisible
         }
     }

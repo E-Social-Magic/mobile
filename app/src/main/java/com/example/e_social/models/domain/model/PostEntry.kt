@@ -1,6 +1,5 @@
 package com.example.e_social.models.domain.model
 
-import com.google.gson.annotations.SerializedName
 
 data class PostEntry(
     val id: String,
