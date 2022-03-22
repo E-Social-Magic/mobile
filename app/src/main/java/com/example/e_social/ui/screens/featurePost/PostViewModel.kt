@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +29,6 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
     val newPost = mutableStateOf(NewPostRequest(title = "", content = "", files = listOf()))
-    val comment = mutableStateOf("")
     init {
         loadPostPaginated()
     }
@@ -145,14 +145,12 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
         return post
     }
-    fun onCommentInputChange(value:String){
-        comment.value=value
-    }
-    fun submitComment(postId:String,comment:String):Boolean{
+
+    fun submitComment(postId:String,message: Message):Boolean{
         viewModelScope.launch(Dispatchers.IO) {
             isLoading.value = true
-            val result = postRepository.newComment(postId = postId,comment= CommentRequest(comment.toRequestBody(
-                MultipartBody.FORM),null))
+            val result = postRepository.newComment(postId = postId,comment= CommentRequest(message.message.toRequestBody(
+                MultipartBody.FORM)), files =message.images?.map{ File(it)})
             try {
                 when (result) {
                     is Resource.Success -> {

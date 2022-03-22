@@ -18,6 +18,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.net.HttpURLConnection
 import javax.inject.Inject
 
@@ -121,12 +122,7 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi):PostRepos
         val title = newPostRequest.title.toRequestBody(MultipartBody.FORM)
         val content = newPostRequest.content.toRequestBody(MultipartBody.FORM)
 
-        val files = newPostRequest.files.map{ file->
-            MultipartBody.Part.createFormData(name = "files", filename = file.name,file.asRequestBody(
-                MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
-                    ?.toMediaTypeOrNull()
-            ))
-        }
+        val files = listFiletoMultiBody(newPostRequest.files)
 
         val response = api.newPost(files = files, title = title, content = content)
         return when (response.code()) {
@@ -208,13 +204,14 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi):PostRepos
 
     override suspend fun newComment(
         postId: String,
-        comment: CommentRequest
+        comment: CommentRequest,
+        files:List<File>?
     ): Resource<NewCommentResponse> {
 
 
         val map:   HashMap<  String,  RequestBody> = HashMap()
         map["comment"] = comment.comment
-        val response = api.newComment(postId = postId, params = map)
+        val response = api.newComment(postId = postId, params = map,files =listFiletoMultiBody(files))
         return when (response.code()) {
             HttpURLConnection.HTTP_INTERNAL_ERROR -> {
                 val errorBody = response.errorBody() ?: run {
@@ -252,5 +249,14 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi):PostRepos
             }
         }
     }
-
+    fun listFiletoMultiBody(files: List<File>?):List<MultipartBody.Part>?{
+        if (files==null){
+            return null
+        }
+        return files.map { file->
+            MultipartBody.Part.createFormData(name = "files", filename = file.name,file.asRequestBody(
+                MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
+                    ?.toMediaTypeOrNull()
+            )) }
+    }
 }

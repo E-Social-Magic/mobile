@@ -1,10 +1,11 @@
 package com.example.e_social.models.domain.model
 
+import com.example.e_social.models.Constants
 
 
 data class Message(
-    val authorName: String,
-    val avatarAuthor: String?,
-    val message: String,
-    val images: List<String>
+    var authorName: String?=Constants.Anonymous,
+    var avatarAuthor: String?=null,
+    var message: String,
+    var images: List<String>?=null
 )

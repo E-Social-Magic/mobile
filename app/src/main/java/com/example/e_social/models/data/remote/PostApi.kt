@@ -34,6 +34,7 @@ interface PostApi {
     @PUT("post/{post-id}/comment")
     suspend fun newComment(
         @Path("post-id") postId: String,
-        @PartMap params:@JvmSuppressWildcards Map<String,RequestBody>
+        @PartMap params:@JvmSuppressWildcards Map<String,RequestBody>,
+        @Part files:List<MultipartBody.Part>?
     ):Response<NewCommentResponse>
 }

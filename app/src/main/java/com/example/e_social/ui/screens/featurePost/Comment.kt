@@ -1,13 +1,15 @@
 package com.example.e_social.ui.screens.featurePost
 
 //import coil.compose.rememberAsyncImagePainter
+import android.Manifest
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -32,11 +34,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import com.example.e_social.R
+import com.example.e_social.models.Constants
 import com.example.e_social.models.domain.model.Message
-import com.example.e_social.ui.theme.BackgroundBlue
-import com.example.e_social.ui.theme.Blue300
 import com.example.e_social.ui.theme.Blue700
+import com.example.e_social.util.FileUtils
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import gun0912.tedimagepicker.builder.TedImagePicker
+import java.io.File
 
 
 @Composable
@@ -47,8 +54,9 @@ fun ListComment(postViewModel: PostViewModel = hiltViewModel(), messages: List<M
 @Composable
 fun ListCommentEntry(messages: List<Message>) {
     if (messages.isNotEmpty())
-        messages.map { message ->
-            MessageCard(message)
+        messages.mapIndexed { index, message ->
+            if (index < 5)
+                MessageCard(message)
         }
 }
 
@@ -75,159 +83,212 @@ fun MessageCard(msg: Message) {
         val surfaceColor: Color by animateColorAsState(
             if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
         )
-
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .clickable { isExpanded = !isExpanded }
-            .background(color = Color(0xFFDBECFE), shape = RoundedCornerShape(12.dp))) {
-            Text(
-                text = msg.authorName,
-                color = MaterialTheme.colors.secondaryVariant,
-                style = MaterialTheme.typography.subtitle2,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                elevation = 1.dp,
-                color = surfaceColor,
-                modifier = Modifier
-                    .animateContentSize()
-                    .padding(1.dp)
-            ) {
+        Column {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .clickable { isExpanded = !isExpanded }
+                .background(color = Color(0xFFDBECFE), shape = RoundedCornerShape(12.dp))
+                .padding(8.dp)) {
                 Text(
-                    text = msg.message,
-                    modifier = Modifier.padding(all = 4.dp),
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                    style = MaterialTheme.typography.body2
+                    text = msg.authorName ?: Constants.Anonymous,
+                    color = MaterialTheme.colors.secondaryVariant,
+                    style = MaterialTheme.typography.subtitle2,
+                    fontWeight = FontWeight.Bold
                 )
-            }
-            if (!msg.images.isNullOrEmpty()) {
-                msg.images.map { image ->
-                    Image(
-                        painter = rememberImagePainter(
-                            ImageRequest.Builder(LocalContext.current)
-                                .data(data = image)
-                                .placeholder(R.drawable.placeholder_image)
-                                .error(R.drawable.default_image)
-                                .apply(block = fun ImageRequest.Builder.() {
-                                    transformations(CircleCropTransformation())
-                                }).build()
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(250.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .border(1.5.dp, MaterialTheme.colors.secondaryVariant)
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = 1.dp,
+                    color = surfaceColor,
+                    modifier = Modifier
+                        .animateContentSize()
+                        .padding(1.dp)
+                ) {
+                    Text(
+                        text = msg.message,
+                        modifier = Modifier.padding(all = 4.dp),
+                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                        style = MaterialTheme.typography.body2
                     )
                 }
+            }
+            if (!msg.images.isNullOrEmpty()) {
+                Image(
+                    painter = rememberImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(data = msg.images!![0])
+                            .placeholder(R.drawable.placeholder_image)
+                            .error(R.drawable.default_image)
+                            .apply(block = fun ImageRequest.Builder.() {
+                                transformations(RoundedCornersTransformation(10f))
+                            }).build()
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(180.dp)
+                        .padding(vertical = 10.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(1.5.dp, Color.Transparent)
+
+                )
             }
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun CommentInput(
     modifier: Modifier = Modifier,
-    commentValue: String,
-    hint: String,
-    onCommentValueChange: (String) -> Unit,
-    onSubmit:()->Unit
+    postId: String,
+    hint: String = "",
+    onSubmit: (String, Message) -> Unit
 ) {
     var isHintDisplayed by remember {
         mutableStateOf(hint != "")
     }
-    val painter = rememberImagePainter(data = "user avatar", builder = {
+    val cameraPermissionState = rememberPermissionState(
+        permission = Manifest.permission.CAMERA
+    )
+    val coroutineScope = rememberCoroutineScope()
+    val storePermissionState =
+        rememberPermissionState(permission = Manifest.permission.ACCESS_MEDIA_LOCATION)
+    val context = LocalContext.current
+    val painter = rememberImagePainter(data = "author avart", builder = {
         crossfade(true)
         placeholder(R.drawable.placeholder_image)
         error(R.drawable.default_avatar)
         transformations(CircleCropTransformation())
     })
-    Row(modifier = Modifier.padding(all = 8.dp)) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier
-                .size(35.dp)
-                .clip(CircleShape)
-                .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Surface(
-            modifier = modifier
-                .shadow(5.dp, CircleShape)
-                .background(color = Color(0xFFDBECFE))
-                .wrapContentSize()
-        ) {
-            TextField(
-                value = commentValue,
-                onValueChange = {
-                    onCommentValueChange(it)
-                },
-                maxLines = 1,
-                singleLine = true,
-                textStyle = TextStyle(color = Color.Black),
+
+    val comment = remember { mutableStateOf(Message(message = "")) }
+
+    Column {
+        Row(modifier = Modifier.padding(all = 8.dp)) {
+            Image(
+                painter = painter,
+                contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .onFocusChanged {
-                        isHintDisplayed = !it.isFocused
-                    },
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-
-                    }
-                ),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search
-                ),
-                trailingIcon = {
-                    Row {
-                        IconButton(
-                            onClick = {
-                                if (commentValue.isNotEmpty()) {
-
-                                } else {
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PhotoLibrary,
-                                contentDescription = "Close Icon",
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                if (commentValue.isNotEmpty()) {
-                                    onSubmit.invoke()
-                                    onCommentValueChange("")
-                                } else {
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Send,
-                                contentDescription = "Send Icon",
-                                tint = Blue700
-                            )
-                        }
-                    }
-
-                },
-                placeholder = {
-                    Text(
-                        text = hint,
-                        color = Color.LightGray,
-                        textAlign = TextAlign.Center
-                    )
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Transparent,
-                    cursorColor = Color.White.copy(alpha = ContentAlpha.medium)
-                ),
+                    .size(35.dp)
+                    .clip(CircleShape)
+                    .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape)
             )
+            Spacer(modifier = Modifier.width(8.dp))
+            Surface(
+                modifier = modifier
+                    .shadow(5.dp, CircleShape)
+                    .background(color = Color(0xFFDBECFE))
+                    .wrapContentSize()
+            ) {
+                TextField(
+                    value = comment.value.message,
+                    onValueChange = {
+                        comment.value = comment.value.copy(message = it)
+                    },
+                    maxLines = 1,
+                    singleLine = true,
+                    textStyle = TextStyle(color = Color.Black),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged {
+                            isHintDisplayed = !it.isFocused
+                        },
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
 
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    trailingIcon = {
+                        Row {
+                            IconButton(
+                                onClick = {
+                                    storePermissionState.launchPermissionRequest()
+                                    TedImagePicker.with(context)
+                                        .startMultiImage { uriList ->
+                                            uriList.map { uri ->
+                                                FileUtils.getFile(
+                                                    context = context,
+                                                    uri)}
+                                                .let {
+                                                    comment.value = comment.value.copy(images = (it as List<File>).map { file -> file.absolutePath })
+                                                }
+                                        }
+
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PhotoLibrary,
+                                    contentDescription = "Close Icon",
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    if (comment.value.message.isNotEmpty()) {
+                                        onSubmit.invoke(postId, comment.value.copy())
+                                        comment.value.message = ""
+                                        comment.value.images=null
+                                    } else {
+
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Send,
+                                    contentDescription = "Send Icon",
+                                    tint = Blue700
+                                )
+                            }
+                        }
+
+                    },
+                    placeholder = {
+                        Text(
+                            text = hint,
+                            color = Color.LightGray,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.Transparent,
+                        cursorColor = Color.White.copy(alpha = ContentAlpha.medium)
+                    ),
+                )
+            }
+        }
+        if (!comment.value.images.isNullOrEmpty()) {
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 150.dp)
+                    .fillMaxWidth(),
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    comment.value.images!!.mapIndexed { index,file ->
+                        if (index<3)
+                        Image(
+                            painter = rememberImagePainter(
+                                data = File(file),
+                                builder = {
+                                    crossfade(true)
+                                    placeholder(R.drawable.placeholder_image)
+                                    error(R.drawable.default_avatar)
+                                    transformations(RoundedCornersTransformation(12.5f))
+                                }),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(75.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }

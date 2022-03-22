@@ -22,7 +22,6 @@ fun PostEntry(
     modifier: Modifier = Modifier,
     postViewModel: PostViewModel
 ) {
-    val comment = postViewModel.comment.value
 
     var shouldShowComment by remember { mutableStateOf(false) }
     Card(
@@ -46,10 +45,9 @@ fun PostEntry(
                 onCommentIconClick = { shouldShowComment = !shouldShowComment })
             if (shouldShowComment) {
                 CommentInput(
-                    commentValue = comment,
                     hint = "comment something",
-                    onCommentValueChange = { postViewModel.onCommentInputChange(it) },
-                    onSubmit = { postViewModel.submitComment(postId = post.id, comment = comment) }
+                    postId=post.id,
+                    onSubmit = {postId,comment-> postViewModel.submitComment(postId = post.id, message = comment) },
                 )
                 ListComment(messages = post.comments)
             }

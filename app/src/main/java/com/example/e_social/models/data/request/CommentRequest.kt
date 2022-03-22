@@ -9,6 +9,4 @@ import java.io.File
 data class CommentRequest(
     @Part("comment")
     val comment: RequestBody,
-    @Part
-    var files: List<MultipartBody.Part>?,
 )
