@@ -139,8 +139,8 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
             coins = postModel.coins.toString().toRequestBody(MultipartBody.FORM),
             costs = postModel.costs.toString().toRequestBody(MultipartBody.FORM))
 
-        map["title"] =  "newPostRequest.title".toRequestBody(MultipartBody.FORM)
-        map["content"] = "newPostRequest.content".toRequestBody(MultipartBody.FORM)
+        map["title"] =  newPostRequest.title
+        map["content"] = newPostRequest.content
         map["hideName"] = newPostRequest.hideName
         map["costs"] = newPostRequest.costs
         map["expired"] = newPostRequest.expired
@@ -218,6 +218,7 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
             }
             else -> {
                 response.body()?.let {
+                    Log.d("FindPostById",it.post.toString())
                     Resource.Success(data = it.post)
                 } ?: Resource.Error("Empty response")
             }

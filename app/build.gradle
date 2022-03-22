@@ -147,15 +147,10 @@ dependencies {
     // Chat
     implementation "io.getstream:stream-chat-android-client:$stream_version"
     implementation "io.getstream:stream-chat-android-compose:$stream_version-beta"
-//    implementation "io.getstream:stream-chat-android-ui-components:4.13.0"
 
-//    def FIREBASE_MESSAGING= "22.0.0"
-//    implementation "com.google.firebase:firebase-messaging:${FIREBASE_MESSAGING}"
-//    implementation 'com.google.firebase:firebase-database-ktx'
-//    compile 'com.google.firebase:firebase-messaging:9.4.0'
-//    compile 'com.google.firebase:firebase-database:9.4.0'
-//    compile 'com.google.firebase:firebase-core:9.4.0'
 
-    //
+    //Facebook sharing
+    implementation 'com.facebook.android:facebook-share:latest.release'
+
 
 }

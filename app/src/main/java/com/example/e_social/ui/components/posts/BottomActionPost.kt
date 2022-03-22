@@ -1,11 +1,10 @@
 package com.example.e_social.ui.components.posts
 
-import android.util.Log
+import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -23,12 +22,16 @@ import com.example.e_social.R
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.theme.Grey100
+import com.facebook.share.model.ShareLinkContent
+
 
 @Composable
 fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel,onCommentIconClick:()->Unit){
     Row(
         modifier = Modifier
-            .fillMaxWidth().background(Grey100).padding(vertical = 8.dp,horizontal = 16.dp),
+            .fillMaxWidth()
+            .background(Grey100)
+            .padding(vertical = 8.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -41,7 +44,12 @@ fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel,onComment
         PostAction(
             vectorResourceId = R.drawable.ic_baseline_share_24,
             text = stringResource(R.string.share)
-        ) {}
+        ) {
+            val content: ShareLinkContent = ShareLinkContent.Builder()
+                .setContentUrl(Uri.parse("https://developers.facebook.com"))
+                .build()
+
+        }
     }
 }
 @Composable
