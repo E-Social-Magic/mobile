@@ -1,14 +1,13 @@
 package com.example.e_social.ui.screens.featurePost
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import android.util.Log
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,6 +21,7 @@ import com.example.e_social.ui.components.posts.TextContent
 import com.example.e_social.ui.components.posts.TitlePost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 
 
 @Destination(route = "post_detail")
@@ -33,14 +33,18 @@ fun PostDetail(
 ) {
 
     var shouldShowComment by remember { mutableStateOf(false) }
-
-    var post :PostEntry? = null
+    val coroutineScope= rememberCoroutineScope()
+    var post :PostEntry? by remember{ mutableStateOf(null)}
+    var isLoading by remember{ mutableStateOf( true)}
     LaunchedEffect(key1 = true ){
-        post = postViewModel.findPostById(id = postId)
+             post = postViewModel.findPostById(id = postId)
+             isLoading=false
+
     }
-    val isLoading = postViewModel.isLoading.value
     if (isLoading) {
-        CircularProgressBar(isDisplay = isLoading)
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            CircularProgressBar(isDisplay = isLoading)
+        }
     } else
             Column {
                 SimpleTopAppBar(title = "Chi tiết bài viết") {
@@ -55,7 +59,7 @@ fun PostDetail(
                         .padding(horizontal = 10.dp)
                         .padding(top = 8.dp)
                 ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
+                    Column(modifier = Modifier.padding(8.dp).padding(bottom = 50.dp)) {
                         HeaderPost(
                             authorAvatar = post!!.authorAvatar,
                             userName = post!!.userName,
@@ -63,12 +67,13 @@ fun PostDetail(
                         )
                         TitlePost(post!!.title)
                         TextContent(post!!.content)
-                    }
-                    LazyColumn {
-                        items(post!!.images.size) { index ->
-                            ImageContent(url = post!!.images[index])
+                        LazyColumn {
+                            items(post!!.images.size) { index ->
+                                ImageContent(url = post!!.images[index])
+                            }
                         }
                     }
+
                 }
             }
 

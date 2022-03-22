@@ -1,9 +1,8 @@
 package com.example.e_social.ui.screens.featurePost
 
+//import coil.compose.rememberAsyncImagePainter
 import android.Manifest
-import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -22,23 +21,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
-//import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.example.e_social.ui.theme.Grey300
 import com.example.e_social.util.CameraView
 import com.example.e_social.util.FileUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -65,14 +60,19 @@ fun SavePostScreen(
     val moveNoteToTrashDialogShownState: MutableState<Boolean> = rememberSaveable {
         mutableStateOf(false)
     }
-    val newPostRequest = postViewModel.newPost.value
+    var postModel = postViewModel.newPost.value
     var isCameraOpen by remember {
         mutableStateOf(false)
     }
     if (isCameraOpen) {
         CameraView(
             onImageCaptured = { uri, fromGallery ->
-                newPostRequest.files = listOf(uri.toFile()).plus(newPostRequest.files)
+                postViewModel.onPostChange(
+                    postModel.copy(
+                        files = listOf(uri.toFile()).plus(
+                            postModel.files!!.map { it })
+                    )
+                )
                 isCameraOpen = false
             }, onError = { imageCaptureException ->
                 coroutineScope.launch {
@@ -96,12 +96,14 @@ fun SavePostScreen(
 
             },
             content = {
-                SavePostContent(title = newPostRequest.title,
-                    content = newPostRequest.content,
-                    files = newPostRequest.files,
+                SavePostContent(title = postModel.title,
+                    content = postModel.content,
+                    files = postModel.files,
                     onTitleChange = { postViewModel.onTitleChange(it) },
-                    onContentChange = { postViewModel.onContentChange(it)},
-                    onFilesChange= {list: List<File> -> newPostRequest.files = list.plus(newPostRequest.files) },
+                    onContentChange = { postViewModel.onContentChange(it) },
+                    onFilesChange = { list: List<File> ->
+                        postModel.files = list.plus(postModel.files!!.map { it })
+                    },
                     onCameraClick = { it -> isCameraOpen = true }
                 )
             }
@@ -115,11 +117,11 @@ fun SavePostScreen(
 fun SavePostContent(
     title: String,
     content: String,
-    files: List<File>,
+    files: List<File>?,
     onTitleChange: (String) -> Unit,
     onContentChange: (String) -> Unit,
     onCameraClick: (Boolean) -> Unit,
-    onFilesChange:(List<File>)->Unit
+    onFilesChange: (List<File>) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -130,11 +132,20 @@ fun SavePostContent(
         permission = Manifest.permission.ACCESS_MEDIA_LOCATION
     )
     val context = LocalContext.current
-    val countGrid = if (files.size <= 2) 1 else 2
-    val fee = listOf(SavePostOption(index=1,Icons.Default.FreeBreakfast,"Miễn phí"),SavePostOption(index=2,Icons.Default.Money,"Tính phí"))
-    val hideName = listOf(SavePostOption(index=1,Icons.Default.Public,"Hiển thị tên"),SavePostOption(index=2,Icons.Default.PrivacyTip,"Ẩn tên"))
-    val time = listOf(SavePostOption(index=1,Icons.Default.FreeBreakfast,"Hiển thị tên"),SavePostOption(index=2,Icons.Default.FreeBreakfast,"Ẩn tên"))
-
+    val countGrid = if (files?.size?:0 <= 2) 1 else 2
+    val fee = listOf(
+        SavePostOption(index = 1, Icons.Default.FreeBreakfast, "Miễn phí"),
+        SavePostOption(index = 2, Icons.Default.Money, "Tính phí")
+    )
+    val hideName = listOf(
+        SavePostOption(index = 1, Icons.Default.Public, "Hiển thị tên"),
+        SavePostOption(index = 2, Icons.Default.PrivacyTip, "Ẩn tên")
+    )
+    val time = listOf(
+        SavePostOption(index = 1, Icons.Default.FreeBreakfast, "Hiển thị tên"),
+        SavePostOption(index = 2, Icons.Default.FreeBreakfast, "Ẩn tên")
+    )
+    val fileSize=files?.size?:0
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             Modifier
@@ -146,17 +157,17 @@ fun SavePostContent(
                     .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 DropDown(
-                    items=fee,
+                    items = fee,
                     modifier = Modifier.padding(15.dp)
                 ) {
                 }
                 DropDown(
-                    items=hideName,
+                    items = hideName,
                     modifier = Modifier.padding(15.dp)
                 ) {
                 }
                 DropDown(
-                    items=time,
+                    items = time,
                     modifier = Modifier.padding(15.dp)
                 ) {
                 }
@@ -173,43 +184,43 @@ fun SavePostContent(
                 onTextChange = onContentChange
             )
             LazyVerticalGrid(cells = GridCells.Fixed(countGrid)) {
-                if (files.size <= 2) items(files.size) { index ->
-                    ImageBuilder(Int.MAX_VALUE.dp, file = files[index])
+                if (fileSize <= 2) items(fileSize?:0) { index ->
+                    ImageBuilder(Int.MAX_VALUE.dp, file = files?.get(index))
                 }
                 else
-                    if (files.size < 5)
-                        items(files.size) { index ->
-                            ImageBuilder(240.dp, file = files[index])
+                    if (fileSize < 5)
+                        items(fileSize) { index ->
+                            ImageBuilder(240.dp, file = files?.get(index))
                         }
                     else {
                         items(4) { index ->
                             if (index == 3) {
-                                    Box(contentAlignment = Alignment.Center){
-                                        Image(
-                                            painter = rememberImagePainter(
-                                                ImageRequest.Builder(LocalContext.current)
-                                                    .crossfade(true)
-                                                    .data(data = files[index])
-                                                    .build()
-                                            ),
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(240.dp)
-                                                .padding(4.dp)
-                                                .background(color = Color.Black),
-                                            alpha = 0.6F,
-                                            contentScale = ContentScale.Crop,
-                                        )
-                                        Text(
-                                            text = "+ ${files.size-4}",
-                                            fontSize = 28.sp,
-                                            textAlign = TextAlign.Center,
-                                            fontWeight = FontWeight.ExtraBold,
-                                            color = Color.White
-                                        )
-                                    }
+                                Box(contentAlignment = Alignment.Center) {
+                                    Image(
+                                        painter = rememberImagePainter(
+                                            ImageRequest.Builder(LocalContext.current)
+                                                .crossfade(true)
+                                                .data(data = files?.get(index))
+                                                .build()
+                                        ),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(240.dp)
+                                            .padding(4.dp)
+                                            .background(color = Color.Black),
+                                        alpha = 0.6F,
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                    Text(
+                                        text = "+ ${fileSize - 4}",
+                                        fontSize = 28.sp,
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = Color.White
+                                    )
+                                }
                             } else
-                                ImageBuilder(240.dp, file = files[index])
+                                ImageBuilder(240.dp, file = files?.get(index))
 
                         }
                     }
@@ -254,7 +265,7 @@ fun SavePostContent(
                     storePermissionState.launchPermissionRequest()
                     TedImagePicker.with(context)
                         .startMultiImage { uriList ->
-                            uriList.map{ uri->FileUtils.getFile(context = context,uri) }
+                            uriList.map { uri -> FileUtils.getFile(context = context, uri) }
                                 .let { onFilesChange.invoke(it as List<File>) }
                         }
                 }
@@ -344,7 +355,7 @@ private fun ContentTextField(
 
 @Composable
 fun DropDown(
-    items:List<SavePostOption>,
+    items: List<SavePostOption>,
     modifier: Modifier = Modifier,
     initiallyOpened: Boolean = false,
     content: @Composable () -> Unit
@@ -383,7 +394,7 @@ fun DropDown(
         ) {
             Icon(
                 imageVector = items[selectedIndex.value].icon,
-                contentDescription =null ,
+                contentDescription = null,
                 tint = Color.Gray,
                 modifier = Modifier.size(14.dp)
             )
@@ -418,10 +429,13 @@ fun DropDown(
                     selectedIndex.value = index
                     isOpen = false
                 }) {
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             imageVector = value.icon,
-                            contentDescription =null ,
+                            contentDescription = null,
                             tint = Color.Gray,
                             modifier = Modifier.size(14.dp)
                         )
@@ -434,15 +448,17 @@ fun DropDown(
         }
     }
 }
+
 @Composable
-fun ImageBuilder(size:Dp, file: File){
+fun ImageBuilder(size: Dp, file: File?) {
+    if (file!=null)
     Image(
         painter = rememberImagePainter(
             ImageRequest.Builder(LocalContext.current)
                 .crossfade(true)
                 .data(data = file)
+                .size(Int.MAX_VALUE)
                 .build()
-
         ),
         contentDescription = null,
         modifier = Modifier
@@ -451,9 +467,10 @@ fun ImageBuilder(size:Dp, file: File){
         contentScale = ContentScale.Crop,
     )
 }
-data class SavePostOption(
-    val index:Int,
-    val icon:ImageVector,
-    val text:String,
 
-)
+data class SavePostOption(
+    val index: Int,
+    val icon: ImageVector,
+    val text: String,
+
+    )

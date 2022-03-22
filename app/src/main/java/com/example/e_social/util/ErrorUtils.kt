@@ -24,8 +24,8 @@ object RetrofitBuilderUtils{
         .create()
      fun  retrofitBuilder(okHttpClient: OkHttpClient ):Retrofit{
         return Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
             .addConverterFactory(ScalarsConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
             .baseUrl(Constants.BASE_URL)
             .build()

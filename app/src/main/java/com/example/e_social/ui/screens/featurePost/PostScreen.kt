@@ -49,7 +49,9 @@ fun PostScreen(
                 title = "E-Social",
                 icon = Icons.Outlined.Search
             )
-            {}
+            {
+
+            }
         },
         floatingActionButton = {
             FloatingActionButton(

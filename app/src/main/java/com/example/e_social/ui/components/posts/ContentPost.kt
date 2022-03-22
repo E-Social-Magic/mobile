@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +30,7 @@ fun ContentPost(onClickAction: () -> Unit, postEntry: PostEntry) {
             TextContent(postEntry.content)
         }
         if (images.isNotEmpty())
-            if (images.size <= 2) ImageContent(url = images[0])
+           ImageContent(url = images[0])
     }
 
 }
@@ -49,7 +50,7 @@ fun ImageContent(url: String) {
     Image(
         painter = painter,
         contentDescription = null,
-        modifier = Modifier.fillMaxWidth(),
+        Modifier.fillMaxWidth(),
         contentScale = ContentScale.Crop
     )
 }

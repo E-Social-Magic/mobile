@@ -11,6 +11,7 @@ data class PostEntry(
     val videos: List<String>,
     val userId: String,
     val userName:String,
+    val costs: Boolean,
     val createdAt: String,
     val updatedAt: String,
     val authorAvatar:String,

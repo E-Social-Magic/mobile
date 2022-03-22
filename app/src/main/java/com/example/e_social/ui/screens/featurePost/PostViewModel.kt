@@ -1,5 +1,6 @@
 package com.example.e_social.ui.screens.featurePost
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,12 +13,14 @@ import com.example.e_social.models.data.response.Comment
 import com.example.e_social.models.data.response.PostResponse
 import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
+import com.example.e_social.models.domain.model.PostModel
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.internal.wait
 import java.io.File
 import javax.inject.Inject
 
@@ -28,7 +31,8 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
-    val newPost = mutableStateOf(NewPostRequest(title = "", content = "", files = listOf()))
+    val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf()))
+
     init {
         loadPostPaginated()
     }
@@ -116,19 +120,19 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     fun createPost() {
         viewModelScope.launch(Dispatchers.IO) {
-            postRepository.newPost(newPostRequest = newPost.value)
+            postRepository.newPost(postModel = newPost.value)
         }
     }
 
-    fun findPostById(id: String): PostEntry? {
+    suspend fun findPostById(id: String): PostEntry? {
         var post: PostEntry? = null
-        viewModelScope.launch(Dispatchers.IO) {
             isLoading.value = true
             val result = postRepository.getPostById(id)
             try {
                 when (result) {
                     is Resource.Success -> {
-                        post = postResponse2PostEntry(result.data!!)
+                        if (result.data!=null)
+                        post = postResponse2PostEntry(result.data)
                     }
                     is Resource.Error -> {
                         post = null
@@ -137,25 +141,27 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                         post = null
                     }
                 }
-            } catch(e:Exception) {
+            } catch (e: Exception) {
                 post = null
             }
-
             isLoading.value = false
-        }
         return post
     }
 
-    fun submitComment(postId:String,message: Message):Boolean{
+    fun submitComment(postId: String, message: Message): Boolean {
         viewModelScope.launch(Dispatchers.IO) {
             isLoading.value = true
-            val result = postRepository.newComment(postId = postId,comment= CommentRequest(message.message.toRequestBody(
-                MultipartBody.FORM)), files =message.images?.map{ File(it)})
+            val result = postRepository.newComment(postId = postId, comment = CommentRequest(
+                message.message.toRequestBody(
+                    MultipartBody.FORM
+                )
+            ), files = message.images?.map { File(it) })
             try {
                 when (result) {
                     is Resource.Success -> {
-                        val post= postResponse2PostEntry(result.data!!.post)
-                        val replacement = postList.value.map { if (it.id == postId) it.copy(comments =post.comments ) else it }
+                        val post = postResponse2PostEntry(result.data!!.post)
+                        val replacement =
+                            postList.value.map { if (it.id == postId) it.copy(comments = post.comments) else it }
                         postList.value = replacement
                     }
                     is Resource.Error -> {
@@ -165,14 +171,15 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
                     }
                 }
-            } catch(e:Exception) {
+            } catch (e: Exception) {
 
             }
 
             isLoading.value = false
         }
-        return  true
+        return true
     }
+
     private fun commentToMessage(comments: List<Comment>): List<Message> {
         return comments.map {
             Message(
@@ -183,7 +190,8 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             )
         }
     }
-    private fun  postResponse2PostEntry(postReponse:PostResponse):PostEntry{
+
+    private fun postResponse2PostEntry(postReponse: PostResponse): PostEntry {
         return PostEntry(
             title = postReponse.title,
             createdAt = postReponse.createdAt,
@@ -199,7 +207,12 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             videos = postReponse.videos,
             hideName = postReponse.hideName,
             expired = postReponse.expired,
-            coins = postReponse.coins
+            coins = postReponse.coins,
+            costs = postReponse.costs
         )
+    }
+
+    fun onPostChange(newPostModel: PostModel) {
+        newPost.value = newPostModel
     }
 }

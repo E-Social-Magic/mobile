@@ -153,7 +153,6 @@ fun CommentInput(
     val cameraPermissionState = rememberPermissionState(
         permission = Manifest.permission.CAMERA
     )
-    val coroutineScope = rememberCoroutineScope()
     val storePermissionState =
         rememberPermissionState(permission = Manifest.permission.ACCESS_MEDIA_LOCATION)
     val context = LocalContext.current
