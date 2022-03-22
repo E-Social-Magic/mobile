@@ -3,16 +3,21 @@ package com.example.e_social.ui.screens.featurePost
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
+import com.example.e_social.models.data.request.CommentRequest
 import com.example.e_social.models.data.request.NewPostRequest
 import com.example.e_social.models.data.response.Comment
+import com.example.e_social.models.data.response.PostResponse
 import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +28,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
     val newPost = mutableStateOf(NewPostRequest(title = "", content = "", files = listOf()))
-
+    val comment = mutableStateOf("")
     init {
         loadPostPaginated()
     }
@@ -36,30 +41,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
                     val postListEntry = result.data.posts.mapIndexed { index, entry ->
-                        val comments = if (!entry.comments.isNullOrEmpty())
-                            entry.comments.map {
-                                Message(
-                                    authorName = it.userName,
-                                    avatarAuthor = it.avatar,
-                                    message = it.comment,
-                                    images = it.images
-                                )
-                            }
-                        else listOf()
-                        PostEntry(
-                            id = entry.id,
-                            title = entry.title,
-                            content = entry.content,
-                            images = entry.images,
-                            userId = entry.userId,
-                            authorAvatar = entry.authorAvatar,
-                            userName = entry.userName,
-                            createdAt = entry.createdAt,
-                            updatedAt = entry.updatedAt,
-                            votes = entry.votes,
-                            videos = entry.videos,
-                            comments = comments,
-                        )
+                        postResponse2PostEntry(postReponse = entry)
                     }
                     currentPage++
                     loadError.value = ""
@@ -146,20 +128,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             try {
                 when (result) {
                     is Resource.Success -> {
-                        post = PostEntry(
-                            title = result.data!!.title,
-                            createdAt = result.data.createdAt,
-                            images = result.data.images,
-                            comments = commentToMessage(result.data.comments),
-                            authorAvatar = result.data.authorAvatar,
-                            userName = result.data.userName,
-                            id = result.data.id,
-                            content = result.data.content,
-                            votes = result.data.votes,
-                            updatedAt = result.data.updatedAt,
-                            userId = result.data.userId,
-                            videos = result.data.videos
-                        )
+                        post = postResponse2PostEntry(result.data!!)
                     }
                     is Resource.Error -> {
                         post = null
@@ -176,7 +145,36 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         }
         return post
     }
+    fun onCommentInputChange(value:String){
+        comment.value=value
+    }
+    fun submitComment(postId:String,comment:String):Boolean{
+        viewModelScope.launch(Dispatchers.IO) {
+            isLoading.value = true
+            val result = postRepository.newComment(postId = postId,comment= CommentRequest(comment.toRequestBody(
+                MultipartBody.FORM),null))
+            try {
+                when (result) {
+                    is Resource.Success -> {
+                        val post= postResponse2PostEntry(result.data!!.post)
+                        val replacement = postList.value.map { if (it.id == postId) it.copy(comments =post.comments ) else it }
+                        postList.value = replacement
+                    }
+                    is Resource.Error -> {
 
+                    }
+                    else -> {
+
+                    }
+                }
+            } catch(e:Exception) {
+
+            }
+
+            isLoading.value = false
+        }
+        return  true
+    }
     private fun commentToMessage(comments: List<Comment>): List<Message> {
         return comments.map {
             Message(
@@ -186,5 +184,24 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                 images = it.images
             )
         }
+    }
+    private fun  postResponse2PostEntry(postReponse:PostResponse):PostEntry{
+        return PostEntry(
+            title = postReponse.title,
+            createdAt = postReponse.createdAt,
+            images = postReponse.images,
+            comments = commentToMessage(postReponse.comments),
+            authorAvatar = postReponse.authorAvatar,
+            userName = postReponse.userName,
+            id = postReponse.id,
+            content = postReponse.content,
+            votes = postReponse.votes,
+            updatedAt = postReponse.updatedAt,
+            userId = postReponse.userId,
+            videos = postReponse.videos,
+            hideName = postReponse.hideName,
+            expired = postReponse.expired,
+            coins = postReponse.coins
+        )
     }
 }

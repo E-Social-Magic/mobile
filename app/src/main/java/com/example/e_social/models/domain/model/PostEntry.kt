@@ -14,4 +14,7 @@ data class PostEntry(
     val createdAt: String,
     val updatedAt: String,
     val authorAvatar:String,
+    val hideName:Boolean,
+    val expired:Long,
+    val coins:Int
 )

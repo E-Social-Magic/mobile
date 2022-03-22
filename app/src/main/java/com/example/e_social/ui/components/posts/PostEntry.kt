@@ -22,6 +22,8 @@ fun PostEntry(
     modifier: Modifier = Modifier,
     postViewModel: PostViewModel
 ) {
+    val comment = postViewModel.comment.value
+
     var shouldShowComment by remember { mutableStateOf(false) }
     Card(
         shape = RoundedCornerShape(8.dp), elevation = 6.dp, modifier = Modifier
@@ -44,9 +46,11 @@ fun PostEntry(
                 onCommentIconClick = { shouldShowComment = !shouldShowComment })
             if (shouldShowComment) {
                 CommentInput(
-                    commentValue = "",
+                    commentValue = comment,
                     hint = "comment something",
-                    onCommentValueChange = {})
+                    onCommentValueChange = { postViewModel.onCommentInputChange(it) },
+                    onSubmit = { postViewModel.submitComment(postId = post.id, comment = comment) }
+                )
                 ListComment(messages = post.comments)
             }
         }

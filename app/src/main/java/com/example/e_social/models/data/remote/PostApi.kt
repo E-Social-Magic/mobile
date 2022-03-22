@@ -1,5 +1,7 @@
 package com.example.e_social.models.data.remote
 
+import com.example.e_social.models.data.request.CommentRequest
+import com.example.e_social.models.data.response.NewCommentResponse
 import com.example.e_social.models.data.response.PostListResponse
 import com.example.e_social.models.data.response.PostResponse
 import com.example.e_social.models.data.response.VoteResponse
@@ -27,4 +29,11 @@ interface PostApi {
         @Part("content") content: RequestBody?
     ):Response<PostResponse>
 
+
+    @Multipart
+    @PUT("post/{post-id}/comment")
+    suspend fun newComment(
+        @Path("post-id") postId: String,
+        @PartMap params:@JvmSuppressWildcards Map<String,RequestBody>
+    ):Response<NewCommentResponse>
 }

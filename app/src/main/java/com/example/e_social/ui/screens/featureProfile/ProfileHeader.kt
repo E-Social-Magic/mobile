@@ -33,7 +33,7 @@ fun ProfileHeader() {
                 Icon(painter = painterResource(id = R.drawable.ic_money), contentDescription = "", tint = Color(0xFF6FCF97))
                 Column(Modifier.padding(8.dp)) {
                     Text(text = "$120", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    Text(text = "Top Up", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = "Helped", color = Color.Gray, fontSize = 12.sp)
                 }
             }
 

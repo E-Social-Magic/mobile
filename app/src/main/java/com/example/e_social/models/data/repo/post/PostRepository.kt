@@ -1,6 +1,8 @@
 package com.example.e_social.models.data.repo.post
 
+import com.example.e_social.models.data.request.CommentRequest
 import com.example.e_social.models.data.request.NewPostRequest
+import com.example.e_social.models.data.response.NewCommentResponse
 import com.example.e_social.models.data.response.PostListResponse
 import com.example.e_social.models.data.response.PostResponse
 import com.example.e_social.models.data.response.VoteResponse
@@ -12,4 +14,5 @@ interface PostRepository {
     suspend fun voteDown(postId:String):Resource<VoteResponse>
     suspend fun newPost(newPostRequest: NewPostRequest):Resource<PostResponse>
     suspend fun getPostById(postId:String):Resource<PostResponse>
+    suspend fun newComment(postId: String,comment: CommentRequest):Resource<NewCommentResponse>
 }

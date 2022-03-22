@@ -3,6 +3,7 @@ package com.example.e_social.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.magnifier
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -23,14 +24,14 @@ fun SimpleTopAppBar(title: String, onIconBackClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(56.dp)
             .background(color = Color.White)
             .shadow(elevation = 1.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
         IconButton(
-            onClick = onIconBackClick
+            onClick = onIconBackClick,
+            modifier = Modifier.align(Alignment.CenterVertically)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_back_arrow),
