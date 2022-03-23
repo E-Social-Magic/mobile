@@ -79,7 +79,7 @@ class ChatViewModel @Inject constructor( val client: ChatClient) :ViewModel(){
             }
         }
     }
-     fun createNewChannel(selectedUser: String):String {
+     fun createNewChannel(selectedUser: String,action:(String)->Unit):String {
          var cid=""
         client.createChannel(
             channelType = "messaging",
@@ -87,6 +87,7 @@ class ChatViewModel @Inject constructor( val client: ChatClient) :ViewModel(){
         ).enqueue { result ->
             if (result.isSuccess) {
                     cid = result.data().cid
+                action.invoke(cid)
             } else {
                 Log.e("UsersAdapter", result.error().message.toString())
             }

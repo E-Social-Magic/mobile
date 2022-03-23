@@ -1,7 +1,5 @@
 package com.example.e_social.ui.screens.featureChat
 
-import android.text.format.DateFormat
-import android.view.LayoutInflater
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,12 +7,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,16 +22,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
@@ -40,14 +35,11 @@ import coil.transform.CircleCropTransformation
 import com.example.e_social.MessagesActivity
 import com.example.e_social.R
 import com.example.e_social.ui.components.SearchBar
-import com.example.e_social.ui.components.posts.MoreActionsMenu
-import com.example.e_social.ui.screens.UserViewModel
-import com.example.e_social.ui.theme.Grey100
+import com.example.e_social.ui.theme.BackgroundBlue
 import com.example.e_social.util.TimeConverter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-import java.time.LocalTime
 import java.util.*
 
 @Destination
@@ -59,22 +51,35 @@ fun ListChatUser(
     val context = LocalContext.current
     val userList = chatViewModel.userList.value
     val coroutineScope = rememberCoroutineScope()
-    Scaffold(topBar = { TopApp(title = "Users", icon =Icons.Default.Search, onIconClick = {navigator.navigateUp()}) }) {
+    Scaffold(topBar = {
+        TopApp(
+            title = "Users",
+            icon = Icons.Default.Search,
+            onIconClick = { navigator.navigateUp() })
+    }) {
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(bottom = 50.dp)) {
-            items(userList.size){ index->
-                val user =userList[index]
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(bottom = 50.dp)
+        ) {
+            items(userList.size) { index ->
+                val user = userList[index]
                 Row(modifier = Modifier
-                    .background(Grey100)
                     .clickable {
                         coroutineScope.launch {
-                            val cid= chatViewModel.createNewChannel(user.id)
-                            if(cid.isNotEmpty()){
-                                context.startActivity(MessagesActivity.createIntent(context, channelId = cid))
-                            }
+                            chatViewModel.createNewChannel(
+                                user.id,
+                                action = { cid ->
+                                    context.startActivity(
+                                        MessagesActivity.createIntent(
+                                            context,
+                                            channelId = cid
+                                        )
+                                    )
+                                })
                         }
                     }
-                    .padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically)
+                    .padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically)
 
                 {
                     Image(
@@ -88,7 +93,7 @@ fun ListChatUser(
                         ),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(35.dp)
+                            .size(45.dp)
                             .clip(CircleShape)
                             .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape),
 
@@ -101,7 +106,7 @@ fun ListChatUser(
                             color = Color.Black
                         )
                         Text(
-                            text =  TimeConverter.convertDate(user.lastActive?.time?:Date().time),
+                            text = TimeConverter.convertDate(user.lastActive?.time ?: Date().time),
                             color = Color.Gray
                         )
                     }
@@ -114,8 +119,13 @@ fun ListChatUser(
 }
 
 @Composable
-private fun TopApp(chatViewModel: ChatViewModel = hiltViewModel(), title:String, icon: ImageVector, onIconClick:()->Unit){
-    val searchBarState  = chatViewModel.searchBarState.value
+private fun TopApp(
+    chatViewModel: ChatViewModel = hiltViewModel(),
+    title: String,
+    icon: ImageVector,
+    onIconClick: () -> Unit
+) {
+    val searchBarState = chatViewModel.searchBarState.value
     val searchValue = chatViewModel.searchValue.value
     Row(
         modifier = Modifier
@@ -123,24 +133,29 @@ private fun TopApp(chatViewModel: ChatViewModel = hiltViewModel(), title:String,
             .heightIn(56.dp)
             .background(color = Color.White)
             .shadow(elevation = 1.dp)
-            .padding(horizontal = 16.dp)
             .clickable { }
     ) {
         if (searchBarState)
             SearchBar(
                 hint = "Search...",
-                searchValue=searchValue,
-                onSearchValueChange = {chatViewModel.onSearchChange(it)},
+                searchValue = searchValue,
+                onSearchValueChange = { chatViewModel.onSearchChange(it) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                onSearchBarStateChange= {chatViewModel.onSearchBarStateChange(it)}
+                onSearchBarStateChange = { chatViewModel.onSearchBarStateChange(it) }
             ) {
 
             }
         else {
-            IconButton(onClick =  onIconClick) {
-                Image(painter = painterResource(id = R.drawable.ic_back_arrow), contentDescription =null )
+            IconButton(
+                onClick = onIconClick,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_back_arrow),
+                    contentDescription = null
+                )
             }
             Text(
                 text = title,

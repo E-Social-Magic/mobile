@@ -20,7 +20,8 @@ fun PostEntry(
     post: PostEntry,
     navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
-    postViewModel: PostViewModel
+    postViewModel: PostViewModel,
+    shareButton:()->Unit
 ) {
 
     var shouldShowComment by remember { mutableStateOf(false) }
@@ -42,7 +43,9 @@ fun PostEntry(
             BottomPostAction(
                 post,
                 postViewModel = postViewModel,
-                onCommentIconClick = { shouldShowComment = !shouldShowComment })
+                onCommentIconClick = { shouldShowComment = !shouldShowComment },
+                shareButton=shareButton
+            )
             if (shouldShowComment) {
                 CommentInput(
                     hint = "comment something",

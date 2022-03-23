@@ -1,14 +1,11 @@
 package com.example.e_social.ui.screens.featurePost
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
 import com.example.e_social.models.data.request.CommentRequest
-import com.example.e_social.models.data.request.NewPostRequest
 import com.example.e_social.models.data.response.Comment
 import com.example.e_social.models.data.response.PostResponse
 import com.example.e_social.models.domain.model.Message
@@ -20,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.internal.wait
 import java.io.File
 import javax.inject.Inject
 

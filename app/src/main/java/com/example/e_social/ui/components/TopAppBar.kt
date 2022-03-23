@@ -1,14 +1,13 @@
 package com.example.e_social.ui.components
 
+//import coil.compose.rememberAsyncImagePainter
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.primarySurface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,31 +15,39 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
-//import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.ui.screens.UserViewModel
+import com.example.e_social.ui.screens.destinations.ProfileScreenDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
 @Composable
-fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:ImageVector, onIconClick:()->Unit){
-    val searchBarState  = userViewModel.searchBarState.value
+fun TopApp(
+    navigator: DestinationsNavigator,
+    userViewModel: UserViewModel = hiltViewModel(),
+    title: String,
+    icon: ImageVector,
+    onIconClick: () -> Unit
+) {
+    val searchBarState = userViewModel.searchBarState.value
     val searchValue = userViewModel.searchValue.value
-    val painter = rememberImagePainter(
-        data ="https://gaplo.tech/content/images/2020/03/android-jetpack.jpg",
-        builder = {
-        crossfade(true)
-        placeholder(R.drawable.placeholder_image)
-        transformations(CircleCropTransformation())
-    } )
+    val isLoading = userViewModel.isLoading.value
+    val user = userViewModel.user.value
+    LaunchedEffect(key1 = true) {
+        userViewModel.getUserInfo()
+    }
+    var avatar by remember {
+        mutableStateOf("https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+    }
+    if (!isLoading && user != null)
+        avatar = user.avatar
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,12 +60,12 @@ fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:Im
         if (searchBarState)
             SearchBar(
                 hint = "Search...",
-                searchValue=searchValue,
-                onSearchValueChange = {userViewModel.onSearchChange(it)},
+                searchValue = searchValue,
+                onSearchValueChange = { userViewModel.onSearchChange(it) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                onSearchBarStateChange= {userViewModel.onSearchBarStateChange(it)}
+                onSearchBarStateChange = { userViewModel.onSearchBarStateChange(it) }
             ) {
 
             }
@@ -87,19 +94,32 @@ fun TopApp(userViewModel: UserViewModel = hiltViewModel(), title:String, icon:Im
                     .padding(16.dp)
                     .align(Alignment.CenterVertically)
             )
+//            Image(
+//                imageVector = Icons.Outlined.Notifications,
+//                contentDescription = "Notifications Icon",
+//                colorFilter = ColorFilter.tint(White),
+//                modifier = Modifier
+//                    .clickable(onClick = onIconClick)
+//                    .padding(16.dp)
+//                    .align(Alignment.CenterVertically)
+//            )
             Image(
-                imageVector = Icons.Outlined.Notifications,
-                contentDescription = "Notifications Icon",
-                colorFilter = ColorFilter.tint(White),
-                modifier = Modifier
-                    .clickable(onClick = onIconClick)
-                    .padding(16.dp)
-                    .align(Alignment.CenterVertically)
-            )
-            Image(
-                painter = painter,
+                painter = rememberImagePainter(
+                    data = avatar,
+                    builder = {
+                        crossfade(true)
+                        placeholder(R.drawable.placeholder_image)
+                        error(R.drawable.default_avatar)
+                        transformations(CircleCropTransformation())
+                        size(30)
+                    }),
                 contentDescription = null,
-                modifier = Modifier.size(30.dp).align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .size(30.dp)
+                    .align(Alignment.CenterVertically)
+                    .clickable {
+                        navigator.navigate(ProfileScreenDestination)
+                    }
             )
         }
     }

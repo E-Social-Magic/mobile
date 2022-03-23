@@ -1,5 +1,7 @@
 package com.example.e_social
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,16 +10,14 @@ import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.e_social.models.Constants
 import com.example.e_social.ui.components.BottomNavController
 import com.example.e_social.ui.components.SnackBarController
-import com.example.e_social.ui.components.TopApp
 import com.example.e_social.ui.screens.ChatScreen
 import com.example.e_social.ui.screens.NavGraphs
 import com.example.e_social.ui.screens.destinations.*
@@ -25,7 +25,6 @@ import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.example.e_social.ui.screens.featureLogin.LoginScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
-import com.example.e_social.ui.screens.featurePost.PostDetail
 import com.example.e_social.ui.screens.featurePost.PostScreen
 import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.screens.featurePost.SavePostScreen
@@ -33,6 +32,7 @@ import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
 import com.example.e_social.ui.theme.EsocialTheme
 import com.example.e_social.util.SessionManager
+import com.facebook.share.model.ShareLinkContent
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
             val coroutineScope = rememberCoroutineScope()
             val snackBarController = SnackBarController(coroutineScope)
             var navController = rememberNavController()
-            val postViewModel :PostViewModel = hiltViewModel()
+            val postViewModel: PostViewModel = hiltViewModel()
             LaunchedEffect(key1 = loginViewModel.isLogin.value) {
                 val user = loginViewModel.user.value
                 if (user != null) {
@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
                         .enqueue()
                 }
             }
+
 
             EsocialTheme {
                 Surface(color = MaterialTheme.colors.background) {
@@ -96,7 +97,14 @@ class MainActivity : ComponentActivity() {
                                             loginViewModel.isShowBottomBar.value = bar
                                             loginViewModel.isShowTopBar.value = bar
                                         },
-                                        postViewModel = postViewModel
+                                        postViewModel = postViewModel,
+                                        shareButton = {
+//                                            val content: ShareLinkContent = ShareLinkContent.Builder()
+//                                            .setContentUrl(Uri.parse("https://developers.facebook.com"))
+//                                            .build()
+//                                            startActivity(share)
+
+                                        }
                                     )
                                 }
                                 composable(LoginScreenDestination) {

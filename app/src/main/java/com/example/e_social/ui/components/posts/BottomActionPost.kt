@@ -1,5 +1,6 @@
 package com.example.e_social.ui.components.posts
 
+import android.content.Intent
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -9,24 +10,34 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.e_social.R
+import androidx.core.net.toUri
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.theme.Grey100
-import com.facebook.share.model.ShareLinkContent
+import com.example.e_social.R
+import com.example.e_social.models.Constants
 
 
 @Composable
-fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel,onCommentIconClick:()->Unit){
+fun BottomPostAction(
+    postEntry: PostEntry,
+    postViewModel: PostViewModel,
+    onCommentIconClick: () -> Unit,
+    shareButton: () -> Unit
+) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,7 +46,10 @@ fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel,onComment
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        VotingAction(text = postEntry.votes.toString(), onUpVoteAction = {postViewModel.voteUp(postEntry.id)}, onDownVoteAction = {postViewModel.voteDown(postEntry.id)})
+        VotingAction(
+            text = postEntry.votes.toString(),
+            onUpVoteAction = { postViewModel.voteUp(postEntry.id) },
+            onDownVoteAction = { postViewModel.voteDown(postEntry.id) })
         PostAction(
             vectorResourceId = R.drawable.ic_baseline_comment_24,
             text = postEntry.comments.size.toString(),
@@ -45,13 +59,19 @@ fun BottomPostAction(postEntry: PostEntry,postViewModel: PostViewModel,onComment
             vectorResourceId = R.drawable.ic_baseline_share_24,
             text = stringResource(R.string.share)
         ) {
-            val content: ShareLinkContent = ShareLinkContent.Builder()
-                .setContentUrl(Uri.parse("https://developers.facebook.com"))
-                .build()
-
+            val share = Intent.createChooser(Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TITLE, postEntry.title)
+                putExtra(Intent.EXTRA_TEXT, Constants.BASE_URL+"post/${postEntry.id}")
+                type = "text/plain"
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }, null)
+                context.startActivity(share)
         }
+
     }
 }
+
 @Composable
 fun VotingAction(
     text: String,
@@ -82,6 +102,7 @@ fun ArrowButton(onClickAction: () -> Unit, arrowResourceId: Int) {
         )
     }
 }
+
 @Composable
 fun PostAction(
     @DrawableRes vectorResourceId: Int,

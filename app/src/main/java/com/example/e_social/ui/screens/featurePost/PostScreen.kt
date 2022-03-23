@@ -19,6 +19,7 @@ import com.example.e_social.ui.components.posts.PostEntry
 import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.destinations.SavePostScreenDestination
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
+import com.facebook.share.widget.ShareButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -28,7 +29,8 @@ fun PostScreen(
     navigator: DestinationsNavigator,
     changeBarState: (Boolean) -> Unit,
     postViewModel: PostViewModel = hiltViewModel(),
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    shareButton: ()->Unit
 ) {
     val postList by remember { postViewModel.postList }
     val endReached by remember { postViewModel.endReached }
@@ -46,6 +48,7 @@ fun PostScreen(
         modifier = Modifier.padding(bottom = 50.dp),
         topBar = {
            TopApp(
+               navigator = navigator,
                 title = "E-Social",
                 icon = Icons.Outlined.Search
             )
@@ -80,7 +83,7 @@ fun PostScreen(
                     if (it >= postList.size - 1 && !endReached) {
                         postViewModel.loadPostPaginated()
                     }
-                    PostEntry(post = postList[it], navigator, postViewModel = postViewModel)
+                    PostEntry(post = postList[it], navigator, postViewModel = postViewModel,shareButton=shareButton)
                 }
             }
         }
