@@ -41,9 +41,10 @@ object TimeConverter {
         return date
     }
     fun getDateTime(timestamp: String):String?{
-        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
-        val formattedDate = sdf.format(timestamp)
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        val outputFormat = SimpleDateFormat("hh:mm-dd/MM/yyyy", Locale.US)
+        val date: Date = inputFormat.parse(timestamp) as Date
+        val formattedDate = outputFormat.format(date)
         return formattedDate
     }
-
 }

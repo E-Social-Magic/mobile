@@ -17,4 +17,5 @@ data class VideoItem(
     val updatedAt: String,
     var votes: Int,
     val authorAvatar:String,
+    val userId:String,
     )

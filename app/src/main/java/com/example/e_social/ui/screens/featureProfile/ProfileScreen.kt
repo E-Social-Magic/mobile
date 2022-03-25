@@ -1,10 +1,11 @@
 package com.example.e_social.ui.screens.featureProfile
 
 //import coil.compose.rememberAsyncImagePainter
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -27,16 +28,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import com.example.e_social.MessagesActivity
 import com.example.e_social.R
+import com.example.e_social.models.data.response.DataX
+import com.example.e_social.models.data.response.UserInfo
+import com.example.e_social.models.data.response.UserResponse
+import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.SnackBarController
+import com.example.e_social.ui.components.posts.HeaderPost
+import com.example.e_social.ui.components.posts.ImageContent
+import com.example.e_social.ui.components.posts.PostEntry
+import com.example.e_social.ui.components.posts.TitlePost
+import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
+import com.example.e_social.ui.screens.featureVideo.VideoCard
+import com.example.e_social.ui.screens.featureVideo.VideoItem
+import com.example.e_social.ui.screens.featureVideo.VideoPlayer
+import com.example.e_social.ui.screens.featureVideo.VideoThumbnail
+import com.example.e_social.ui.theme.Grey100
+import com.example.e_social.ui.theme.Shapes
+import com.example.e_social.util.TimeConverter
+import com.google.accompanist.insets.LocalWindowInsets
+import com.google.accompanist.insets.rememberInsetsPaddingValues
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
+import java.util.*
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Destination
 @Composable
 fun ProfileScreen(
@@ -44,90 +68,127 @@ fun ProfileScreen(
     scaffoldState: ScaffoldState,
     coroutineScope: CoroutineScope,
     snackBarController: SnackBarController,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    userViewModel: UserViewModel,
 ) {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
-    var tenbien = "string"
-    Scaffold(topBar = {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = Color.White)
-                .shadow(elevation = 2.dp)
-                .padding(horizontal = 20.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Profile",
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentWidth(Alignment.Start),
-                textAlign = TextAlign.Center,
-                style = TextStyle(
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.15.sp
-                ),
-            )
-            Button(
-                onClick = { /*TODO*/ },
-                modifier = Modifier
-                    .weight(1f)
-                    .wrapContentWidth(Alignment.End), shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(text = "Đăng xuất")
-            }
-
+    val paymentList = userViewModel.payment
+    var user = userViewModel.user
+    var images = userViewModel.images
+//    var videos = userViewModel.videos
+    var posts = userViewModel.posts
+    var helped = userViewModel.helped
+    var isLoading = userViewModel.isLoading
+    var coinsConvert : String by remember{ mutableStateOf("") }
+    coinsConvert = if(user.value!!.coins > 1000){
+        (user.value!!.coins/1000).toString() + "k"
+    }
+    else {
+        user.value!!.coins.toString()
+    }
+    LaunchedEffect(key1 = true ){
+        userViewModel.getUserInfo()
+    }
+    if (isLoading.value){
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            CircularProgressBar(isDisplay = isLoading.value)
         }
-    }) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.height(4.dp))
-            ProfileSection()
-            Spacer(modifier = Modifier.height(25.dp))
-            Spacer(modifier = Modifier.height(25.dp))
-            Spacer(modifier = Modifier.height(10.dp))
-            PostTabView(
-                imageWithTexts = listOf(
-                    ImageWithText(
-                        image = painterResource(id = R.drawable.ic_grid),
-                        text = "Posts"
-                    ),
-                    ImageWithText(
-                        image = painterResource(id = R.drawable.ic_reels),
-                        text = "Reels"
-                    ),
-                    ImageWithText(
-                        image = painterResource(id = R.drawable.ic_igtv),
-                        text = "IGTV"
+    } else{
+        Scaffold(topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.White)
+                    .shadow(elevation = 2.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "Hồ sơ",
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.Start),
+                    textAlign = TextAlign.Center,
+                    style = TextStyle(
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 0.15.sp
                     ),
                 )
-            ) {
-                selectedTabIndex = it
+                Button(
+                    onClick = { navigator.navigate(LoginScreenDestination) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.End), shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = "Đăng xuất")
+                }
+
             }
-            when (selectedTabIndex) {
-                0 -> PostSection(
-                    posts = listOf(
-                        painterResource(id = R.drawable.unsplash),
-                        painterResource(id = R.drawable.unsplash1),
-                        painterResource(id = R.drawable.unsplash2),
-                        painterResource(id = R.drawable.unsplash3),
-                        painterResource(id = R.drawable.unsplash4),
-                        painterResource(id = R.drawable.unsplash5),
-                        painterResource(id = R.drawable.unsplash6),
-                        painterResource(id = R.drawable.unsplash8),
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+        }) {
+            Column(modifier = Modifier.fillMaxSize().padding(bottom = 50.dp)) {
+                Spacer(modifier = Modifier.height(4.dp))
+                ProfileSection(
+                    userName = user.value!!.userName,
+                    description = user.value?.description,
+                    avatar = user.value!!.avatar,
+                    coins = coinsConvert,
+                    posts = posts.value,
+                    helped = helped.value,
+                    group = user.value!!.subjects?.size.toString() ,
+                    follower = user.value!!.follower?.size.toString(),
+                    following = user.value!!.following?.size.toString()
                 )
+                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+
+                PostTabView(
+                    imageWithTexts = listOf(
+                        ImageWithText(
+                            image = painterResource(id = R.drawable.ic_grid),
+                            text = "Posts"
+                        ),
+                        ImageWithText(
+                            image = painterResource(id = R.drawable.ic_reels),
+                            text = "Reels"
+                        ),
+                        ImageWithText(
+                            image = painterResource(id = R.drawable.ic_igtv),
+                            text = "IGTV"
+                        ),
+                    )
+                ) {
+                    selectedTabIndex = it
+                }
+                when (selectedTabIndex) {
+                    0 -> PostSection(
+                        posts = images.value,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    2 -> ProfileTransactionHistory(
+                        paymentList = paymentList.value,
+                        avatar = user.value!!.avatar
+                    )
+                }
             }
         }
-
     }
 }
 
 @Composable
 fun ProfileSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    userName:String,
+    description: String?,
+    avatar: String,
+    coins: String,
+    posts: Int,
+    helped: Int,
+    group: String,
+    follower: String,
+    following: String
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Column(
@@ -137,26 +198,35 @@ fun ProfileSection(
             RoundImage(
                 image = rememberImagePainter(
                     ImageRequest.Builder(LocalContext.current)
-                        .data(data = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
+                        .data(data = avatar)
                         .error(R.drawable.default_avatar)
                         .apply(block = fun ImageRequest.Builder.() {
                             transformations(CircleCropTransformation())
                         }).build()
                 ),
-                modifier = Modifier.size(100.dp).align(Alignment.CenterHorizontally)
+                modifier = Modifier
+                    .size(100.dp)
+                    .align(Alignment.CenterHorizontally)
             )
+            Column(
+                Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally)) {
+                Text(text = userName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            }
             Spacer(modifier = Modifier.width(16.dp))
-            StatSection()
+            StatSection(
+                helped = helped.toString(),
+                posts = posts,
+                coins = coins,
+                group = group,
+                follower = follower,
+                following = following
+            )
         }
         HorizontalDivider()
         ProfileDescription(
-            displayName = "Programming Mentor",
-            description = "3 years of coding experience\n" +
-                    "Want me to make your app? Send me an email!\n" +
-                    "Follow to my Github !",
-            url = "https://github.com/longnguyen-2k",
-            followedBy = listOf("codinginflow", "miakhalifa"),
-            otherCount = 17
+            description = description,
         )
     }
 }
@@ -182,11 +252,19 @@ fun RoundImage(
 }
 
 @Composable
-fun StatSection(modifier: Modifier = Modifier) {
+fun StatSection(
+    modifier: Modifier = Modifier,
+    helped: String,
+    posts:Int,
+    coins: String,
+    group: String,
+    follower: String,
+    following: String
+) {
     Column(
         modifier = modifier
     ) {
-        ProfileHeader()
+        ProfileHeader(helped, posts, coins)
         HorizontalDivider()
         Row(
             modifier = Modifier.height(64.dp),
@@ -205,7 +283,7 @@ fun StatSection(modifier: Modifier = Modifier) {
                         .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ProfileStat(numberText = "601", text = "Posts")
+                        ProfileStat(numberText = group, text = "Group")
                     }
 
                     VerticalDivider()
@@ -216,7 +294,7 @@ fun StatSection(modifier: Modifier = Modifier) {
                         .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ProfileStat(numberText = "100K", text = "Followers")
+                        ProfileStat(numberText = follower, text = "Follower")
                     }
                     VerticalDivider()
                     Row(Modifier
@@ -226,7 +304,7 @@ fun StatSection(modifier: Modifier = Modifier) {
                         .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ProfileStat(numberText = "72", text = "Following")
+                        ProfileStat(numberText = following, text = "Đang Follow")
 
                     }
                 }
@@ -241,67 +319,116 @@ fun ProfileStat(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    Column(Modifier.fillMaxWidth().padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = numberText, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = numberText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Text(text = text, color = Color.Gray, fontSize = 12.sp)
     }
+}
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ProfileTransactionHistory(
+    paymentList: List<DataX>,
+    avatar: String,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn {
+        items(paymentList.size) { index->
+            val payment = paymentList[index]
+            val color = if(index%2 == 0) Color.White else Grey100
+            val colorCoins = if(payment.type == "in") Color(0xFF41924B) else Color(0xFFCC0000)
+                Row(modifier = Modifier
+                    .background(color)
+                    .padding(vertical = 8.dp, horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically)
+                {
+                    Image(
+                        painter = rememberImagePainter(
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(data = avatar)
+                                .error(R.drawable.default_avatar)
+                                .apply(block = fun ImageRequest.Builder.() {
+                                    transformations(CircleCropTransformation())
+                                }).build()
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(35.dp)
+                            .clip(CircleShape)
+                            .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape),
 
+                        )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = payment.username,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
+                        )
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Số tiền: " + if(payment.type == "in") "+ " else {"- "} + payment.amount.toString(),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = colorCoins
+                            )
+                            TimeConverter.getDateTime(payment!!.createdAt)?.let {
+                                Text(
+                                    text = it,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Light,
+                                    fontSize = 13.sp,
+                                    modifier = Modifier
+                                        .align(Alignment.Bottom)
+                                )
+                            }
+                        }
+                        Text(
+                            text = "Số dư ví: " + if(payment.resultCode == "7000") "?" else payment.accountBalance.toString(),
+                            fontWeight = FontWeight.W500,
+                            fontSize = 13.sp,
+                            modifier = Modifier
+                                .align(Alignment.Start)
+                        )
+                        Text(
+                            text = "Trạng thái giao dịch: " + payment.message,
+                            fontWeight = FontWeight.Light,
+                            fontSize = 13.sp,
+                            modifier = Modifier
+                                .align(Alignment.Start)
+                        )
+                    }
+                }
+        }
+    }
 }
 
 @Composable
 fun ProfileDescription(
-    displayName: String,
-    description: String,
-    url: String,
-    followedBy: List<String>,
-    otherCount: Int
+    description: String?,
 ) {
     val letterSpacing = 0.5.sp
     val lineHeight = 20.sp
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp)
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
     ) {
         Text(
-            text = displayName,
+            text = "Mô tả",
             fontWeight = FontWeight.Bold,
             letterSpacing = letterSpacing,
             lineHeight = lineHeight
         )
-        Text(
-            text = description,
-            letterSpacing = letterSpacing,
-            lineHeight = lineHeight
-        )
-        Text(
-            text = url,
-            color = Color(0xFF3D3D91),
-            letterSpacing = letterSpacing,
-            lineHeight = lineHeight
-        )
-        if (followedBy.isNotEmpty()) {
+        if (description != null) {
             Text(
-                text = buildAnnotatedString {
-                    val boldStyle = SpanStyle(
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold
-                    )
-                    append("Followed by ")
-                    followedBy.forEachIndexed { index, name ->
-                        pushStyle(boldStyle)
-                        append(name)
-                        pop()
-                        if (index < followedBy.size - 1) {
-                            append(", ")
-                        }
-                    }
-                    if (otherCount > 2) {
-                        append(" and ")
-                        pushStyle(boldStyle)
-                        append("$otherCount others")
-                    }
-                },
+                text = description,
                 letterSpacing = letterSpacing,
                 lineHeight = lineHeight
             )
@@ -386,7 +513,7 @@ fun PostTabView(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PostSection(
-    posts: List<Painter>,
+    posts: List<String>,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -395,17 +522,9 @@ fun PostSection(
             .scale(1.01f)
             .padding(bottom = 80.dp)
     ) {
-        items(posts.size) {
-            Image(
-                painter = posts[it],
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .aspectRatio(1f)
-                    .border(
-                        width = 1.dp,
-                        color = Color.White
-                    )
+        items(posts.size) {index ->
+            ImageContent(
+                url = posts[index]
             )
         }
     }

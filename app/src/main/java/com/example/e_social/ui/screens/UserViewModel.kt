@@ -39,7 +39,7 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
             when(result){
                 is Resource.Success -> {
                     if (result.data != null)
-                        _user.value=result.data
+                        _user.value=result.data.user
                 }
                 else ->{
 

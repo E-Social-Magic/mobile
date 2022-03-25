@@ -61,6 +61,8 @@ fun PostDetail(
                 ) {
                     Column(modifier = Modifier.padding(8.dp).padding(bottom = 50.dp)) {
                         HeaderPost(
+                            navigator=navigator,
+                            userId=post!!.userId,
                             authorAvatar = post!!.authorAvatar,
                             userName = post!!.userName,
                             createdAt = post!!.createdAt

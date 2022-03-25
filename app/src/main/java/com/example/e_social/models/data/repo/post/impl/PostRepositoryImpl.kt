@@ -30,7 +30,6 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
 
     override suspend fun getPosts(limit: Int, offset: Int,groupId:String?): Resource<PostListResponse> {
         val response = api.getPosts(limit = limit, offset = offset,groupId)
-        Log.d("Log",response.body().toString())
         return when (response.code()) {
             HttpURLConnection.HTTP_BAD_METHOD -> {
                 val errorBody = response.errorBody() ?: run {

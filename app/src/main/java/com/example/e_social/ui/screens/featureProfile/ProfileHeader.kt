@@ -16,7 +16,11 @@ import androidx.compose.ui.unit.sp
 import com.example.e_social.R
 
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(
+    countHelped: String,
+    countPosts: Int,
+    coins:String,
+) {
         Row(
             Modifier.height(64.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -28,11 +32,11 @@ fun ProfileHeader() {
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Center
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_money), contentDescription = "", tint = Color(0xFF6FCF97))
-                Column(Modifier.padding(8.dp)) {
-                    Text(text = "$120", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Icon(painter = painterResource(id = R.drawable.outline_check_circle_24), contentDescription = "", tint = Color(0xFF6FCF97))
+                Column(Modifier.padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = countHelped, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text(text = "Helped", color = Color.Gray, fontSize = 12.sp)
                 }
             }
@@ -44,12 +48,27 @@ fun ProfileHeader() {
                 .clickable { }
                 .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Center
             ) {
-                Icon(painter = painterResource(id = R.drawable.ic_coin), contentDescription = "", tint = MaterialTheme.colors.primary)
+                Icon(painter = painterResource(id = R.drawable.ic_coin), contentDescription = "", tint = Color(0xFFFF9900))
                 Column(Modifier.padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "$10", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                    Text(text = "Points", color = Color.LightGray, fontSize = 12.sp)
+                    Text(text = coins, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(text = "Coins", color = Color.Gray, fontSize = 12.sp)
+                }
+            }
+            VerticalDivider()
+            Row(Modifier
+                .fillMaxHeight()
+                .weight(1f)
+                .clickable { }
+                .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(painter = painterResource(id = R.drawable.outline_assignment_24), contentDescription = "", tint = MaterialTheme.colors.primary)
+                Column(Modifier.padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = countPosts.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(text = "Posts", color = Color.Gray, fontSize = 12.sp)
                 }
             }
     }

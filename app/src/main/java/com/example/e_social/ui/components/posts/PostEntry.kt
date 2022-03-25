@@ -22,7 +22,6 @@ fun PostEntry(
     modifier: Modifier = Modifier,
     postViewModel: PostViewModel,
 ) {
-
     var shouldShowComment by remember { mutableStateOf(false) }
     Card(
         shape = RoundedCornerShape(8.dp), elevation = 6.dp, modifier = Modifier
@@ -32,9 +31,11 @@ fun PostEntry(
     ) {
         Column {
             HeaderPost(
+                navigator=navigator,
                 authorAvatar = post.authorAvatar,
                 userName = post.userName,
-                createdAt = post.createdAt
+                createdAt = post.createdAt,
+                userId = post.userId
             )
             ContentPost(onClickAction = {
                 navigator.navigate(PostDetailDestination(postId = post.id))

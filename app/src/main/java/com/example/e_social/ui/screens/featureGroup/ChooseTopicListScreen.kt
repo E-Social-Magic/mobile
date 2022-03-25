@@ -66,7 +66,7 @@ fun TopicListScreen(
                     fontSize = 20.sp,
                     modifier = Modifier.padding(top=10.dp)
                     )
-                SliderBar(sliderPosition=sliderPosition,steps=steps,onChange={loginViewModel.onChangSlider(it)})
+//                SliderBar(sliderPosition=sliderPosition,steps=steps,onChange={loginViewModel.onChangSlider(it)})
             }
             Row(modifier = Modifier.weight(1f)) {
                 ComposeMenu(loginViewModel.levels, onSelectLevel = {levelSelected-> loginViewModel.level.value=levelSelected })

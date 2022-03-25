@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -37,13 +38,18 @@ import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.PostEntry
+import com.example.e_social.ui.screens.featureProfile.ViewProfileOption
 import com.example.e_social.ui.theme.Grey100
 import com.example.e_social.util.TimeConverter
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HeaderPost(authorAvatar:String,userName:String,createdAt:String){
-    Row(modifier = Modifier.background(Grey100).padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+fun HeaderPost(navigator: DestinationsNavigator,userId:String,authorAvatar:String,userName:String,createdAt:String){
+    var expand by remember{mutableStateOf(false)}
+    Row(modifier = Modifier
+        .background(Grey100)
+        .padding(start = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(
             painter = rememberImagePainter(
                 ImageRequest.Builder(LocalContext.current)
@@ -57,7 +63,8 @@ fun HeaderPost(authorAvatar:String,userName:String,createdAt:String){
             modifier = Modifier
                 .size(35.dp)
                 .clip(CircleShape)
-                .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape),
+                .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape)
+                .clickable { expand=true },
 
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -74,6 +81,7 @@ fun HeaderPost(authorAvatar:String,userName:String,createdAt:String){
             )
 
         }
+        ViewProfileOption(navigator = navigator, expanded = expand, onDismiss = { expand=false }, userId = userId)
 //        MoreActionsMenu()
     }
 }
@@ -90,7 +98,9 @@ fun MoreActionsMenu(){
             )
         }
             DropdownMenu(
-                modifier=Modifier.wrapContentSize().width(200.dp),
+                modifier= Modifier
+                    .wrapContentSize()
+                    .width(200.dp),
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {

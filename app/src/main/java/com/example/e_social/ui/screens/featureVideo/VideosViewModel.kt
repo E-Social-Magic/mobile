@@ -151,6 +151,7 @@ class VideosViewModel @Inject constructor(private val postRepository: PostReposi
                             updatedAt = entry.updatedAt,
                             comments = comments,
                             authorAvatar = entry.authorAvatar,
+                            userId = entry.userId
                         )
                     }
                     currentPage++

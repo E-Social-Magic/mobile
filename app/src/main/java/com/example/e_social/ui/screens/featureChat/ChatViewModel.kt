@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.e_social.MessagesActivity
 import com.example.e_social.R
+import com.example.e_social.util.SessionManager
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.getstream.chat.android.client.ChatClient
@@ -22,13 +23,14 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatViewModel @Inject constructor( val client: ChatClient) :ViewModel(){
+class ChatViewModel @Inject constructor( val client: ChatClient, val sessionManager: SessionManager) :ViewModel(){
     var searchBarState = mutableStateOf(false)
     var searchValue = mutableStateOf("")
     var userList = mutableStateOf<List<User>>(listOf())
-
+    val ownerId = mutableStateOf("")
     init{
         queryAllUsers()
+        ownerId.value=sessionManager.fetchUserId()?:""
     }
 
     fun createChannel(){

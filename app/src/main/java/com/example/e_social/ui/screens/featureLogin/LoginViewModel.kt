@@ -88,6 +88,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
                 avatar = userResponse.avatar?:"https://gaplo.tech/content/images/2020/03/android-jetpack.jpg"
             )
             sessionManager.saveAuthToken(userResponse.token)
+            sessionManager.saveUserId(userResponse.id)
             isLogin.value=true
         }
         else{

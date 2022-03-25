@@ -149,6 +149,7 @@ fun VideosScreen(
         itemsIndexed(videos, { _, video -> video.id }) { index, video ->
             Spacer(modifier = Modifier.height(16.dp))
             VideoCard(
+                navigator=navigator,
                 videoItem = video,
                 exoPlayer = exoPlayer,
                 isPlaying = index == playingItemIndex,
@@ -178,6 +179,7 @@ private fun LazyListState.visibleAreaContainsItem(
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun VideoCard(
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     videoItem: VideoItem,
     isPlaying: Boolean,
@@ -195,7 +197,7 @@ fun VideoCard(
         contentAlignment = Alignment.Center
     ) {
         Column {
-            HeaderPost(authorAvatar = videoItem.authorAvatar, userName = videoItem.userName, createdAt = videoItem.createdAt)
+            HeaderPost(authorAvatar = videoItem.authorAvatar, userName = videoItem.userName, createdAt = videoItem.createdAt, navigator = navigator, userId = videoItem.userId)
             Column(modifier = Modifier.padding(8.dp)) {
                 TitlePost(videoItem.title)
                 Text(
