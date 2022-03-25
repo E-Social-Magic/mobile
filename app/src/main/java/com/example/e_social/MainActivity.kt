@@ -28,7 +28,9 @@ import com.example.e_social.ui.screens.featureLogin.SignUpScreen
 import com.example.e_social.ui.screens.featurePost.PostScreen
 import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.screens.featurePost.SavePostScreen
+import com.example.e_social.ui.screens.featureProfile.ProfileOtherUserScreen
 import com.example.e_social.ui.screens.featureProfile.ProfileScreen
+import com.example.e_social.ui.screens.featureProfile.UserViewModel
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
 import com.example.e_social.ui.theme.EsocialTheme
 import com.example.e_social.util.SessionManager
@@ -55,6 +57,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val loginViewModel: LoginViewModel = hiltViewModel()
+            val userViewModel: UserViewModel = hiltViewModel()
             val isShowTopBar = loginViewModel.isShowTopBar.value
             val isShowBottomBar = loginViewModel.isShowBottomBar.value
             val scaffoldState = rememberScaffoldState()
@@ -132,7 +135,8 @@ class MainActivity : ComponentActivity() {
                                         scaffoldState = scaffoldState,
                                         coroutineScope = coroutineScope,
                                         snackBarController = snackBarController,
-                                        loginViewModel = loginViewModel
+                                        loginViewModel = loginViewModel,
+                                        userViewModel = userViewModel
                                     )
                                 }
                                 composable(VideosScreenDestination) {

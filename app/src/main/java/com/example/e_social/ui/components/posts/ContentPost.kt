@@ -44,14 +44,13 @@ fun ImageContent(url: String) {
         builder = {
             crossfade(true)
             placeholder(R.drawable.placeholder_image)
-            scale(Scale.FILL)
             size(Int.MAX_VALUE)
         })
     Image(
         painter = painter,
         contentDescription = null,
         Modifier.fillMaxWidth(),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Fit
     )
 }
 

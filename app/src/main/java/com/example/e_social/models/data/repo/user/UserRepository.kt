@@ -10,8 +10,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface UserRepository {
-    suspend fun getUserInfo(): Resource<UserInfo>
-    suspend fun getUserInfo(id:String): Resource<UserInfo>
+    suspend fun getUserInfo(): Resource<UserResponse>
+    suspend fun getUserInfo(id:String): Resource<UserResponse>
     suspend fun login(userModelRequest: LoginRequest): Resource<LoginResponse>
     suspend fun signUp(signUpRequest: SignUpRequest): Resource<SignUpResponse>
     suspend fun editAccount(id:String, editAccountRequest: EditAccountRequest): Resource<EditAccountResponse>

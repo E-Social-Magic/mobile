@@ -18,14 +18,13 @@ import javax.inject.Inject
 @ActivityScoped
 class UserRepositoryImpl @Inject constructor(private val api: UserApi) : UserRepository {
 
-    override suspend fun getUserInfo(): Resource<UserInfo> {
+    override suspend fun getUserInfo(): Resource<UserResponse> {
         val response = api.getUserInfo()
         return when (response.code()) {
             HttpURLConnection.HTTP_BAD_REQUEST -> {
                 val errorBody = response.errorBody()?:run{
                     return Resource.Error(message = "Unknown error")
                 }
-
                 return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
             }
             HttpURLConnection.HTTP_NOT_FOUND -> {
@@ -54,7 +53,7 @@ class UserRepositoryImpl @Inject constructor(private val api: UserApi) : UserRep
         }
     }
 
-    override suspend fun getUserInfo(id:String): Resource<UserInfo> {
+    override suspend fun getUserInfo(id:String): Resource<UserResponse> {
         val response = api.getUserInfo(id)
         return when (response.code()) {
             HttpURLConnection.HTTP_BAD_REQUEST -> {
