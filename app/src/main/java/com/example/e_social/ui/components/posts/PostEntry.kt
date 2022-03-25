@@ -21,7 +21,6 @@ fun PostEntry(
     navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     postViewModel: PostViewModel,
-    shareButton:()->Unit
 ) {
 
     var shouldShowComment by remember { mutableStateOf(false) }
@@ -44,7 +43,6 @@ fun PostEntry(
                 post,
                 postViewModel = postViewModel,
                 onCommentIconClick = { shouldShowComment = !shouldShowComment },
-                shareButton=shareButton
             )
             if (shouldShowComment) {
                 CommentInput(

@@ -1,6 +1,9 @@
 package com.example.e_social.ui.screens.featurePost
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.e_social.models.Constants
@@ -18,6 +21,8 @@ import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,15 +33,25 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
     val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf()))
+    val groupId= mutableStateOf("")
+    private var lastScrollIndex = 0
+    private val _scrollUp = MutableLiveData(false)
+    val scrollUp: LiveData<Boolean>
+        get() = _scrollUp
 
     init {
         loadPostPaginated()
     }
-
-    fun loadPostPaginated() {
+    fun refresh(groupById: String){
+        postList.value =listOf()
+        currentPage = 1
+        loadPostPaginated(groupById)
+    }
+    fun loadPostPaginated(groupById: String?=null) {
         viewModelScope.launch {
             isLoading.value = true
-            val result = postRepository.getPosts(Constants.POST_SIZE, currentPage)
+            val searchBy= groupById ?: if (groupId.value.isEmpty()) null else groupId.value
+            val result = postRepository.getPosts(Constants.POST_SIZE, currentPage,searchBy)
             when (result) {
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
@@ -119,7 +134,29 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             postRepository.newPost(postModel = newPost.value)
         }
     }
-
+    fun loadPostByGroup(groupId:String){
+        viewModelScope.launch {
+            isLoading.value = true
+            val result = postRepository.getPosts(Constants.POST_SIZE, currentPage)
+            when (result) {
+                is Resource.Success -> {
+                    endReached.value = currentPage >= result.data!!.totalPages
+                    val postListEntry = result.data.posts.mapIndexed { index, entry ->
+                        postResponse2PostEntry(postReponse = entry)
+                    }
+                    currentPage++
+                    loadError.value = ""
+                    isLoading.value = false
+                    postList.value += postListEntry
+                }
+                is Resource.Error -> {
+                    loadError.value = result.message!!
+                    isLoading.value = false
+                }
+                else -> {}
+            }
+        }
+    }
     suspend fun findPostById(id: String): PostEntry? {
         var post: PostEntry? = null
             isLoading.value = true
@@ -210,5 +247,22 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     fun onPostChange(newPostModel: PostModel) {
         newPost.value = newPostModel
+    }
+    fun updateScrollPosition(newScrollIndex: Int) {
+        if (newScrollIndex == lastScrollIndex) return
+        _scrollUp.value = newScrollIndex > lastScrollIndex
+        lastScrollIndex = newScrollIndex
+    }
+    fun  onCostSelected (costSelected :Boolean){
+        newPost.value= newPost.value.copy(costs = costSelected)
+    }
+    fun  onHideNameSelected(hideNameValue:Boolean){
+        newPost.value= newPost.value.copy(hideName = hideNameValue)
+    }
+    fun onExpiredChange(newExpried:Long){
+        newPost.value= newPost.value.copy(expired = newExpried)
+    }
+    fun  onCoinChange(newCoins:Int){
+        newPost.value = newPost.value.copy(coins = newCoins)
     }
 }

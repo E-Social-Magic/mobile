@@ -35,18 +35,19 @@ import coil.request.ImageRequest
 import com.example.e_social.R
 import com.example.e_social.models.domain.model.TopicIndexListEntry
 import com.example.e_social.ui.components.NextStepButton
-import com.example.e_social.ui.screens.destinations.MainScreenDestination
+
 import com.example.e_social.ui.theme.Grey100
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 
 
 @Destination
 @Composable
 fun TopicListScreen(
     navigator: DestinationsNavigator,
-    loginViewModel: LoginViewModel =hiltViewModel()
+    loginViewModel: LoginViewModel =hiltViewModel(),
 ) {
     Surface(
         color = MaterialTheme.colors.background,
@@ -58,7 +59,7 @@ fun TopicListScreen(
         Column {
             Column(modifier = Modifier.weight(1f).fillMaxSize(), horizontalAlignment = CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Text(
-                    text = "Choose your favorite topics?",
+                    text = "Chọn những chủ đề mà bạn yêu thích",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary,
@@ -80,7 +81,7 @@ fun TopicListScreen(
                 .padding(10.dp), verticalAlignment = Alignment.CenterVertically){
                 NextStepButton(
                     onButtonClick = {
-                        navigator.navigate(MainScreenDestination)
+//                        navigator.navigate(Post)
                         loginViewModel.isLogin.value=true
                         loginViewModel.isShowTopBar.value=true
                         loginViewModel.isShowBottomBar.value=true

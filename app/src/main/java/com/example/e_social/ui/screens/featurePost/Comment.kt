@@ -9,6 +9,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
@@ -95,7 +97,6 @@ fun MessageCard(msg: Message) {
                     style = MaterialTheme.typography.subtitle2,
                     fontWeight = FontWeight.Bold
                 )
-
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Surface(
@@ -219,6 +220,7 @@ fun CommentInput(
                                                 }
                                         }
 
+
                                 }
                             ) {
                                 Icon(
@@ -250,7 +252,8 @@ fun CommentInput(
                         Text(
                             text = hint,
                             color = Color.LightGray,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            fontSize = 12.sp
                         )
                     },
                     colors = TextFieldDefaults.textFieldColors(
@@ -261,25 +264,21 @@ fun CommentInput(
             }
         }
         if (!comment.value.images.isNullOrEmpty()) {
-            Column(
+            LazyRow(
                 modifier = Modifier
-                    .heightIn(max = 150.dp)
                     .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    comment.value.images!!.mapIndexed { index,file ->
-                        if (index<3)
+                    items(comment.value.images!!.size) {index ->
                         Image(
                             painter = rememberImagePainter(
-                                data = File(file),
+                                data = File(comment.value.images!![index]),
                                 builder = {
                                     crossfade(true)
                                     placeholder(R.drawable.placeholder_image)
                                     error(R.drawable.default_avatar)
                                     transformations(RoundedCornersTransformation(12.5f))
+                                    size(Int.MAX_VALUE)
                                 }),
                             contentDescription = null,
                             modifier = Modifier
@@ -290,4 +289,3 @@ fun CommentInput(
             }
         }
     }
-}

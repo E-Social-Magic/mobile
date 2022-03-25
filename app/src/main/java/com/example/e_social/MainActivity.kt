@@ -32,9 +32,9 @@ import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
 import com.example.e_social.ui.theme.EsocialTheme
 import com.example.e_social.util.SessionManager
-import com.facebook.share.model.ShareLinkContent
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
+import com.ramcosta.composedestinations.manualcomposablecalls.resultRecipient
 import dagger.hilt.android.AndroidEntryPoint
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.models.User
@@ -98,13 +98,7 @@ class MainActivity : ComponentActivity() {
                                             loginViewModel.isShowTopBar.value = bar
                                         },
                                         postViewModel = postViewModel,
-                                        shareButton = {
-//                                            val content: ShareLinkContent = ShareLinkContent.Builder()
-//                                            .setContentUrl(Uri.parse("https://developers.facebook.com"))
-//                                            .build()
-//                                            startActivity(share)
-
-                                        }
+                                        resultRecipient = resultRecipient(),
                                     )
                                 }
                                 composable(LoginScreenDestination) {
@@ -119,6 +113,7 @@ class MainActivity : ComponentActivity() {
                                 composable(SavePostScreenDestination) {
                                     SavePostScreen(
                                         navigator = destinationsNavigator,
+                                        resultRecipient = resultRecipient(),
                                         scaffoldState = scaffoldState
                                     )
                                 }
@@ -169,9 +164,9 @@ class MainActivity : ComponentActivity() {
                                 composable(TopicListScreenDestination) {
                                     TopicListScreen(
                                         navigator = destinationsNavigator,
-                                        loginViewModel = loginViewModel,
-                                    )
+                                        loginViewModel = loginViewModel)
                                 }
+
                             }
                         },
                         bottomBar = { if (isShowBottomBar) BottomNavController(navController = navController) },

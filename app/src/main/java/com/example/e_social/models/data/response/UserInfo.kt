@@ -10,9 +10,9 @@ data class UserInfo(
     var address: String?,
     var phone: String?,
     var description: String?,
-    var subjects: List<Topic>,
+    var subjects: List<String>,
     var coins: Long,
-    var level: String,
+    var level: String?,
     var id: String,
     var token: String?
 )

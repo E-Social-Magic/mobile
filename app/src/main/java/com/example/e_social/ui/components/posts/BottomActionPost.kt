@@ -34,7 +34,6 @@ fun BottomPostAction(
     postEntry: PostEntry,
     postViewModel: PostViewModel,
     onCommentIconClick: () -> Unit,
-    shareButton: () -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()

@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 //import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
@@ -62,26 +63,18 @@ fun HeaderPost(authorAvatar:String,userName:String,createdAt:String){
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(
-                    R.string.post_group_header,
-                    userName,
-                    "Group giai toan"
-
-                ),
+                text = userName,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
             )
             Text(
-                text = stringResource(
-                    R.string.post_user_header,
-                    userName,
-                    TimeConverter.converter(createdAt)
-                ),
-                color = Color.Gray
+                text = TimeConverter.converter(createdAt),
+                color = Color.Gray,
+                fontSize = 12.sp
             )
 
         }
-        MoreActionsMenu()
+//        MoreActionsMenu()
     }
 }
 

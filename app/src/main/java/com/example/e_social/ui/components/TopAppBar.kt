@@ -1,6 +1,7 @@
 package com.example.e_social.ui.components
 
 //import coil.compose.rememberAsyncImagePainter
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,24 +36,29 @@ fun TopApp(
     userViewModel: UserViewModel = hiltViewModel(),
     title: String,
     icon: ImageVector,
+    scrollUpState: State<Boolean?>,
     onIconClick: () -> Unit
 ) {
     val searchBarState = userViewModel.searchBarState.value
     val searchValue = userViewModel.searchValue.value
     val isLoading = userViewModel.isLoading.value
     val user = userViewModel.user.value
+    val position by animateFloatAsState(if (scrollUpState.value == true) -150f else 0f)
+
     LaunchedEffect(key1 = true) {
         userViewModel.getUserInfo()
     }
     var avatar by remember {
         mutableStateOf("https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
     }
-    if (!isLoading && user != null)
+    if (!isLoading && user?.avatar!= null)
         avatar = user.avatar
+    if (position!=-150f)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(56.dp)
+            .graphicsLayer { translationY = (position)}
             .background(color = MaterialTheme.colors.primarySurface)
             .shadow(elevation = 1.dp)
             .padding(horizontal = 16.dp)
@@ -111,7 +118,7 @@ fun TopApp(
                         placeholder(R.drawable.placeholder_image)
                         error(R.drawable.default_avatar)
                         transformations(CircleCropTransformation())
-                        size(30)
+                        size(Int.MAX_VALUE)
                     }),
                 contentDescription = null,
                 modifier = Modifier

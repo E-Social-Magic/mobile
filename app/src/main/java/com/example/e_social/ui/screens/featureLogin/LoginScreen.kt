@@ -115,11 +115,11 @@ fun LoginScreen(
             }
         }
 
-        Row(Modifier.weight(1f)) {
-            ForgotPassword {
-                navigator.navigate(ForgotPasswordScreenDestination)
-            }
-        }
+//        Row(Modifier.weight(1f)) {
+//            ForgotPassword {
+//                navigator.navigate(ForgotPasswordScreenDestination)
+//            }
+//        }
         DefaultSnackbar(
             snackbarHostState = scaffoldState.snackbarHostState,
             onDismiss = {
@@ -228,7 +228,7 @@ fun CreateAccountButton(modifier: Modifier = Modifier, onCreateAccountClick: () 
         shape = RoundedCornerShape(25),
     ) {
         Text(
-            "Create Account?",
+            "Create Account",
             fontSize = 17.sp
         )
     }

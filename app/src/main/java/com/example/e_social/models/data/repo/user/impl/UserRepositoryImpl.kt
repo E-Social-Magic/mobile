@@ -48,7 +48,7 @@ class UserRepositoryImpl @Inject constructor(private val api: UserApi) : UserRep
             }
             else -> {
                 response.body()?.let {
-                    Resource.Success(data = it)
+                    Resource.Success(data = it.user)
                 } ?: Resource.Error("Empty response")
             }
         }
@@ -84,7 +84,7 @@ class UserRepositoryImpl @Inject constructor(private val api: UserApi) : UserRep
             }
             else -> {
                 response.body()?.let {
-                    Resource.Success(data = it)
+                    Resource.Success(data = it.user)
                 } ?: Resource.Error("Empty response")
             }
         }

@@ -11,9 +11,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -24,25 +29,44 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
+import com.example.e_social.models.data.response.Topic
+import com.example.e_social.models.domain.model.PostModel
+import com.example.e_social.ui.screens.destinations.ChooseGroupScreenDestination
+import com.example.e_social.ui.screens.featureGroup.GroupPicker
+import com.example.e_social.ui.screens.featureGroup.GroupViewModel
 import com.example.e_social.util.CameraView
 import com.example.e_social.util.FileUtils
+import com.example.e_social.util.TimeConverter.getCurrentTime
+import com.example.e_social.util.TimeConverter.getLongOfTime
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultRecipient
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import gun0912.tedimagepicker.builder.TedImagePicker
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.DecimalFormat
+import java.text.NumberFormat
 
 
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -51,8 +75,10 @@ import java.io.File
 @Composable
 fun SavePostScreen(
     navigator: DestinationsNavigator,
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>,
     scaffoldState: ScaffoldState,
-    postViewModel: PostViewModel = hiltViewModel()
+    postViewModel: PostViewModel = hiltViewModel(),
+    groupViewModel: GroupViewModel = hiltViewModel()
 ) {
     val bottomDrawerState: BottomDrawerState =
         rememberBottomDrawerState(initialValue = BottomDrawerValue.Closed)
@@ -61,9 +87,14 @@ fun SavePostScreen(
         mutableStateOf(false)
     }
     var postModel = postViewModel.newPost.value
+    val selectedGroup = groupViewModel.selectedGroup.value
     var isCameraOpen by remember {
         mutableStateOf(false)
     }
+    resultRecipient.onResult {
+        groupViewModel.onSelectedGroupId(it)
+    }
+
     if (isCameraOpen) {
         CameraView(
             onImageCaptured = { uri, fromGallery ->
@@ -96,15 +127,21 @@ fun SavePostScreen(
 
             },
             content = {
-                SavePostContent(title = postModel.title,
-                    content = postModel.content,
-                    files = postModel.files,
+                SavePostContent(
+                    navigator = navigator,
+                    postModel = postModel,
                     onTitleChange = { postViewModel.onTitleChange(it) },
                     onContentChange = { postViewModel.onContentChange(it) },
                     onFilesChange = { list: List<File> ->
                         postModel.files = list.plus(postModel.files!!.map { it })
                     },
-                    onCameraClick = { it -> isCameraOpen = true }
+                    selectedGroup = selectedGroup,
+                    resultRecipient = resultRecipient,
+                    onCameraClick = { it -> isCameraOpen = true },
+                    onCostSelected = { postViewModel.onCostSelected(it) },
+                    onHideNameSelected = { postViewModel.onHideNameSelected(it) },
+                    onExpiredChange = { postViewModel.onExpiredChange(it) },
+                    onCoinChange = { postViewModel.onCoinChange(it) }
                 )
             }
         )
@@ -115,15 +152,25 @@ fun SavePostScreen(
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun SavePostContent(
-    title: String,
-    content: String,
-    files: List<File>?,
+    navigator: DestinationsNavigator,
+    postModel: PostModel,
+    selectedGroup: Topic?,
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>,
     onTitleChange: (String) -> Unit,
     onContentChange: (String) -> Unit,
     onCameraClick: (Boolean) -> Unit,
-    onFilesChange: (List<File>) -> Unit
+    onFilesChange: (List<File>) -> Unit,
+    onHideNameSelected: (Boolean) -> Unit,
+    onExpiredChange: (Long) -> Unit,
+    onCoinChange: (Int) -> Unit,
+    onCostSelected: (Boolean) -> Unit
 ) {
+    val formatter: NumberFormat = DecimalFormat("#,###")
+    val dialogDateState = rememberMaterialDialogState()
+    val dialogTimeState = rememberMaterialDialogState()
+
     val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
     val cameraPermissionState = rememberPermissionState(
         permission = Manifest.permission.CAMERA
@@ -131,66 +178,160 @@ fun SavePostContent(
     val storePermissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_MEDIA_LOCATION
     )
+    var expired by remember {
+        mutableStateOf("")
+    }
     val context = LocalContext.current
-    val countGrid = if (files?.size?:0 <= 2) 1 else 2
+    val countGrid = if (postModel.files?.size ?: 0 <= 2) 1 else 2
     val fee = listOf(
-        SavePostOption(index = 1, Icons.Default.FreeBreakfast, "Miễn phí"),
-        SavePostOption(index = 2, Icons.Default.Money, "Tính phí")
+        SavePostOption(
+            index = 1,
+            "Miễn phí",
+            value = false
+        ),
+        SavePostOption(
+            index = 2,
+
+            "Tính phí",
+            value = true
+        )
     )
     val hideName = listOf(
-        SavePostOption(index = 1, Icons.Default.Public, "Hiển thị tên"),
-        SavePostOption(index = 2, Icons.Default.PrivacyTip, "Ẩn tên")
+        SavePostOption(
+            index = 1,
+
+            "Hiển thị tên",
+            value = false
+        ),
+        SavePostOption(index = 2, "Ẩn tên", value = true)
     )
-    val time = listOf(
-        SavePostOption(index = 1, Icons.Default.FreeBreakfast, "Hiển thị tên"),
-        SavePostOption(index = 2, Icons.Default.FreeBreakfast, "Ẩn tên")
+    val times = listOf(
+        SavePostOption(
+            index = 1,
+            "Vô thời hạn",
+            value = false
+        ),
+        SavePostOption(index = 2, "Đặt thời gian", value = true, getCurrentTime()),
     )
-    val fileSize=files?.size?:0
+
+
+    val fileSize = postModel.files?.size ?: 0
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             Modifier
                 .padding(bottom = 50.dp)
         ) {
+            GroupPicker(navigator, selectedGroup, resultRecipient)
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)
             ) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    MaterialDialog(
+                        dialogState = dialogDateState,
+                        buttons = {
+                            positiveButton("Ok")
+                            negativeButton("Cancel")
+                        }
+                    ) {
+                        datepicker { date ->
+                            dialogTimeState.show()
+                            expired = date.toString()
+                        }
+
+                    }
+                    MaterialDialog(
+                        dialogState = dialogTimeState,
+                        buttons = {
+                            positiveButton("Ok")
+                            negativeButton("Cancel")
+                        }
+                    ) {
+                        timepicker { time ->
+                            expired += " $time"
+                            onExpiredChange.invoke(getLongOfTime(expired))
+                        }
+                    }
+                }
                 DropDown(
                     items = fee,
                     modifier = Modifier.padding(15.dp)
                 ) {
+                    onCostSelected.invoke(it)
                 }
                 DropDown(
                     items = hideName,
                     modifier = Modifier.padding(15.dp)
                 ) {
+                    onHideNameSelected.invoke(it)
                 }
                 DropDown(
-                    items = time,
+                    items = times,
                     modifier = Modifier.padding(15.dp)
                 ) {
+                    if (it) dialogDateState.show()
+                    else {
+                        onExpiredChange(0L)
+                        expired=""
+                    }
                 }
             }
             ContentTextField(
-                label = "Title",
-                text = title,
+                label = "Tiêu đề",
+                text = postModel.title,
                 onTextChange = onTitleChange
             )
             ContentTextField(
                 modifier = Modifier.heightIn(max = 600.dp),
-                label = "Describe your problems",
-                text = content,
+                label = "Miêu tả nội dung của bạn ở đây",
+                text = postModel.content,
                 onTextChange = onContentChange
             )
+            if (expired.isNotEmpty()) {
+                TextField(
+                    value = expired,
+                    onValueChange = {
+                    },
+                    placeholder = { Text(text = "Thời gian hết hạn bài đăng") },
+                    label = { Text(text = "Thời gian hết hạn bài đăng") },
+                    enabled = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface),
+                )
+            }
+            if (postModel.costs) {
+                TextField(
+                    value = formatter.format(postModel.coins),
+                    onValueChange = {
+                        val number = it.replace(",", "").toIntOrNull()
+                        if (number != null)
+                            onCoinChange.invoke(number)
+                    },
+                    placeholder = { Text(text = "Nhập phí bạn muôn trả") },
+                    label = { Text(text = "Coins") },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Next,
+                        keyboardType = KeyboardType.Number
+                    ),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface),
+                )
+            }
             LazyVerticalGrid(cells = GridCells.Fixed(countGrid)) {
-                if (fileSize <= 2) items(fileSize?:0) { index ->
-                    ImageBuilder(Int.MAX_VALUE.dp, file = files?.get(index))
+                if (fileSize <= 2) items(fileSize) { index ->
+                    ImageBuilder(Int.MAX_VALUE.dp, file = postModel.files?.get(index))
                 }
                 else
                     if (fileSize < 5)
                         items(fileSize) { index ->
-                            ImageBuilder(240.dp, file = files?.get(index))
+                            ImageBuilder(240.dp, file = postModel.files?.get(index))
                         }
                     else {
                         items(4) { index ->
@@ -200,7 +341,7 @@ fun SavePostContent(
                                         painter = rememberImagePainter(
                                             ImageRequest.Builder(LocalContext.current)
                                                 .crossfade(true)
-                                                .data(data = files?.get(index))
+                                                .data(data = postModel.files?.get(index))
                                                 .build()
                                         ),
                                         contentDescription = null,
@@ -220,14 +361,13 @@ fun SavePostContent(
                                     )
                                 }
                             } else
-                                ImageBuilder(240.dp, file = files?.get(index))
+                                ImageBuilder(240.dp, file = postModel.files?.get(index))
 
                         }
                     }
 
             }
         }
-
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -277,6 +417,7 @@ fun SavePostContent(
                 )
             }
         }
+
     }
 }
 
@@ -358,7 +499,7 @@ fun DropDown(
     items: List<SavePostOption>,
     modifier: Modifier = Modifier,
     initiallyOpened: Boolean = false,
-    content: @Composable () -> Unit
+    action: (Boolean) -> Unit
 ) {
     var isOpen by remember {
         mutableStateOf(initiallyOpened)
@@ -392,14 +533,8 @@ fun DropDown(
                 )
                 .padding(8.dp)
         ) {
-            Icon(
-                imageVector = items[selectedIndex.value].icon,
-                contentDescription = null,
-                tint = Color.Gray,
-                modifier = Modifier.size(14.dp)
-            )
             Text(
-                text = "${items[selectedIndex.value].text}",
+                text = items[selectedIndex.value].text,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Gray
@@ -417,7 +552,7 @@ fun DropDown(
             onDismissRequest = { isOpen = false },
             modifier = Modifier
                 .shadow(elevation = 2.dp)
-                .width(140.dp)
+                .width(180.dp)
                 .graphicsLayer {
                     transformOrigin = TransformOrigin(0.5f, 0f)
                     rotationX = rotateX.value
@@ -427,18 +562,14 @@ fun DropDown(
             items.forEachIndexed { index, value ->
                 DropdownMenuItem(onClick = {
                     selectedIndex.value = index
+                    action.invoke(items[selectedIndex.value].value)
                     isOpen = false
                 }) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = value.icon,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(14.dp)
-                        )
+
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(text = value.text, textAlign = TextAlign.Center)
                     }
@@ -451,13 +582,50 @@ fun DropDown(
 
 @Composable
 fun ImageBuilder(size: Dp, file: File?) {
-    if (file!=null)
+    if (file != null)
+        Image(
+            painter = rememberImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .crossfade(true)
+                    .data(data = file)
+                    .size(Int.MAX_VALUE)
+                    .build()
+            ),
+            contentDescription = null,
+            modifier = Modifier
+                .size(size)
+                .padding(4.dp),
+            contentScale = ContentScale.Crop,
+        )
+}
+
+@Composable
+fun ImageBuilder(size: Dp, url: String) {
     Image(
         painter = rememberImagePainter(
             ImageRequest.Builder(LocalContext.current)
                 .crossfade(true)
-                .data(data = file)
+                .data(data = url)
                 .size(Int.MAX_VALUE)
+                .build()
+        ),
+        contentDescription = null,
+        modifier = Modifier
+            .size(size)
+            .padding(4.dp),
+        contentScale = ContentScale.Crop,
+    )
+}
+
+@Composable
+fun ImageBuilderCircle(size: Dp, url: String) {
+    Image(
+        painter = rememberImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .crossfade(true)
+                .data(data = url)
+                .size(Int.MAX_VALUE)
+                .transformations(CircleCropTransformation())
                 .build()
         ),
         contentDescription = null,
@@ -470,7 +638,7 @@ fun ImageBuilder(size: Dp, file: File?) {
 
 data class SavePostOption(
     val index: Int,
-    val icon: ImageVector,
     val text: String,
-
-    )
+    val value: Boolean,
+    val expired: Long? = 0
+)

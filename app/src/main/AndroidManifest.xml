@@ -21,9 +21,6 @@
         android:theme="@style/Theme.Esocial"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
-        <provider android:authorities="com.facebook.app.FacebookContentProvider563247224756398"
-            android:name="com.facebook.FacebookContentProvider"
-            android:exported="true"/>
         <activity
             android:name=".MessagesActivity"
             android:windowSoftInputMode="adjustResize"

@@ -14,10 +14,10 @@ interface UserApi {
     suspend fun signUp(@Body signUpRequest: SignUpRequest):Response<SignUpResponse>
 
     @GET("user/info")
-    suspend fun getUserInfo(): Response<UserInfo>
+    suspend fun getUserInfo(): Response<UserResponse>
 
     @GET("user/info/{id}")
-    suspend fun getUserInfo(@Path("id") id:String): Response<UserInfo>
+    suspend fun getUserInfo(@Path("id") id:String): Response<UserResponse>
 
     @PUT("user/{id}/edit")
     suspend fun editAccount(@Path("id") id:String, @Body editAccountRequest: EditAccountRequest):Response<EditAccountResponse>

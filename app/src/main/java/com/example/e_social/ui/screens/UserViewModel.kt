@@ -1,5 +1,6 @@
 package com.example.e_social.ui.screens
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,7 +39,7 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
             when(result){
                 is Resource.Success -> {
                     if (result.data != null)
-                        _user.value=result.data!!
+                        _user.value=result.data
                 }
                 else ->{
 

@@ -1,39 +1,43 @@
 package com.example.e_social.models.data.remote
 
-import com.example.e_social.models.data.request.CommentRequest
 import com.example.e_social.models.data.response.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
 
 interface PostApi {
     @GET("posts")
-    suspend fun getPosts(@Query("limit")limit:Int,@Query("offset")offset:Int):Response<PostListResponse>
+    suspend fun getPosts(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("group_id") groupId: String?
+    ): Response<PostListResponse>
+
     @GET("post/{post-id}/vote")
     suspend fun voteUp(
-        @Path("post-id")postId:String,
-        @Query("up")up:String="false",
-        @Query("down")down:String= "false"):Response<VoteResponse>
+        @Path("post-id") postId: String,
+        @Query("up") up: String = "false",
+        @Query("down") down: String = "false",
+    ): Response<VoteResponse>
 
     @GET("post/{post-id}")
-    suspend fun getPostById(@Path("post-id")postId: String):Response<PostByIdResponse>
+    suspend fun getPostById(@Path("post-id") postId: String): Response<PostByIdResponse>
 
     @Multipart
     @POST("post/new")
     suspend fun newPost(
-        @PartMap params:@JvmSuppressWildcards Map<String,RequestBody>,
+        @PartMap params: @JvmSuppressWildcards Map<String, RequestBody>,
         @Part files: List<MultipartBody.Part>?,
-    ):Response<PostResponse>
+    ): Response<PostResponse>
 
 
     @Multipart
     @PUT("post/{post-id}/comment")
     suspend fun newComment(
         @Path("post-id") postId: String,
-        @PartMap params:@JvmSuppressWildcards Map<String,RequestBody>,
-        @Part files:List<MultipartBody.Part>?
-    ):Response<NewCommentResponse>
+        @PartMap params: @JvmSuppressWildcards Map<String, RequestBody>,
+        @Part files: List<MultipartBody.Part>?
+    ): Response<NewCommentResponse>
 }
