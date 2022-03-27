@@ -18,13 +18,14 @@ import androidx.compose.ui.unit.sp
 import com.example.e_social.ui.theme.Green400
 
 @Composable
-fun NextStepButton(onButtonClick:()->Unit,textButton:@Composable() ()->Unit){
+fun NextStepButton(enabled:Boolean,onButtonClick:()->Unit,textButton:@Composable() ()->Unit){
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 20.dp)
     ) {
         Button(
+            enabled =  enabled,
             onClick = onButtonClick,
             colors = ButtonDefaults.buttonColors(Green400),
             modifier =Modifier

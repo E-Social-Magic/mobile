@@ -6,10 +6,7 @@ import com.example.e_social.models.data.remote.PostApi
 import com.example.e_social.models.data.repo.post.PostRepository
 import com.example.e_social.models.data.request.CommentRequest
 import com.example.e_social.models.data.request.NewPostRequest
-import com.example.e_social.models.data.response.NewCommentResponse
-import com.example.e_social.models.data.response.PostListResponse
-import com.example.e_social.models.data.response.PostResponse
-import com.example.e_social.models.data.response.VoteResponse
+import com.example.e_social.models.data.response.*
 import com.example.e_social.models.domain.model.PostModel
 import com.example.e_social.util.ErrorUtils
 import com.example.e_social.util.Resource
@@ -19,7 +16,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.http.Part
 import java.io.File
 import java.net.HttpURLConnection
 import javax.inject.Inject
@@ -28,8 +24,12 @@ import javax.inject.Inject
 @ActivityScoped
 class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRepository {
 
-    override suspend fun getPosts(limit: Int, offset: Int,groupId:String?): Resource<PostListResponse> {
-        val response = api.getPosts(limit = limit, offset = offset,groupId)
+    override suspend fun getPosts(
+        limit: Int,
+        offset: Int,
+        groupId: String?
+    ): Resource<PostListResponse> {
+        val response = api.getPosts(limit = limit, offset = offset, groupId)
         return when (response.code()) {
             HttpURLConnection.HTTP_BAD_METHOD -> {
                 val errorBody = response.errorBody() ?: run {
@@ -134,19 +134,21 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
         val newPostRequest = NewPostRequest(
             title = postModel.title.toRequestBody(MultipartBody.FORM),
             content = postModel.content.toRequestBody(MultipartBody.FORM),
+            groupId = postModel.groupId.toRequestBody(MultipartBody.FORM),
             hideName = postModel.hideName.toString().toRequestBody(MultipartBody.FORM),
             expired = postModel.expired.toString().toRequestBody(MultipartBody.FORM),
             coins = postModel.coins.toString().toRequestBody(MultipartBody.FORM),
-            costs = postModel.costs.toString().toRequestBody(MultipartBody.FORM))
+            costs = postModel.costs.toString().toRequestBody(MultipartBody.FORM)
+        )
 
-        map["title"] =  newPostRequest.title
+        map["title"] = newPostRequest.title
         map["content"] = newPostRequest.content
         map["hideName"] = newPostRequest.hideName
         map["costs"] = newPostRequest.costs
         map["expired"] = newPostRequest.expired
         map["coins"] = newPostRequest.coins
+        map["group_id"] = newPostRequest.groupId
         val uploads = listFiletoMultiBody(postModel.files)
-
         val response = api.newPost(params = map, files = uploads)
         return when (response.code()) {
             HttpURLConnection.HTTP_INTERNAL_ERROR -> {
@@ -218,7 +220,7 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
             }
             else -> {
                 response.body()?.let {
-                    Log.d("FindPostById",it.post.toString())
+                    Log.d("FindPostById", it.post.toString())
                     Resource.Success(data = it.post)
                 } ?: Resource.Error("Empty response")
             }
@@ -234,7 +236,8 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
 
         val map: HashMap<String, RequestBody> = HashMap()
         map["comment"] = comment.comment
-        val response = api.newComment(postId = postId, params = map, files = listFiletoMultiBody(files))
+        val response =
+            api.newComment(postId = postId, params = map, files = listFiletoMultiBody(files))
         return when (response.code()) {
             HttpURLConnection.HTTP_INTERNAL_ERROR -> {
                 val errorBody = response.errorBody() ?: run {
@@ -271,6 +274,21 @@ class PostRepositoryImpl @Inject constructor(private val api: PostApi) : PostRep
                 } ?: Resource.Error("Empty response")
             }
         }
+    }
+
+    override suspend fun markAnswerIsCorrect(
+        postId: String,
+        commentId: String
+    ): Resource<MarkCorrectAnswerResponse> {
+        try {
+            val response = api.markAnswerIsCorrect(postId = postId, commentId = commentId)
+            return response.body()?.let {
+                Resource.Success(data = it)
+            } ?: Resource.Error("Empty response")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return Resource.Error("Empty response")
     }
 
     fun listFiletoMultiBody(files: List<File>?): List<MultipartBody.Part>? {

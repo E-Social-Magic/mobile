@@ -27,4 +27,7 @@ interface UserApi {
 
     @POST("withdraw")
     suspend fun withdrawCoins(@Body withdrawCoinsResponse: WithdrawCoinsRequest):Response<WithdrawCoinsResponse>
+
+    @PUT("subject/join")
+    suspend fun joinGroups(@Body JoinGroupsRequest:JoinGroupsRequest):Response<JoinGroupResponse>
 }

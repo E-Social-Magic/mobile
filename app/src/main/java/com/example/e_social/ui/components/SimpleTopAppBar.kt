@@ -20,9 +20,9 @@ import com.example.e_social.R
 
 
 @Composable
-fun SimpleTopAppBar(title: String, onIconBackClick: () -> Unit) {
+fun SimpleTopAppBar(modifier: Modifier=Modifier,title: String, onIconBackClick: () -> Unit) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(color = Color.White)
             .shadow(elevation = 1.dp),

@@ -99,6 +99,12 @@ class UserRepositoryImpl @Inject constructor(private val api: UserApi) : UserRep
                 }
                 return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
             }
+            HttpURLConnection.HTTP_CLIENT_TIMEOUT-> {
+                val errorBody = response.errorBody()?:run{
+                    throw NullPointerException()
+                }
+                return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
             HttpURLConnection.HTTP_NOT_FOUND -> {
                 val errorBody = response.errorBody()?:run{
                     throw NullPointerException()
@@ -232,6 +238,41 @@ class UserRepositoryImpl @Inject constructor(private val api: UserApi) : UserRep
 
     override suspend fun withdrawCoins(withdrawCoinsResponse: WithdrawCoinsRequest): Resource<WithdrawCoinsResponse> {
         val response = api.withdrawCoins(withdrawCoinsResponse = withdrawCoinsResponse)
+        return when (response.code()) {
+            HttpURLConnection.HTTP_BAD_REQUEST -> {
+                val errorBody = response.errorBody()?:run{
+                    throw NullPointerException()
+                }
+                return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_NOT_FOUND -> {
+                val errorBody = response.errorBody()?:run{
+                    throw NullPointerException()
+                }
+                return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_UNAUTHORIZED -> {
+                val errorBody = response.errorBody()?:run{
+                    throw NullPointerException()
+                }
+                return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            HttpURLConnection.HTTP_FORBIDDEN -> {
+                val errorBody = response.errorBody()?:run{
+                    throw NullPointerException()
+                }
+                return  Resource.Error(data = ErrorUtils.parseError(errorBody = errorBody))
+            }
+            else -> {
+                response.body()?.let {
+                    Resource.Success(data = it)
+                } ?: Resource.Error("Empty response")
+            }
+        }
+    }
+
+    override suspend fun joinGroups(listGroupId: List<String>): Resource<JoinGroupResponse> {
+        val response = api.joinGroups(JoinGroupsRequest = JoinGroupsRequest(listGroupId))
         return when (response.code()) {
             HttpURLConnection.HTTP_BAD_REQUEST -> {
                 val errorBody = response.errorBody()?:run{

@@ -27,5 +27,7 @@ data class NewPostRequest (
     val expired: RequestBody,
     @Part("coins")
     val coins: RequestBody,
+    @Part("group_id")
+    val groupId:RequestBody
 )
 

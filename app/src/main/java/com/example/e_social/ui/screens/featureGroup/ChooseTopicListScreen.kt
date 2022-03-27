@@ -1,6 +1,8 @@
 package com.example.e_social.ui.screens.featureGroup
 
 
+//import coil.compose.AsyncImage
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,81 +22,87 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-//import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.example.e_social.R
 import com.example.e_social.models.domain.model.TopicIndexListEntry
 import com.example.e_social.ui.components.NextStepButton
-
-import com.example.e_social.ui.theme.Grey100
+import com.example.e_social.ui.screens.destinations.PostScreenDestination
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
+import com.example.e_social.ui.theme.Grey100
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 
 
 @Destination
 @Composable
 fun TopicListScreen(
     navigator: DestinationsNavigator,
-    loginViewModel: LoginViewModel =hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    topicListViewModel: TopicListViewModel = hiltViewModel(),
 ) {
+
     Surface(
         color = MaterialTheme.colors.background,
         modifier = Modifier.fillMaxSize()
     ) {
-        val sliderPosition =loginViewModel.sliderValue.value
+        val sliderPosition = loginViewModel.sliderValue.value
         val steps = loginViewModel.steps.value
         val listTopicSelected = mutableListOf<String>()
         Column {
-            Column(modifier = Modifier.weight(1f).fillMaxSize(), horizontalAlignment = CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
+                horizontalAlignment = CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = "Chọn những chủ đề mà bạn yêu thích",
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colors.primary,
                     fontSize = 20.sp,
-                    modifier = Modifier.padding(top=10.dp)
-                    )
+                    modifier = Modifier.padding(top = 10.dp)
+                )
 //                SliderBar(sliderPosition=sliderPosition,steps=steps,onChange={loginViewModel.onChangSlider(it)})
             }
             Row(modifier = Modifier.weight(1f)) {
-                ComposeMenu(loginViewModel.levels, onSelectLevel = {levelSelected-> loginViewModel.level.value=levelSelected })
+                ComposeMenu(
+                    loginViewModel.levels,
+                    onSelectLevel = { levelSelected -> loginViewModel.level.value = levelSelected })
             }
             Row(modifier = Modifier.weight(7f)) {
                 Spacer(modifier = Modifier.height(10.dp))
-                TopicList(navigator = navigator)
+                TopicList(navigator = navigator,topicListViewModel)
                 Spacer(modifier = Modifier.height(10.dp))
             }
-            Row(modifier = Modifier
-                .weight(1.5f)
-                .padding(10.dp), verticalAlignment = Alignment.CenterVertically){
+            Row(
+                modifier = Modifier
+                    .weight(1.5f)
+                    .padding(10.dp), verticalAlignment = Alignment.CenterVertically
+            ) {
                 NextStepButton(
+                    enabled = topicListViewModel.selectedTopic.value.isNotEmpty(),
                     onButtonClick = {
-//                        navigator.navigate(Post)
-                        loginViewModel.isLogin.value=true
-                        loginViewModel.isShowTopBar.value=true
-                        loginViewModel.isShowBottomBar.value=true
+                        loginViewModel.finishSignUp(topicListViewModel.selectedTopic.value)
+                        navigator.navigate(PostScreenDestination)
+                        loginViewModel.isLogin.value = true
+                        loginViewModel.isShowTopBar.value = true
+                        loginViewModel.isShowBottomBar.value = true
                     }
-                ){
+                ) {
                     Text(
                         modifier = Modifier.padding(end = 8.dp),
-                        text = "Next",
+                        text = "Tiếp theo",
                         fontSize = 15.sp,
                         color = MaterialTheme.colors.primary,
                         fontWeight = FontWeight.Bold
                     )
-                    Icon(Icons.Outlined.ArrowForward, contentDescription ="ssdsadsa" )
+                    Icon(Icons.Outlined.ArrowForward, contentDescription = "ssdsadsa")
                 }
             }
         }
@@ -112,17 +120,24 @@ fun TopicList(
     val loadError by remember { viewModel.loadError }
     val isLoading by remember { viewModel.isLoading }
 
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         val itemCount = if (topicList.size % 3 == 0) {
             topicList.size / 3
         } else {
             topicList.size / 3
         }
         items(itemCount) {
-            if (it >= itemCount-2 && !endReached) {
+            if (it >= itemCount - 2 && !endReached) {
                 viewModel.loadTopicPaginated()
             }
-            TopicIndexRow(rowIndex = it, entries = topicList, navigator = navigator, selectedTopic = {idSelected->})
+            TopicIndexRow(
+                rowIndex = it,
+                entries = topicList,
+                navigator = navigator,
+                selectedTopic = { idSelected -> viewModel.selectedTopics(idSelected) })
         }
     }
 
@@ -148,7 +163,7 @@ fun TopicIndexEntry(
     navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     viewModel: TopicListViewModel = hiltViewModel(),
-    selectedTopic:(String)->Unit
+    selectedTopic: (String) -> Unit
 ) {
     val defaultDominantColor = MaterialTheme.colors.surface
     var dominantColor by remember {
@@ -157,7 +172,7 @@ fun TopicIndexEntry(
     var sizeImage by remember { mutableStateOf(IntSize.Zero) }
     val gradient = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color.Black),
-        startY = sizeImage.height.toFloat() / 3f,  // 1/3
+        startY = sizeImage.height.toFloat() / 3f,
         endY = sizeImage.height.toFloat()
     )
     val checkedState = remember { mutableStateOf(false) }
@@ -176,33 +191,27 @@ fun TopicIndexEntry(
             )
             .shadow(elevation = 8.dp, RoundedCornerShape(10.dp))
             .clickable {
-//                navigator.navigate(
-//
-//                )
+
             }
     ) {
-//        AsyncImage(
-//            model = ImageRequest.Builder(LocalContext.current)
-//                .data(entry.avatar)
-//                .crossfade(true).build(),
-//            contentDescription = null,
-//            contentScale = ContentScale.Crop,
-//            placeholder = painterResource(id = R.drawable.placeholder_image),
-//            modifier = Modifier.onGloballyPositioned {
-//                sizeImage = it.size
-//            }
-//        )
-        Box(modifier = Modifier
-            .matchParentSize()
-            .background(gradient))
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(gradient)
+        )
         Checkbox(
             checked = checkedState.value,
             modifier = Modifier.align(BottomEnd),
-            onCheckedChange = {checkedState.value = it
-                                if (it)
-                                    selectedTopic.invoke(entry.id)
-                              },
-            colors = CheckboxDefaults.colors(uncheckedColor = Color.White, checkmarkColor = MaterialTheme.colors.primary, checkedColor = Color.White)
+            onCheckedChange = {
+                checkedState.value = it
+                selectedTopic.invoke(entry.id)
+            },
+            colors = CheckboxDefaults.colors(
+                uncheckedColor = Color.White,
+                checkmarkColor = MaterialTheme.colors.primary,
+                checkedColor = Color.White
+            )
         )
         Text(
             text = entry.groupName,
@@ -221,7 +230,7 @@ fun TopicIndexRow(
     rowIndex: Int,
     entries: List<TopicIndexListEntry>,
     navigator: DestinationsNavigator,
-    selectedTopic:(String)->Unit
+    selectedTopic: (String) -> Unit
 ) {
     Column {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -229,20 +238,20 @@ fun TopicIndexRow(
                 entry = entries[rowIndex * 3],
                 navigator = navigator,
                 modifier = Modifier.weight(1f),
-                selectedTopic=selectedTopic
+                selectedTopic = selectedTopic
             )
             if (entries.size >= rowIndex * 3 + 2) {
                 TopicIndexEntry(
                     entry = entries[rowIndex * 3 + 1],
                     navigator = navigator,
                     modifier = Modifier.weight(1f),
-                    selectedTopic=selectedTopic
+                    selectedTopic = selectedTopic
                 )
                 TopicIndexEntry(
                     entry = entries[rowIndex * 3 + 2],
                     navigator = navigator,
                     modifier = Modifier.weight(1f),
-                    selectedTopic=selectedTopic
+                    selectedTopic = selectedTopic
                 )
             }
         }
@@ -261,33 +270,42 @@ fun RetrySection(
             onClick = { onRetry() },
             modifier = Modifier.align(CenterHorizontally)
         ) {
-            Text(text = "Retry")
+            Text(text = "Thử lại")
         }
     }
 }
 
 
-
 @Composable
-fun ComposeMenu(levels:List<Int>,onSelectLevel:(Int)->Unit){
+fun ComposeMenu(levels: List<String>, onSelectLevel: (String) -> Unit) {
     var expanded = remember { mutableStateOf(false) }
     var selectedIndex = remember { mutableStateOf(0) }
-    Box(modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 20.dp)) {
-            Text("Curriculum:", textAlign = TextAlign.Center, color = MaterialTheme.colors.primary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 20.dp)
+        ) {
+            Text(
+                "Học vấn:",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
             Column {
-                Row(horizontalArrangement = Arrangement.SpaceBetween){
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
-                        modifier=Modifier.width(120.dp),
-                        colors=ButtonDefaults.buttonColors(backgroundColor = Grey100),
+                        modifier = Modifier.width(120.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Grey100),
                         shape = RoundedCornerShape(10.dp),
                         onClick = {
                             expanded.value = true
                             onSelectLevel.invoke(levels[selectedIndex.value])
-                        },content = {
+                        }, content = {
                             Text("Lớp ${levels[selectedIndex.value]}")
-                            Icon( Icons.Default.ArrowDropDown, contentDescription = null)
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
 
                         })
                 }
@@ -304,7 +322,7 @@ fun ComposeMenu(levels:List<Int>,onSelectLevel:(Int)->Unit){
                             selectedIndex.value = index
                             expanded.value = false
                         }) {
-                            Text(text = s.toString() )
+                            Text(text = s.toString())
                         }
                     }
                 }
@@ -312,10 +330,15 @@ fun ComposeMenu(levels:List<Int>,onSelectLevel:(Int)->Unit){
         }
     }
 }
-@Composable
-fun SliderBar(sliderPosition:Float,steps:Float,onChange:(Float)->Unit){
 
-    Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(24.dp)){
-        Slider(value = sliderPosition, onValueChange =onChange, valueRange = 1f..2f,steps=2 )
+@Composable
+fun SliderBar(sliderPosition: Float, steps: Float, onChange: (Float) -> Unit) {
+
+    Column(
+        modifier = Modifier.padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        Slider(value = sliderPosition, onValueChange = onChange, valueRange = 1f..2f, steps = 2)
     }
 }

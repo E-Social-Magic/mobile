@@ -7,11 +7,12 @@ import com.example.e_social.models.data.repo.user.UserRepository
 import com.example.e_social.models.data.response.DataX
 import com.example.e_social.models.data.response.UserInfo
 import com.example.e_social.util.Resource
+import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class UserViewModel @Inject constructor(private val userRepository: UserRepository ) : ViewModel() {
+class UserViewModel @Inject constructor(private val userRepository: UserRepository,private val sessionManager: SessionManager) : ViewModel() {
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
@@ -36,6 +37,10 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
         id = "",
     )
     )
+
+    //    init{
+////            getUserInfo()
+//        }
     suspend fun findUserById(id: String) {
         isLoading.value = true
         val result = userRepository.getUserInfo(id)
@@ -78,6 +83,7 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
                         payment.value = result.data!!.payment.mapIndexed { _, entry ->
                             paymentResponse2(paymentResponse = entry)
                         }
+                    sessionManager.saveAuthCoins(result.data.user.coins.toString())
                 }
                 is Resource.Error -> {
                 }
@@ -105,22 +111,24 @@ class UserViewModel @Inject constructor(private val userRepository: UserReposito
             id = userResponse.id,
         )
     }
-    private fun paymentResponse2(paymentResponse: DataX): DataX {
-        return DataX(
-            amount = paymentResponse.amount,
-            createdAt= paymentResponse.createdAt,
-            displayName= paymentResponse.displayName,
-            id= paymentResponse.id,
-            message= paymentResponse.message,
-            orderId= paymentResponse.orderId,
-            phone= paymentResponse.phone,
-            requestId= paymentResponse.requestId,
-            resultCode= paymentResponse.resultCode,
-            updatedAt= paymentResponse.updatedAt,
-            user_id= paymentResponse.user_id,
-            username= paymentResponse.username,
-            type = paymentResponse.type,
-            accountBalance = paymentResponse.accountBalance
-        )
-    }
+     companion object{
+         fun paymentResponse2(paymentResponse: DataX): DataX {
+             return DataX(
+                 amount = paymentResponse.amount,
+                 createdAt= paymentResponse.createdAt,
+                 displayName= paymentResponse.displayName,
+                 id= paymentResponse.id,
+                 message= paymentResponse.message,
+                 orderId= paymentResponse.orderId,
+                 phone= paymentResponse.phone,
+                 requestId= paymentResponse.requestId,
+                 resultCode= paymentResponse.resultCode,
+                 updatedAt= paymentResponse.updatedAt,
+                 user_id= paymentResponse.user_id,
+                 username= paymentResponse.username,
+                 type = paymentResponse.type,
+                 accountBalance = paymentResponse.accountBalance
+             )
+         }
+     }
 }

@@ -65,7 +65,9 @@ fun PostDetail(
                             userId=post!!.userId,
                             authorAvatar = post!!.authorAvatar,
                             userName = post!!.userName,
-                            createdAt = post!!.createdAt
+                            createdAt = post!!.createdAt,
+                            coins = post!!.coins,
+                            costs = post!!.costs
                         )
                         TitlePost(post!!.title)
                         TextContent(post!!.content)

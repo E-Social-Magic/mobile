@@ -81,17 +81,17 @@ fun OTPScreen(navigator: DestinationsNavigator, modifier: Modifier = Modifier) {
                         .align(alignment = Alignment.CenterStart), onClick = {})
                 }
 
-                    NextStepButton(
-                        onButtonClick = {
-                            if (otpVal != null) Toast.makeText(context, "Please Enter Otp", Toast.LENGTH_SHORT).show()
-                                    }
-                    ){
-                        Text(
-                            text = "Next",
-                            fontSize = 15.sp,
-                            color = Color.White
-                        )
-                    }
+//                    NextStepButton(
+//                        onButtonClick = {
+//                            if (otpVal != null) Toast.makeText(context, "Please Enter Otp", Toast.LENGTH_SHORT).show()
+//                                    }
+//                    ){
+//                        Text(
+//                            text = "Next",
+//                            fontSize = 15.sp,
+//                            color = Color.White
+//                        )
+//                    }
                 }
 
             }

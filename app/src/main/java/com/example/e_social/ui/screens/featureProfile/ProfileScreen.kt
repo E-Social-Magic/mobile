@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
@@ -70,24 +71,25 @@ fun ProfileScreen(
     snackBarController: SnackBarController,
     loginViewModel: LoginViewModel,
     userViewModel: UserViewModel,
+
 ) {
+
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
     val paymentList = userViewModel.payment
     var user = userViewModel.user
     var images = userViewModel.images
-//    var videos = userViewModel.videos
     var posts = userViewModel.posts
     var helped = userViewModel.helped
     var isLoading = userViewModel.isLoading
     var coinsConvert : String by remember{ mutableStateOf("") }
-    coinsConvert = if(user.value!!.coins > 1000){
-        (user.value!!.coins/1000).toString() + "k"
-    }
-    else {
-        user.value!!.coins.toString()
-    }
+    coinsConvert =   if(user.value!!.coins > 1000000)
+        (user.value!!.coins/1000000).toString()+ "M" else
+        if (user.value!!.coins > 10000)
+            (user.value!!.coins/1000).toString()+ "k"
+        else user.value!!.coins.toString()
+
     LaunchedEffect(key1 = true ){
         userViewModel.getUserInfo()
     }
@@ -102,7 +104,8 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .background(color = Color.White)
                     .shadow(elevation = 2.dp)
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Hồ sơ",
@@ -111,13 +114,16 @@ fun ProfileScreen(
                         .wrapContentWidth(Alignment.Start),
                     textAlign = TextAlign.Center,
                     style = TextStyle(
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 0.15.sp
                     ),
                 )
                 Button(
-                    onClick = { navigator.navigate(LoginScreenDestination) },
+                    onClick = {
+                        loginViewModel.isShowBottomBar.value=false
+                        loginViewModel.logOut()
+                        navigator.navigate(LoginScreenDestination) },
                     modifier = Modifier
                         .weight(1f)
                         .wrapContentWidth(Alignment.End), shape = RoundedCornerShape(8.dp)
@@ -127,9 +133,12 @@ fun ProfileScreen(
 
             }
         }) {
-            Column(modifier = Modifier.fillMaxSize().padding(bottom = 50.dp)) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 50.dp)) {
                 Spacer(modifier = Modifier.height(4.dp))
                 ProfileSection(
+                    navigator=navigator,
                     userName = user.value!!.userName,
                     description = user.value?.description,
                     avatar = user.value!!.avatar,
@@ -179,6 +188,7 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileSection(
+    navigator:DestinationsNavigator,
     modifier: Modifier = Modifier,
     userName:String,
     description: String?,
@@ -216,6 +226,7 @@ fun ProfileSection(
             }
             Spacer(modifier = Modifier.width(16.dp))
             StatSection(
+                navigator =navigator,
                 helped = helped.toString(),
                 posts = posts,
                 coins = coins,
@@ -253,6 +264,7 @@ fun RoundImage(
 
 @Composable
 fun StatSection(
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     helped: String,
     posts:Int,
@@ -264,7 +276,7 @@ fun StatSection(
     Column(
         modifier = modifier
     ) {
-        ProfileHeader(helped, posts, coins)
+        ProfileHeader(navigator =navigator ,helped, posts, coins)
         HorizontalDivider()
         Row(
             modifier = Modifier.height(64.dp),
@@ -283,7 +295,7 @@ fun StatSection(
                         .padding(horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ProfileStat(numberText = group, text = "Group")
+                        ProfileStat(numberText = group, text = "Nhóm")
                     }
 
                     VerticalDivider()
@@ -424,7 +436,8 @@ fun ProfileDescription(
             text = "Mô tả",
             fontWeight = FontWeight.Bold,
             letterSpacing = letterSpacing,
-            lineHeight = lineHeight
+            lineHeight = lineHeight,
+            textAlign = TextAlign.Center
         )
         if (description != null) {
             Text(

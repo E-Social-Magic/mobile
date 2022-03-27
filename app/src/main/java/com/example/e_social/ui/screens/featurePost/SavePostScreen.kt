@@ -3,6 +3,8 @@ package com.example.e_social.ui.screens.featurePost
 //import coil.compose.rememberAsyncImagePainter
 import android.Manifest
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -47,6 +49,7 @@ import coil.transform.CircleCropTransformation
 import com.example.e_social.models.data.response.Topic
 import com.example.e_social.models.domain.model.PostModel
 import com.example.e_social.ui.screens.destinations.ChooseGroupScreenDestination
+import com.example.e_social.ui.screens.destinations.PostScreenDestination
 import com.example.e_social.ui.screens.featureGroup.GroupPicker
 import com.example.e_social.ui.screens.featureGroup.GroupViewModel
 import com.example.e_social.util.CameraView
@@ -86,13 +89,16 @@ fun SavePostScreen(
     val moveNoteToTrashDialogShownState: MutableState<Boolean> = rememberSaveable {
         mutableStateOf(false)
     }
+    val context = LocalContext.current
     var postModel = postViewModel.newPost.value
+    val coins = postViewModel.coins
     val selectedGroup = groupViewModel.selectedGroup.value
     var isCameraOpen by remember {
         mutableStateOf(false)
     }
     resultRecipient.onResult {
         groupViewModel.onSelectedGroupId(it)
+        postViewModel.onGroupSelected(it)
     }
 
     if (isCameraOpen) {
@@ -122,7 +128,37 @@ fun SavePostScreen(
                         coroutineScope.launch { bottomDrawerState.open() }
                     },
                     onDeleteNoteClick = { moveNoteToTrashDialogShownState.value = true },
-                    onPostClick = { postViewModel.createPost() }
+                    onPostClick = {
+                        var check = true
+                        if (selectedGroup == null) {
+                            check=false
+                            Toast.makeText(
+                                context,
+                                "Vui lòng chọn nhóm để đăng bài",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        if (postModel.title.isEmpty() ) {
+                            check=false
+                            Toast.makeText(
+                                context,
+                                "Vui lòng nhập tiêu đề",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        if (postModel.content.isEmpty()) {
+                            check=false
+                            Toast.makeText(
+                                context,
+                                "Vui lòng nhập nội dung",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        if (check){
+                            postViewModel.createPost()
+                            navigator.navigate(PostScreenDestination)
+                        }
+                    }
                 )
 
             },
@@ -130,6 +166,7 @@ fun SavePostScreen(
                 SavePostContent(
                     navigator = navigator,
                     postModel = postModel,
+                    coins =coins,
                     onTitleChange = { postViewModel.onTitleChange(it) },
                     onContentChange = { postViewModel.onContentChange(it) },
                     onFilesChange = { list: List<File> ->
@@ -155,6 +192,7 @@ fun SavePostContent(
     navigator: DestinationsNavigator,
     postModel: PostModel,
     selectedGroup: Topic?,
+    coins :Long,
     resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>,
     onTitleChange: (String) -> Unit,
     onContentChange: (String) -> Unit,
@@ -274,7 +312,7 @@ fun SavePostContent(
                     if (it) dialogDateState.show()
                     else {
                         onExpiredChange(0L)
-                        expired=""
+                        expired = ""
                     }
                 }
             }
@@ -307,12 +345,12 @@ fun SavePostContent(
                 TextField(
                     value = formatter.format(postModel.coins),
                     onValueChange = {
-                        val number = it.replace(",", "").toIntOrNull()
-                        if (number != null)
+                        val number = it.replace(",", "").replace(".", "").toIntOrNull()
+                        if (number != null && number < coins )
                             onCoinChange.invoke(number)
                     },
                     placeholder = { Text(text = "Nhập phí bạn muôn trả") },
-                    label = { Text(text = "Coins") },
+                    label = { Text(text = "Nhập phí bạn muôn trả - số dư còn lại $coins coins") },
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number
@@ -435,7 +473,7 @@ private fun SavePostTopAppBar(
 
     TopAppBar(
         backgroundColor = Color.White,
-        title = { Text(text = "Create Post") },
+        title = { Text(text = "Đăng câu hỏi") },
         navigationIcon = {
             IconButton(
                 onClick = onBackClick
@@ -454,7 +492,7 @@ private fun SavePostTopAppBar(
                 modifier = Modifier.background(MaterialTheme.colors.background),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text(text = "Post", fontWeight = FontWeight.ExtraBold)
+                Text(text = "Đăng", fontWeight = FontWeight.ExtraBold)
             }
         })
 }

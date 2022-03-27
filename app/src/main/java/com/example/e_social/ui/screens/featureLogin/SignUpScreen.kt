@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.DefaultSnackbar
@@ -53,6 +54,7 @@ fun SignUpScreen(
     val email = loginViewModel.email.value
     val password = loginViewModel.password.value
     val confirmPassword = loginViewModel.confirmPassword.value
+    val userName = loginViewModel.userName.value
     val phone = loginViewModel.phone.value
     val focusManager = LocalFocusManager.current
     val isLoading = loginViewModel.isLoading.value
@@ -71,6 +73,8 @@ fun SignUpScreen(
                     email = email,
                     password = password,
                     confirmPassword = confirmPassword,
+                    userName=userName,
+                    onUserNameChange= { loginViewModel.onUserNameChange(it)},
                     phone = phone,
                     onEmailChange = { loginViewModel.onEmailChange(it) },
                     onPhoneChange = { loginViewModel.onPhoneChange(it) },
@@ -80,8 +84,8 @@ fun SignUpScreen(
             }
 
             Row(Modifier.weight(2f)) {
-                ButtonSignUp(isLoading = isLoading) {
-                    coroutineScope.launch(Dispatchers.Main) {
+                ButtonSignUp(isLoading = isLoading, enable = phone.length==10) {
+                    coroutineScope.launch {
                         loginViewModel.signUp()
                         if (loginViewModel.errorMessage.value.isEmpty()) {
                             navigator.navigate(TopicListScreenDestination)
@@ -90,7 +94,7 @@ fun SignUpScreen(
                                 snackBarController.showSnackbar(
                                     snackbarHostState = scaffoldState.snackbarHostState,
                                     message = loginViewModel.errorMessage.value[0],
-                                    actionLabel = "dismiss"
+                                    actionLabel = "ẩn"
                                 )
                                 loginViewModel.errorMessage.value = listOf()
                             }
@@ -117,6 +121,8 @@ fun SignUpFields(
     password: String,
     confirmPassword: String,
     phone: String,
+    userName:String,
+    onUserNameChange:(String)->Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
@@ -147,11 +153,24 @@ fun SignUpFields(
                 shape = RoundedCornerShape(24),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
+        OutlinedTextField(
+            value = userName,
+            placeholder = { Text(text = "Tên của bạn") },
+            label = { Text(text = "Tên ") },
+            onValueChange = onUserNameChange,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Email
+            ),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            shape = RoundedCornerShape(24),
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
             OutlinedTextField(
                 value = phone,
                 placeholder = { Text(text = "Eg:098654321") },
-                label = { Text(text = "Phone") },
-                onValueChange = onPhoneChange,
+                label = { Text(text = "Số điện thoại") },
+                onValueChange = {if (it.isDigitsOnly()&&it.startsWith("0")) {onPhoneChange.invoke(it)}},
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
                     keyboardType = KeyboardType.Phone
@@ -162,8 +181,8 @@ fun SignUpFields(
             )
             OutlinedTextField(
                 value = password,
-                placeholder = { Text(text = "Password") },
-                label = { Text(text = "Password") },
+                placeholder = { Text(text = "Mật khẩu") },
+                label = { Text(text = "Mật khẩu") },
                 onValueChange = onPasswordChange,
                 visualTransformation = if (passwordVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -171,12 +190,11 @@ fun SignUpFields(
                 shape = RoundedCornerShape(24),
                 modifier = Modifier.padding(vertical = 8.dp)
 
-
             )
             OutlinedTextField(
                 value = confirmPassword,
-                placeholder = { Text(text = "Confirm password") },
-                label = { Text(text = "Confirm password") },
+                placeholder = { Text(text = "Nhập lại mật khẩu") },
+                label = { Text(text = "Nhập lại mật khẩu") },
                 onValueChange = onConfirmPasswordChange,
                 visualTransformation = if (passwordConfirmVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -189,7 +207,7 @@ fun SignUpFields(
 }
 
 @Composable
-fun ButtonSignUp(modifier: Modifier = Modifier, isLoading: Boolean, onSignUpPress: () -> Unit) {
+fun ButtonSignUp(modifier: Modifier = Modifier, isLoading: Boolean,enable:Boolean, onSignUpPress: () -> Unit) {
     Column(verticalArrangement = Arrangement.Center) {
         Button(
             onClick = {
@@ -200,13 +218,13 @@ fun ButtonSignUp(modifier: Modifier = Modifier, isLoading: Boolean, onSignUpPres
                 .height(55.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
             shape = RoundedCornerShape(25),
-            enabled = !isLoading
+            enabled = !isLoading && enable
         ) {
             if (isLoading)
                 CircularProgressBar(isDisplay = isLoading)
             else
                 Text(
-                    "Sign Up",
+                    "Đăng ký",
                     fontSize = 17.sp,
                 )
         }
@@ -219,14 +237,14 @@ fun RedirectLoginPage(onForgotPasswordClick: () -> Unit) {
         ClickableText(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(fontSize = 14.sp)) {
-                    append("Do you have an account? ")
+                    append("Bạn đã có tài khoản? ")
                     withStyle(
                         style = SpanStyle(
                             color = Color.Blue,
                             fontWeight = FontWeight.Bold
                         ),
                     ) {
-                        append("Login")
+                        append("Đăng nhập")
                     }
                 }
             },

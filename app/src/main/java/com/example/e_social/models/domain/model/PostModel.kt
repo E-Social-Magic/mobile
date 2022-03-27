@@ -9,5 +9,6 @@ data class PostModel(
     var costs: Boolean=false,
     var expired:Long=4075911643,
     var coins:Int=0,
-    var files: List<File>?=null
+    var files: List<File>?=null,
+    val groupId:String
 )

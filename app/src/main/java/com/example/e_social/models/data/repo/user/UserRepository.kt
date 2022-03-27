@@ -17,4 +17,5 @@ interface UserRepository {
     suspend fun editAccount(id:String, editAccountRequest: EditAccountRequest): Resource<EditAccountResponse>
     suspend fun depositCoins(depositCoinsRequest: DepositCoinsRequest): Resource<MomoResponse>
     suspend fun withdrawCoins(withdrawCoinsResponse: WithdrawCoinsRequest): Resource<WithdrawCoinsResponse>
+    suspend fun joinGroups(listGroupId:List<String>):Resource<JoinGroupResponse>
 }

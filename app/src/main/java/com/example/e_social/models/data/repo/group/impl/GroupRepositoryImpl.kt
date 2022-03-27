@@ -47,7 +47,7 @@ class GroupRepositoryImpl @Inject constructor(private val api: GroupApi):GroupRe
     }
 
     override suspend fun getGroups(userId:String): Resource<TopicList> {
-        val response = api.getGroups()
+        val response = api.getGroups(userId)
         return when (response.code()) {
             HttpURLConnection.HTTP_BAD_METHOD -> {
                 val errorBody = response.errorBody() ?: run {

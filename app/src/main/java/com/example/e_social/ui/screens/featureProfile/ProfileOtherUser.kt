@@ -67,7 +67,9 @@ fun ProfileOtherUserScreen(
                     .fillMaxWidth()
                     .background(color = Color.White)
                     .shadow(elevation = 2.dp)
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+
             ) {
                 IconButton(
                     onClick = { navigator.navigateUp()},
@@ -91,6 +93,7 @@ fun ProfileOtherUserScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 ProfileSection(
+                    navigator =navigator,
                     userName = user.value!!.userName,
                     description = user.value?.description,
                     avatar = user.value!!.avatar,

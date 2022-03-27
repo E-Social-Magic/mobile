@@ -63,6 +63,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideUserApi(@Named("OkHttpClientInterceptor") okHttpClient: OkHttpClient): UserApi {
+
         return RetrofitBuilderUtils.retrofitBuilder(okHttpClient)
             .create(UserApi::class.java)
     }
@@ -99,11 +100,12 @@ object AppModule {
     @Provides
     @Named("OkHttpClientInterceptor")
     fun provideOkHttpClient(@Named("AuthInterceptor") interceptor: Interceptor): OkHttpClient {
-//        val loggingInterceptor = HttpLoggingInterceptor()
-//        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+                val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         return OkHttpClient
             .Builder()
             .addInterceptor(interceptor)
+            .addInterceptor(loggingInterceptor)
             .build()
     }
 

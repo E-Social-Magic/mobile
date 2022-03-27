@@ -82,8 +82,8 @@ fun LoginScreen(
                     snackBarController.getScope().launch {
                         snackBarController.showSnackbar(
                             snackbarHostState = scaffoldState.snackbarHostState,
-                            message = "error",
-                            actionLabel = "dismiss"
+                            message = "Lỗi",
+                            actionLabel = "ẩn"
                         )
                     }
                 },
@@ -101,7 +101,7 @@ fun LoginScreen(
                             snackBarController.showSnackbar(
                                 snackbarHostState = scaffoldState.snackbarHostState,
                                 message = loginViewModel.errorMessage.value[0],
-                                actionLabel = "dismiss"
+                                actionLabel = "ẩn"
                             )
                             loginViewModel.errorMessage.value = listOf()
                         }
@@ -154,7 +154,7 @@ fun LoginFields(
         OutlinedTextField(
             value = email,
             placeholder = { Text(text = "user@email.com") },
-            label = { Text(text = "email ") },
+            label = { Text(text = "Email") },
             onValueChange = onEmailChange,
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Email,
@@ -167,8 +167,8 @@ fun LoginFields(
 
         OutlinedTextField(
             value = password,
-            placeholder = { Text(text = "password") },
-            label = { Text(text = "password") },
+            placeholder = { Text(text = "Mật khẩu") },
+            label = { Text(text = "Mật khẩu ") },
             onValueChange = onPasswordChange,
             visualTransformation = if (passwordVisualTransformation) PasswordVisualTransformation() else VisualTransformation.None,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -212,7 +212,7 @@ fun ButtonLogin(
             CircularProgressBar(isDisplay = isLoading)
         else
             Text(
-                "Log In",
+                "Đăng nhập",
                 fontSize = 17.sp,
             )
     }
@@ -228,7 +228,7 @@ fun CreateAccountButton(modifier: Modifier = Modifier, onCreateAccountClick: () 
         shape = RoundedCornerShape(25),
     ) {
         Text(
-            "Create Account",
+            "Tạo tài khoản",
             fontSize = 17.sp
         )
     }
@@ -240,7 +240,7 @@ fun ForgotPassword(onForgotPasswordClick: () -> Unit) {
         ClickableText(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(fontSize = 14.sp)) {
-                    append("Forgot password? ")
+                    append("Quên mật khẩu ? ")
                 }
 
             },

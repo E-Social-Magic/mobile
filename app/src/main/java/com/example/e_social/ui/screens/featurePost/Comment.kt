@@ -8,9 +8,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,12 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -40,33 +40,37 @@ import coil.transform.RoundedCornersTransformation
 import com.example.e_social.R
 import com.example.e_social.models.Constants
 import com.example.e_social.models.domain.model.Message
+import com.example.e_social.ui.components.posts.VotingAction
 import com.example.e_social.ui.theme.Blue700
 import com.example.e_social.util.FileUtils
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import gun0912.tedimagepicker.builder.TedImagePicker
 import java.io.File
+import kotlin.random.Random
 
 
 @Composable
-fun ListComment(postViewModel: PostViewModel = hiltViewModel(), messages: List<Message>) {
-    ListCommentEntry(messages = messages)
+fun ListComment(postViewModel: PostViewModel = hiltViewModel(), messages: List<Message>,isEditable: Boolean,postId: String,onwerPostId:String) {
+    ListCommentEntry(postViewModel = postViewModel,messages = messages,isEditable, postId = postId,ownerPostId=onwerPostId)
 }
 
 @Composable
-fun ListCommentEntry(messages: List<Message>) {
-    if (messages.isNotEmpty())
+fun ListCommentEntry(postViewModel: PostViewModel, messages: List<Message>, isEditable:Boolean, postId:String, ownerPostId:String) {
+    if (messages.isNotEmpty()) {
+        val isSovle = messages.find { it.isCorrect }?.isCorrect ?: false
         messages.mapIndexed { index, message ->
             if (index < 5)
-                MessageCard(message)
+                MessageCard(postViewModel = postViewModel,message, isSovle,isEditable, postId = postId,ownerPostId=ownerPostId)
         }
+    }
+
 }
 
 @Composable
-fun MessageCard(msg: Message) {
+fun MessageCard(postViewModel: PostViewModel,msg: Message, isSolve: Boolean,isEditable:Boolean,postId:String,ownerPostId:String) {
     val painter = rememberImagePainter(data = msg.avatarAuthor, builder = {
         crossfade(true)
-        placeholder(R.drawable.placeholder_image)
         error(R.drawable.default_avatar)
         transformations(CircleCropTransformation())
     })
@@ -86,42 +90,62 @@ fun MessageCard(msg: Message) {
             if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
         )
         Column {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .clickable { isExpanded = !isExpanded }
-                .background(color = Color(0xFFDBECFE), shape = RoundedCornerShape(12.dp))
-                .padding(8.dp)) {
-                Text(
-                    text = msg.authorName ?: Constants.Anonymous,
-                    color = MaterialTheme.colors.secondaryVariant,
-                    style = MaterialTheme.typography.subtitle2,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = 1.dp,
-                    color = surfaceColor,
-                    modifier = Modifier
-                        .animateContentSize()
-                        .padding(1.dp)
-                ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color(0xFFDBECFE), shape = RoundedCornerShape(12.dp))
+            ) {
+                Column(modifier = Modifier
+                    .clickable { isExpanded = !isExpanded }
+                    .padding(8.dp)) {
                     Text(
-                        text = msg.message,
-                        modifier = Modifier.padding(all = 4.dp),
-                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                        style = MaterialTheme.typography.body2
+                        text = msg.authorName ?: Constants.Anonymous,
+                        color = MaterialTheme.colors.secondaryVariant,
+                        style = MaterialTheme.typography.subtitle2,
+                        fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = 1.dp,
+                        color = surfaceColor,
+                        modifier = Modifier
+                            .animateContentSize()
+                            .padding(1.dp)
+                    ) {
+                        Text(
+                            text = msg.message,
+                            modifier = Modifier.padding(all = 4.dp),
+                            maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+                            style = MaterialTheme.typography.body2
+                        )
+                    }
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (msg.isCorrect) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.outline_check_circle_24),
+                            contentDescription = "",
+                            tint = Color(0xFF6FCF97)
+                        )
+                    }
+                    VotingAction(
+                        text = "1",
+                        onUpVoteAction = { },
+                        onDownVoteAction = { })
+                    if (!isSolve && isEditable && ownerPostId!=msg.userId){
+                        MarkAnswerIsCorrect(action = {postViewModel.markAnswerIsCorrect(postId = postId, commentId = msg.id)})
+                    }
+                }
+
             }
             if (!msg.images.isNullOrEmpty()) {
                 Image(
                     painter = rememberImagePainter(
                         ImageRequest.Builder(LocalContext.current)
                             .data(data = msg.images!![0])
-                            .placeholder(R.drawable.placeholder_image)
-                            .error(R.drawable.default_image)
                             .apply(block = fun ImageRequest.Builder.() {
                                 transformations(RoundedCornersTransformation(10f))
                             }).build()
@@ -146,6 +170,7 @@ fun CommentInput(
     modifier: Modifier = Modifier,
     postId: String,
     hint: String = "",
+    avatar:String,
     onSubmit: (String, Message) -> Unit
 ) {
     var isHintDisplayed by remember {
@@ -157,14 +182,12 @@ fun CommentInput(
     val storePermissionState =
         rememberPermissionState(permission = Manifest.permission.ACCESS_MEDIA_LOCATION)
     val context = LocalContext.current
-    val painter = rememberImagePainter(data = "author avart", builder = {
+    val painter = rememberImagePainter(data =avatar, builder = {
         crossfade(true)
-        placeholder(R.drawable.placeholder_image)
-        error(R.drawable.default_avatar)
         transformations(CircleCropTransformation())
     })
 
-    val comment = remember { mutableStateOf(Message(message = "")) }
+    val comment = remember { mutableStateOf(Message(message = "", isCorrect = false,id="", userId = "")) }
 
     Column {
         Row(modifier = Modifier.padding(all = 8.dp)) {
@@ -214,9 +237,12 @@ fun CommentInput(
                                             uriList.map { uri ->
                                                 FileUtils.getFile(
                                                     context = context,
-                                                    uri)}
+                                                    uri
+                                                )
+                                            }
                                                 .let {
-                                                    comment.value = comment.value.copy(images = (it as List<File>).map { file -> file.absolutePath })
+                                                    comment.value =
+                                                        comment.value.copy(images = (it as List<File>).map { file -> file.absolutePath })
                                                 }
                                         }
 
@@ -233,7 +259,7 @@ fun CommentInput(
                                     if (comment.value.message.isNotEmpty()) {
                                         onSubmit.invoke(postId, comment.value.copy())
                                         comment.value.message = ""
-                                        comment.value.images=null
+                                        comment.value.images = null
                                     } else {
 
                                     }
@@ -269,23 +295,23 @@ fun CommentInput(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                    items(comment.value.images!!.size) {index ->
-                        Image(
-                            painter = rememberImagePainter(
-                                data = File(comment.value.images!![index]),
-                                builder = {
-                                    crossfade(true)
-                                    placeholder(R.drawable.placeholder_image)
-                                    error(R.drawable.default_avatar)
-                                    transformations(RoundedCornersTransformation(12.5f))
-                                    size(Int.MAX_VALUE)
-                                }),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(75.dp)
-                        )
-                    }
+                items(comment.value.images!!.size) { index ->
+                    Image(
+                        painter = rememberImagePainter(
+                            data = File(comment.value.images!![index]),
+                            builder = {
+                                crossfade(true)
+                                placeholder(R.drawable.placeholder_image)
+                                error(R.drawable.default_avatar)
+                                transformations(RoundedCornersTransformation(12.5f))
+                                size(Int.MAX_VALUE)
+                            }),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(75.dp)
+                    )
                 }
             }
         }
     }
+}

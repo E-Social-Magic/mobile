@@ -11,10 +11,10 @@ data class Topic(
     val posts:List<String>,
     @SerializedName("private_dt")
     val privateData: List<String>,
-    @SerializedName("user_id")
     val users:List<String>,
-    val visible: Int,
     val avatar: String,
     val updatedAt: String,
     val createdAt: String,
+    @SerializedName("user_id")
+    val userId:String,
 )

@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.e_social.models.Constants
 import com.example.e_social.ui.components.BottomNavController
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.screens.ChatScreen
@@ -28,7 +27,6 @@ import com.example.e_social.ui.screens.featureLogin.SignUpScreen
 import com.example.e_social.ui.screens.featurePost.PostScreen
 import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.screens.featurePost.SavePostScreen
-import com.example.e_social.ui.screens.featureProfile.ProfileOtherUserScreen
 import com.example.e_social.ui.screens.featureProfile.ProfileScreen
 import com.example.e_social.ui.screens.featureProfile.UserViewModel
 import com.example.e_social.ui.screens.featureVideo.VideosScreen
@@ -136,7 +134,7 @@ class MainActivity : ComponentActivity() {
                                         coroutineScope = coroutineScope,
                                         snackBarController = snackBarController,
                                         loginViewModel = loginViewModel,
-                                        userViewModel = userViewModel
+                                        userViewModel = userViewModel,
                                     )
                                 }
                                 composable(VideosScreenDestination) {

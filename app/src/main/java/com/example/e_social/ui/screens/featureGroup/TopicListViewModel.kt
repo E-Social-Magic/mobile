@@ -3,6 +3,7 @@ package com.example.e_social.ui.screens.featureGroup
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -18,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
+import javax.security.auth.Subject
 
 
 @HiltViewModel
@@ -27,7 +29,7 @@ class TopicListViewModel @Inject constructor(private val repository: TopicReposi
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
-
+    val selectedTopic = mutableStateOf<List<String>>(listOf())
     init {
         loadTopicPaginated()
     }
@@ -42,7 +44,7 @@ class TopicListViewModel @Inject constructor(private val repository: TopicReposi
 
                     val topicIndexEntries = result.data.groups.filter { !topicList.value.map {topicIndexListEntry -> topicIndexListEntry.id}.contains(it.id)  }.mapIndexed{ index, entry ->
                         val url = "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg"
-                        TopicIndexListEntry(groupName = if(entry.groupName.isNullOrBlank()) "Math" else entry.groupName, avatar = if(entry.avatar.isNullOrBlank())url else entry.avatar ,visible= entry.visible, id = entry.id)
+                        TopicIndexListEntry(groupName = if(entry.groupName.isNullOrBlank()) "Math" else entry.groupName, avatar = if(entry.avatar.isNullOrBlank())url else entry.avatar ,id = entry.id)
                     }
                     curPage++
                     loadError.value = ""
@@ -63,6 +65,15 @@ class TopicListViewModel @Inject constructor(private val repository: TopicReposi
             palette?.dominantSwatch?.rgb?.let { colorValue ->
                 onFinish(Color(colorValue))
             }
+        }
+    }
+    fun selectedTopics(newSubjectId: String){
+
+        if (selectedTopic.value.contains(newSubjectId)){
+            selectedTopic.value = selectedTopic.value.filter { it!=newSubjectId }
+        }
+        else{
+            selectedTopic.value = selectedTopic.value.plus(newSubjectId)
         }
     }
 }

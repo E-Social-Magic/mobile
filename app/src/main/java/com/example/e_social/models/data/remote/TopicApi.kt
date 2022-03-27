@@ -11,11 +11,13 @@ interface TopicApi {
     @GET("groups")
     suspend fun getTopicList(
         @Query("limit") limit: Int,
-        @Query("offset") offset: Int
+        @Query("offset") offset: Int,
+
     ): TopicList
 
     @GET("groups/{group-id}")
     suspend fun getTopicInfo(
         @Path("name") name: String
     ): Topic
+
 }

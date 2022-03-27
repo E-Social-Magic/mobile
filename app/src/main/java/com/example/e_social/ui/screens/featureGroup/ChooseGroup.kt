@@ -137,7 +137,7 @@ fun Group(group: Topic, modifier: Modifier = Modifier, onGroupClicked: (Topic) -
         .fillMaxWidth()
         .clickable { onGroupClicked.invoke(group) }
     ) {
-        ImageBuilder(30.dp, group.avatar)
+        ImageBuilderCircle(30.dp, group.avatar)
         Text(
             fontSize = 16.sp,
             text = group.groupName,

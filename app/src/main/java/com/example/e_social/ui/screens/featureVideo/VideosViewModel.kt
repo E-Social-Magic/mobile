@@ -9,8 +9,10 @@ import com.example.e_social.models.Constants
 import com.example.e_social.models.data.repo.post.PostRepository
 import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
+import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -129,6 +131,7 @@ class VideosViewModel @Inject constructor(private val postRepository: PostReposi
         }
     }
     fun loadVideoPaginated() {
+        val dispatcher = if (currentPage==1) Dispatchers.Main else Dispatchers.IO
         viewModelScope.launch {
             isLoading.value = true
             val result = postRepository.getPosts(100, currentPage)
@@ -136,8 +139,7 @@ class VideosViewModel @Inject constructor(private val postRepository: PostReposi
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
                     val videoItem = result.data.posts.filter { it.videos.isNotEmpty() }.map{ entry ->
-                        val comments = if (!entry.comments.isNullOrEmpty())
-                            entry.comments.map{ Message(authorName = it.userName,avatarAuthor = null, message = it.comment,images=it.images) }
+                        val comments = if (!entry.comments.isNullOrEmpty()) PostViewModel.commentToMessage(entry.comments)
                         else listOf()
                         VideoItem(
                             id = entry.id,

@@ -14,5 +14,5 @@ data class DataX(
     val user_id: String,
     val username: String,
     val type: String,
-    val accountBalance: Int
+    val accountBalance: Long
 )

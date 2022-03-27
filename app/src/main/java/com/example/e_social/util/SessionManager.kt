@@ -14,12 +14,16 @@ class SessionManager(context: Context) {
     fun saveAuthToken(token: String) {
         val editor = prefs.edit()
         editor.putString("token", token)
-        editor.putString("userId", token)
         editor.apply()
     }
-    fun saveUserId(token: String) {
+    fun saveAuthCoins(coins: String) {
         val editor = prefs.edit()
-        editor.putString("userId", token)
+        editor.putString("coins", coins)
+        editor.apply()
+    }
+    fun saveUserId(userId: String) {
+        val editor = prefs.edit()
+        editor.putString("userId", userId)
         editor.apply()
     }
     /**
@@ -27,6 +31,13 @@ class SessionManager(context: Context) {
      */
     fun fetchAuthToken(): String? {
         return prefs.getString("token", null)
+    }
+    fun fetchCoin(): Long {
+        val coins =prefs.getString("coins", null)
+        if (coins==null)
+            return  0
+        else
+            return coins.toLong()
     }
     fun fetchUserId(): String? {
         return prefs.getString("userId", null)

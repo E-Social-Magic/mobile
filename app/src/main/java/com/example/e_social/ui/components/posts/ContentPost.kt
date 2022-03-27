@@ -43,7 +43,6 @@ fun ImageContent(url: String) {
         data = url,
         builder = {
             crossfade(true)
-            placeholder(R.drawable.placeholder_image)
             size(Int.MAX_VALUE)
         })
     Image(

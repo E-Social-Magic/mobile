@@ -32,7 +32,6 @@ interface PostApi {
         @Part files: List<MultipartBody.Part>?,
     ): Response<PostResponse>
 
-
     @Multipart
     @PUT("post/{post-id}/comment")
     suspend fun newComment(
@@ -40,4 +39,10 @@ interface PostApi {
         @PartMap params: @JvmSuppressWildcards Map<String, RequestBody>,
         @Part files: List<MultipartBody.Part>?
     ): Response<NewCommentResponse>
+
+    @PUT("post/{post-id}/comment/{comment-id}/markCorrect")
+    suspend fun markAnswerIsCorrect(
+        @Path("post-id") postId : String,
+        @Path("comment-id") commentId:String
+    ): Response<MarkCorrectAnswerResponse>
 }

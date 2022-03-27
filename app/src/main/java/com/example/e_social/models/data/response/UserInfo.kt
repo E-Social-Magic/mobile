@@ -13,7 +13,7 @@ data class UserInfo(
     var subjects: List<String>?,
     var follower: List<String>?,
     var following: List<String>?,
-    var coins: Int,
+    var coins: Long,
     var level: String?,
     var id: String,
 )

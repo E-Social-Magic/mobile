@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
+import com.example.e_social.ui.components.ShimmerLoading
 import com.example.e_social.ui.components.TopApp
 import com.example.e_social.ui.components.posts.PostEntry
 import com.example.e_social.ui.screens.destinations.ChooseGroupScreenDestination
@@ -52,13 +53,14 @@ fun PostScreen(
     groupViewModel: GroupViewModel = hiltViewModel()
 
 ) {
-    val postList by remember { postViewModel.postList }
-    val endReached by remember { postViewModel.endReached }
-    val loadError by remember { postViewModel.loadError }
-    val isLoading by remember { postViewModel.isLoading }
+    val postList = postViewModel.postList.value
+    val endReached = postViewModel.endReached.value
+    val loadError = postViewModel.loadError.value
+    val isLoading =postViewModel.isLoading.value
     val scrollState = rememberLazyListState()
     val scrollUpState = postViewModel.scrollUp.observeAsState()
     val selectedGroup = groupViewModel.selectedGroup.value
+    val avatar = loginViewModel.user.value?.avatar
     resultRecipient.onResult {
         groupViewModel.onSelectedGroupId(it)
         postViewModel.refresh(it)
@@ -145,7 +147,7 @@ fun PostScreen(
                                         },
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = selectedGroup?.groupName?:"Tất cả", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                Text(text = selectedGroup?.groupName?:"Tất cả", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = selectedGroup?.groupName?:"Đang theo dõi 112M",
@@ -164,7 +166,7 @@ fun PostScreen(
                         ) {
                             Text(
                                 text = "Xem thêm",
-                                fontSize = 20.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colors.primary,
                                 maxLines = 1
@@ -174,7 +176,14 @@ fun PostScreen(
                     if (postList.isEmpty()){
                         Text(text = "Hiện chưa có bài đăng nào ", fontSize = 20.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxSize())
                     }
-                    LazyColumn(state = scrollState) {
+                    LazyColumn(state = scrollState, modifier = Modifier.padding(bottom=50.dp)
+                    ) {
+                        if (postList.isEmpty()&&isLoading){
+                            items(10) {
+                                ShimmerLoading()
+                            }
+                        }
+                        else
                         items(postList.size) {
                             if (it >= postList.size - 1 && !endReached) {
                                 postViewModel.loadPostPaginated()
@@ -183,6 +192,7 @@ fun PostScreen(
                                 post = postList[it],
                                 navigator,
                                 postViewModel = postViewModel,
+                                avatar = avatar?:""
                             )
                         }
                     }

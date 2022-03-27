@@ -15,6 +15,7 @@ import com.example.e_social.models.domain.model.Message
 import com.example.e_social.models.domain.model.PostEntry
 import com.example.e_social.models.domain.model.PostModel
 import com.example.e_social.util.Resource
+import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,14 +27,16 @@ import java.text.NumberFormat
 import javax.inject.Inject
 
 @HiltViewModel
-class PostViewModel @Inject constructor(private val postRepository: PostRepository) : ViewModel() {
+class PostViewModel @Inject constructor(private val postRepository: PostRepository,private val sessionManager: SessionManager) : ViewModel() {
     private var currentPage = 1
     var postList = mutableStateOf<List<PostEntry>>(listOf())
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
-    val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf()))
+    val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf(), groupId = ""))
     val groupId= mutableStateOf("")
+    val coins =sessionManager.fetchCoin()
+    val userIdSesstion = sessionManager.fetchUserId()
     private var lastScrollIndex = 0
     private val _scrollUp = MutableLiveData(false)
     val scrollUp: LiveData<Boolean>
@@ -48,6 +51,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         loadPostPaginated(groupById)
     }
     fun loadPostPaginated(groupById: String?=null) {
+        val dispatcher = if (currentPage==1) Dispatchers.Main else Dispatchers.IO
         viewModelScope.launch {
             isLoading.value = true
             val searchBy= groupById ?: if (groupId.value.isEmpty()) null else groupId.value
@@ -67,13 +71,15 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                     loadError.value = result.message!!
                     isLoading.value = false
                 }
-                else -> {}
+                else -> {
+                    isLoading.value = false
+                }
             }
         }
     }
 
     fun voteUp(postId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             var votes = 0
             isLoading.value = true
             val result = postRepository.voteUp(postId)
@@ -99,7 +105,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     fun voteDown(postId: String) {
         var votes = 0
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             isLoading.value = true
             val result = postRepository.voteDown(postId)
             when (result) {
@@ -128,10 +134,17 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     fun onContentChange(content: String) {
         newPost.value = newPost.value.copy(content = content)
     }
-
+    fun  onGroupSelected(groupId: String){
+        newPost.value= newPost.value.copy(groupId=groupId)
+    }
     fun createPost() {
         viewModelScope.launch(Dispatchers.IO) {
             postRepository.newPost(postModel = newPost.value)
+        }
+    }
+    fun markAnswerIsCorrect(postId: String,commentId: String){
+        viewModelScope.launch {
+            postRepository.markAnswerIsCorrect(postId = postId, commentId = commentId)
         }
     }
     fun loadPostByGroup(groupId:String){
@@ -182,7 +195,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     }
 
     fun submitComment(postId: String, message: Message): Boolean {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             isLoading.value = true
             val result = postRepository.newComment(postId = postId, comment = CommentRequest(
                 message.message.toRequestBody(
@@ -213,37 +226,43 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         return true
     }
 
-    private fun commentToMessage(comments: List<Comment>): List<Message> {
-        return comments.map {
-            Message(
-                authorName = it.userName,
-                avatarAuthor = it.avatar,
-                message = it.comment,
-                images = it.images
+
+    companion object{
+        fun commentToMessage(comments: List<Comment>): List<Message> {
+            return comments.map {
+                Message(
+                    id =it._id,
+                    authorName = it.userName,
+                    avatarAuthor = it.avatar,
+                    message = it.comment,
+                    images = it.images,
+                    isCorrect = it.correct,
+                    userId = it.userId
+                )
+            }
+        }
+        fun postResponse2PostEntry(postReponse: PostResponse): PostEntry {
+            return PostEntry(
+                title = postReponse.title,
+                createdAt = postReponse.createdAt,
+                images = postReponse.images,
+                comments = commentToMessage(postReponse.comments),
+                authorAvatar = postReponse.authorAvatar,
+                userName = postReponse.userName,
+                id = postReponse.id,
+                content = postReponse.content,
+                votes = postReponse.votes,
+                updatedAt = postReponse.updatedAt,
+                userId = postReponse.userId,
+                videos = postReponse.videos,
+                hideName = postReponse.hideName,
+                expired = postReponse.expired,
+                coins = postReponse.coins,
+                costs = postReponse.costs
             )
         }
     }
 
-    private fun postResponse2PostEntry(postReponse: PostResponse): PostEntry {
-        return PostEntry(
-            title = postReponse.title,
-            createdAt = postReponse.createdAt,
-            images = postReponse.images,
-            comments = commentToMessage(postReponse.comments),
-            authorAvatar = postReponse.authorAvatar,
-            userName = postReponse.userName,
-            id = postReponse.id,
-            content = postReponse.content,
-            votes = postReponse.votes,
-            updatedAt = postReponse.updatedAt,
-            userId = postReponse.userId,
-            videos = postReponse.videos,
-            hideName = postReponse.hideName,
-            expired = postReponse.expired,
-            coins = postReponse.coins,
-            costs = postReponse.costs
-        )
-    }
 
     fun onPostChange(newPostModel: PostModel) {
         newPost.value = newPostModel

@@ -14,9 +14,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.e_social.R
+import com.example.e_social.ui.screens.destinations.BalanceCoinDestination
+import com.example.e_social.ui.screens.destinations.DepositCoinsDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Composable
 fun ProfileHeader(
+    navigator:DestinationsNavigator,
     countHelped: String,
     countPosts: Int,
     coins:String,
@@ -37,7 +41,7 @@ fun ProfileHeader(
                 Icon(painter = painterResource(id = R.drawable.outline_check_circle_24), contentDescription = "", tint = Color(0xFF6FCF97))
                 Column(Modifier.padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = countHelped, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(text = "Helped", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = "Đã giúp", color = Color.Gray, fontSize = 12.sp)
                 }
             }
 
@@ -45,7 +49,7 @@ fun ProfileHeader(
             Row(Modifier
                 .fillMaxHeight()
                 .weight(1f)
-                .clickable { }
+                .clickable {navigator.navigate(BalanceCoinDestination) }
                 .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -53,7 +57,7 @@ fun ProfileHeader(
                 Icon(painter = painterResource(id = R.drawable.ic_coin), contentDescription = "", tint = Color(0xFFFF9900))
                 Column(Modifier.padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = coins, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(text = "Coins", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = "Số dư", color = Color.Gray, fontSize = 12.sp)
                 }
             }
             VerticalDivider()
@@ -68,7 +72,7 @@ fun ProfileHeader(
                 Icon(painter = painterResource(id = R.drawable.outline_assignment_24), contentDescription = "", tint = MaterialTheme.colors.primary)
                 Column(Modifier.padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = countPosts.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(text = "Posts", color = Color.Gray, fontSize = 12.sp)
+                    Text(text = "Bài đăng", color = Color.Gray, fontSize = 12.sp)
                 }
             }
     }
