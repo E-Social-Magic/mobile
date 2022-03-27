@@ -87,7 +87,7 @@ class PaymentViewModel @Inject constructor(
                     )
                 )
             if (momoResponse.data != null) {
-                if (momoResponse.data.data.resultCode == "0") {
+                if (momoResponse.data.data.resultCode == "7000") {
                     action.invoke(true)
                 } else
                     action.invoke(false)

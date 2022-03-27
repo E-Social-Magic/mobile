@@ -7,6 +7,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.e_social.ui.components.SimpleTopAppBar
+import com.example.e_social.ui.screens.destinations.SuccessPaymentDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.text.DecimalFormat
@@ -38,6 +41,7 @@ fun WithDraw(
     val coroutineScope = rememberCoroutineScope()
     val phone = paymentViewModel.phone.value
     val name = paymentViewModel.name.value
+    val isEnable = remember{ mutableStateOf(true)}
     Surface {
         Column {
             SimpleTopAppBar(title = "Rút tiền ", onIconBackClick = { navigator.navigateUp() })
@@ -101,13 +105,14 @@ fun WithDraw(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Button(enabled = phone.length == 10 && name.isNotEmpty(), onClick = {
+                    Button(enabled = phone.length == 10 && name.isNotEmpty()&&isEnable.value, onClick = {
                         if (assumeBalance > coins) {
                             Toast.makeText(context, "Số dư không đủ", Toast.LENGTH_SHORT).show()
                         } else {
+                            isEnable.value=false
                             paymentViewModel.withDraw(action = {
                                 if (it)
-//                               navigator.navigate()
+                               navigator.navigate(SuccessPaymentDestination)
                                 else
                                     Toast.makeText(
                                         context,
