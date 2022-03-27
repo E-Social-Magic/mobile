@@ -154,6 +154,14 @@ fun SavePostScreen(
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                        if (postModel.coins<100 && postModel.costs) {
+                            check=false
+                            Toast.makeText(
+                                context,
+                                "Vui lòng nhập số tiền lớn hơn 100 coins",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                         if (check){
                             postViewModel.createPost()
                             navigator.navigate(PostScreenDestination)
@@ -260,7 +268,6 @@ fun SavePostContent(
                 .padding(bottom = 50.dp)
         ) {
             GroupPicker(navigator, selectedGroup, resultRecipient)
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

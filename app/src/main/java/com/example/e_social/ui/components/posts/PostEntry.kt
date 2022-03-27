@@ -27,6 +27,7 @@ fun PostEntry(
 ) {
     var shouldShowComment by remember { mutableStateOf(false) }
     val isEditable = postViewModel.userIdSesstion == post.userId
+    val isSovle = post.comments.find { it.isCorrect }?.isCorrect ?: false
     Card(
         shape = RoundedCornerShape(8.dp), elevation = 6.dp, modifier = Modifier
             .fillMaxSize()
@@ -41,7 +42,8 @@ fun PostEntry(
                 createdAt = post.createdAt,
                 userId = post.userId,
                 coins = post.coins,
-                costs = post.costs
+                costs = post.costs,
+                isSolve = isSovle
             )
             ContentPost(onClickAction = {
                 navigator.navigate(PostDetailDestination(postId = post.id))

@@ -1,5 +1,6 @@
 package com.example.e_social.ui.screens.featureGroup
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +22,7 @@ class GroupViewModel @Inject constructor(
     ViewModel() {
     var allGroups = mutableStateOf<TopicList?>(null)
     val selectedGroup = mutableStateOf<Topic?>(null)
-
+    val isLoading = mutableStateOf(false)
     init {
         queryAllGroup()
     }
@@ -43,14 +44,16 @@ class GroupViewModel @Inject constructor(
 
     fun queryAllGroup() {
         viewModelScope.launch {
+            isLoading.value=true
             val userId = sessionManager.fetchUserId()
             if (userId != null) {
                 val response = groupRepository.getGroups(userId = userId)
                 if (response.data != null) {
                     allGroups.value = response.data
+                    Log.d("Group",allGroups.value.toString())
                 }
             }
-
+            isLoading.value=false
         }
     }
 

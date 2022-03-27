@@ -33,7 +33,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
-    val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf(), groupId = ""))
+    val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf(), groupId = "", coins = 100))
     val groupId= mutableStateOf("")
     val coins =sessionManager.fetchCoin()
     val userIdSesstion = sessionManager.fetchUserId()
@@ -51,7 +51,6 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
         loadPostPaginated(groupById)
     }
     fun loadPostPaginated(groupById: String?=null) {
-        val dispatcher = if (currentPage==1) Dispatchers.Main else Dispatchers.IO
         viewModelScope.launch {
             isLoading.value = true
             val searchBy= groupById ?: if (groupId.value.isEmpty()) null else groupId.value
@@ -140,6 +139,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     fun createPost() {
         viewModelScope.launch(Dispatchers.IO) {
             postRepository.newPost(postModel = newPost.value)
+            loadPostPaginated()
         }
     }
     fun markAnswerIsCorrect(postId: String,commentId: String){
@@ -229,7 +229,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     companion object{
         fun commentToMessage(comments: List<Comment>): List<Message> {
-            return comments.map {
+            return comments.map{
                 Message(
                     id =it._id,
                     authorName = it.userName,
@@ -239,7 +239,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                     isCorrect = it.correct,
                     userId = it.userId
                 )
-            }
+            }.reversed()
         }
         fun postResponse2PostEntry(postReponse: PostResponse): PostEntry {
             return PostEntry(

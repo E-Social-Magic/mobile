@@ -67,7 +67,6 @@ fun SignUpScreen(
             Column(
                 Modifier
                     .weight(6f)
-                    .verticalScroll(rememberScrollState())
             ) {
                 SignUpFields(
                     email = email,
@@ -83,7 +82,7 @@ fun SignUpScreen(
                 )
             }
 
-            Row(Modifier.weight(2f)) {
+            Row(Modifier.weight(2f), verticalAlignment = Alignment.CenterVertically) {
                 ButtonSignUp(isLoading = isLoading, enable = phone.length==10) {
                     coroutineScope.launch {
                         loginViewModel.signUp()
@@ -136,7 +135,9 @@ fun SignUpFields(
     }
     val focusManager = LocalFocusManager.current
     Column(
-        modifier = Modifier.fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

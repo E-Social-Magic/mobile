@@ -20,12 +20,13 @@ class PaymentViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val sessionManager: SessionManager,
 ) : ViewModel() {
+
     val coins = sessionManager.fetchCoin()
     val assumeBalance = mutableStateOf(10000L)
     var payment = mutableStateOf<List<DataX>>(listOf())
     val isLoading = mutableStateOf(false)
     var avatar = mutableStateOf<String>("")
-    var phone = mutableStateOf("")
+    var phone = mutableStateOf("0")
     var name = mutableStateOf("")
     val result = mutableStateOf<WithdrawCoinsResponse>(
         WithdrawCoinsResponse(
@@ -71,8 +72,12 @@ class PaymentViewModel @Inject constructor(
         }
     }
 
-    fun withDraw(action: (String) -> Unit) {
+    fun withDraw(action: (Boolean) -> Unit) {
         viewModelScope.launch {
+            if (assumeBalance.value > coins) {
+                action.invoke(false)
+                return@launch
+            }
             val momoResponse =
                 userRepository.withdrawCoins(
                     withdrawCoinsResponse = WithdrawCoinsRequest(
@@ -82,10 +87,10 @@ class PaymentViewModel @Inject constructor(
                     )
                 )
             if (momoResponse.data != null) {
-                val payUrl = momoResponse.data
-//                if (!payUrl.isEmpty()) {
-//                    action.invoke(payUrl)
-//                }
+                if (momoResponse.data.data.resultCode == "0") {
+                    action.invoke(true)
+                } else
+                    action.invoke(false)
             }
         }
     }

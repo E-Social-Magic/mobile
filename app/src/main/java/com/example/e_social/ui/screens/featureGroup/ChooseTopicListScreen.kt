@@ -3,6 +3,7 @@ package com.example.e_social.ui.screens.featureGroup
 
 //import coil.compose.AsyncImage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,12 +23,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
+import com.example.e_social.R
 import com.example.e_social.models.domain.model.TopicIndexListEntry
 import com.example.e_social.ui.components.NextStepButton
 import com.example.e_social.ui.screens.destinations.PostScreenDestination
@@ -191,7 +199,6 @@ fun TopicIndexEntry(
             )
             .shadow(elevation = 8.dp, RoundedCornerShape(10.dp))
             .clickable {
-
             }
     ) {
 
@@ -199,6 +206,20 @@ fun TopicIndexEntry(
             modifier = Modifier
                 .matchParentSize()
                 .background(gradient)
+        )
+        Image(
+            painter = rememberImagePainter(
+                ImageRequest.Builder(LocalContext.current).data(data = entry.avatar)
+                    .apply(block = fun ImageRequest.Builder.() {
+                        crossfade(true)
+                        size(Int.MAX_VALUE)
+                    }).build()
+            ),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize().onGloballyPositioned {
+                sizeImage = it.size
+            }
         )
         Checkbox(
             checked = checkedState.value,

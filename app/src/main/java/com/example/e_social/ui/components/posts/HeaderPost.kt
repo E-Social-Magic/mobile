@@ -43,7 +43,8 @@ fun HeaderPost(
     userName: String,
     createdAt: String,
     costs: Boolean = false,
-    coins: Int = 0
+    coins: Int = 0,
+    isSolve:Boolean =false
 ) {
     var expand by remember { mutableStateOf(false) }
     Row(
@@ -89,13 +90,18 @@ fun HeaderPost(
             userId = userId
         )
 //        MoreActionsMenu()
+        if (isSolve){
+            Text(text = "Đã được giúp", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color.Gray)
+            Icon(painter = painterResource(id = R.drawable.outline_check_circle_24), contentDescription = "", tint = Color(0xFF6FCF97))
+        }
         if (costs) {
+            Text(text = coins.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 painter = painterResource(id = R.drawable.ic_coin),
                 contentDescription = "",
                 tint = Color(0xFFFF9900)
             )
-            Text(text = coins.toString(), fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.e_social.ui.screens.featureGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -10,17 +11,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.e_social.R
 import com.example.e_social.models.data.response.Topic
 import com.example.e_social.models.data.response.TopicList
+import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.screens.destinations.ChooseGroupScreenDestination
-import com.example.e_social.ui.screens.featurePost.ImageBuilder
+import com.example.e_social.ui.screens.destinations.TopicListScreenDestination
 import com.example.e_social.ui.screens.featurePost.ImageBuilderCircle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -42,12 +48,15 @@ fun ChooseGroupScreen(
     var searchedText by remember { mutableStateOf("") }
     var currentJob by remember { mutableStateOf<Job?>(null) }
     val activeColor = MaterialTheme.colors.onSurface
+    val isLoading = viewModel.isLoading.value
     LaunchedEffect(Unit) {
         viewModel.searchGroups(searchedText)
     }
 
-    Column {
-        ChooseGroupTopBar(navigator = navigator)
+
+    Box(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            ChooseGroupTopBar(navigator = navigator)
 //        TextField(
 //            value = searchedText,
 //            onValueChange = {
@@ -72,11 +81,50 @@ fun ChooseGroupScreen(
 //                backgroundColor = MaterialTheme.colors.surface
 //            )
 //        )
-        if (groups != null)
-            Searchedgroups(navigator = navigator, groups = groups, modifier = modifier){
-                viewModel.onSelectedGroup(it)
-                resultNavigator.navigateBack(result = it.id)
+            when(isLoading){
+                true->{
+                   Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                       CircularProgressBar(isDisplay = isLoading)
+                   }
+                }
+                false ->{
+                    if (groups != null)
+                        Searchedgroups(navigator = navigator, groups = groups, modifier = modifier) {
+                            viewModel.onSelectedGroup(it)
+                            resultNavigator.navigateBack(result = it.id)
+                        }
+                    else
+                        Row(
+                            Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 100.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ClickableText(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontSize = 14.sp)) {
+                                        append("Muốn tham gia thêm nhóm ")
+                                        withStyle(
+                                            style = SpanStyle(
+                                                color = Color.Blue,
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                        ) {
+                                            append("Tham gia tại đây")
+                                        }
+                                    }
+                                },
+                                modifier= Modifier.fillMaxWidth(),
+                                style = MaterialTheme.typography.caption,
+                                onClick = { navigator.navigate(TopicListScreenDestination) }
+                            )
+                        }
+                }
             }
+           
+        }
+
     }
 
 }
@@ -88,7 +136,7 @@ fun Searchedgroups(
     modifier: Modifier = Modifier,
     onGroupClicked: (Topic) -> Unit,
 
-) {
+    ) {
     Groups(groups = groups, onGroupClicked = onGroupClicked)
 }
 
@@ -167,15 +215,15 @@ fun BackgroundText(text: String) {
 fun GroupPicker(
     navigator: DestinationsNavigator,
     selectedGroup: Topic?,
-    resultRecipient:ResultRecipient<ChooseGroupScreenDestination,String>
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>
 ) {
     val selectedText = selectedGroup?.groupName ?: "Chọn nhóm"
-    val avatar = selectedGroup?.avatar ?:  "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg"
+    val avatar =
+        selectedGroup?.avatar ?: "https://gaplo.tech/content/images/2020/03/android-jetpack.jpg"
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = 240.dp)
             .padding(horizontal = 8.dp)
             .padding(top = 16.dp)
             .clickable {
@@ -183,7 +231,7 @@ fun GroupPicker(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ImageBuilderCircle(size = 35.dp, url =avatar)
+        ImageBuilderCircle(size = 35.dp, url = avatar)
         Text(
             text = selectedText,
             modifier = Modifier.padding(start = 8.dp),

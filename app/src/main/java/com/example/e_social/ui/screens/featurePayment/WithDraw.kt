@@ -1,7 +1,5 @@
 package com.example.e_social.ui.screens.featurePayment
 
-import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +50,7 @@ fun WithDraw(
                     value = name,
                     placeholder = { Text(text = "Tên chủ tài khoản") },
                     label = { Text(text = "Tên chủ tài khoản") },
-                    onValueChange = {paymentViewModel.onNameChange(it)},
+                    onValueChange = { paymentViewModel.onNameChange(it) },
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     shape = RoundedCornerShape(24),
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -88,11 +86,12 @@ fun WithDraw(
                                 paymentViewModel.onCoinChange(number.toLong())
                     },
                     placeholder = { Text(text = "Nhập tiền bạn muốn rút") },
-                    label = { Text(text = "Số dư hiện tại $coins - số dư sau khi rút ${coins -assumeBalance } ") },
+                    label = { Text(text = "Số dư hiện tại $coins") },
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number
                     ),
+                    shape = RoundedCornerShape(24),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
                     colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface),
                 )
@@ -102,11 +101,22 @@ fun WithDraw(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Button(enabled = phone.length == 10,onClick = {
-                        paymentViewModel.depositCoins(action = {
-                            val i = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                            context.startActivity(i)
-                        })
+                    Button(enabled = phone.length == 10 && name.isNotEmpty(), onClick = {
+                        if (assumeBalance > coins) {
+                            Toast.makeText(context, "Số dư không đủ", Toast.LENGTH_SHORT).show()
+                        } else {
+                            paymentViewModel.withDraw(action = {
+                                if (it)
+//                               navigator.navigate()
+                                else
+                                    Toast.makeText(
+                                        context,
+                                        "Đã có lỗi xảy ra vui Long kiểm tra thông tin",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                            })
+                        }
+
                     }) {
                         Text(text = "Rút", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
@@ -115,3 +125,4 @@ fun WithDraw(
         }
     }
 }
+
