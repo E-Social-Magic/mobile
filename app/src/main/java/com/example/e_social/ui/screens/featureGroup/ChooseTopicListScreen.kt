@@ -309,13 +309,13 @@ fun ComposeMenu(levels: List<String>, onSelectLevel: (String) -> Unit) {
             modifier = Modifier.padding(start = 20.dp)
         ) {
             Text(
-                "Học vấn:",
+                "Học vấn: ",
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
-            Column {
+            Column(modifier = Modifier.padding(start = 8.dp)) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
                         modifier = Modifier.width(120.dp),

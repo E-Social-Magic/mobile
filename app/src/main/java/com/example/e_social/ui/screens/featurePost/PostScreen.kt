@@ -38,16 +38,19 @@ import com.example.e_social.ui.screens.featureGroup.GroupViewModel
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.theme.BackgroundBlue
 import com.example.e_social.ui.theme.Grey100
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.delay
 
 @Destination
 @Composable
 fun PostScreen(
     navigator: DestinationsNavigator,
     changeBarState: (Boolean) -> Unit,
-    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String> ,
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String?> ,
     postViewModel: PostViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel,
     groupViewModel: GroupViewModel = hiltViewModel()
@@ -64,6 +67,16 @@ fun PostScreen(
     resultRecipient.onResult {
         groupViewModel.onSelectedGroupId(it)
         postViewModel.refresh(it)
+    }
+    var refreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(refreshing) {
+        if (refreshing) {
+            if (selectedGroup != null) {
+                postViewModel.refresh(selectedGroup.id)
+            }
+            delay(1500)
+            refreshing = false
+        }
     }
     postViewModel.updateScrollPosition(scrollState.firstVisibleItemIndex)
     LaunchedEffect(key1 = loginViewModel.isLogin.value) {
@@ -82,9 +95,7 @@ fun PostScreen(
                 title = "E-Social",
                 icon = Icons.Outlined.Search,
                 scrollUpState = scrollUpState
-            )
-            {
-            }
+            ){};
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -104,96 +115,101 @@ fun PostScreen(
         floatingActionButtonPosition = FabPosition.End
     )
     {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = refreshing),
+            onRefresh = { refreshing = true }
         ) {
-            Box {
-                Column {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp)
-                            .padding(top = 8.dp)
-                    ) {
-                        Button(
-                            onClick = {},
-                            modifier = Modifier.weight(6.5f),
-                            shape = RoundedCornerShape(30)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Image(
-                                    painter = rememberImagePainter(
-                                        data = "avatar",
-                                        builder = {
-                                            crossfade(true)
-                                            placeholder(R.drawable.placeholder_image)
-                                            error(R.drawable.default_avatar)
-                                            transformations(CircleCropTransformation())
-                                            size(30)
-                                        }),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .align(Alignment.CenterVertically)
-                                        .clip(shape = CircleShape)
-                                        .clickable {
-                                            navigator.navigate(ProfileScreenDestination)
-                                        },
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = selectedGroup?.groupName?:"Tất cả", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = selectedGroup?.groupName?:"Đang theo dõi 112M",
-                                    color = Color.Gray,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
-                        Button(
-                            onClick = { navigator.navigate(ChooseGroupScreenDestination) },
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Box {
+                    Column {
+                        Row(
                             modifier = Modifier
-                                .weight(4f)
-                                .padding(start = 10.dp),
-                            colors = ButtonDefaults.buttonColors(backgroundColor = BackgroundBlue),
-                            shape = RoundedCornerShape(40)
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp)
+                                .padding(top = 8.dp)
                         ) {
-                            Text(
-                                text = "Xem thêm",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colors.primary,
-                                maxLines = 1
-                            )
-                        }
-                    }
-                    if (postList.isEmpty()){
-                        Text(text = "Hiện chưa có bài đăng nào ", fontSize = 20.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxSize())
-                    }
-                    LazyColumn(state = scrollState, modifier = Modifier.padding(bottom=50.dp)
-                    ) {
-                        if (postList.isEmpty()&&isLoading){
-                            items(10) {
-                                ShimmerLoading()
+                            Button(
+                                onClick = {},
+                                modifier = Modifier.weight(6.5f),
+                                shape = RoundedCornerShape(30)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Image(
+                                        painter = rememberImagePainter(
+                                            data = "avatar",
+                                            builder = {
+                                                crossfade(true)
+                                                placeholder(R.drawable.placeholder_image)
+                                                error(R.drawable.default_avatar)
+                                                transformations(CircleCropTransformation())
+                                                size(30)
+                                            }),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .align(Alignment.CenterVertically)
+                                            .clip(shape = CircleShape)
+                                            .clickable {
+                                                navigator.navigate(ProfileScreenDestination)
+                                            },
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(text = selectedGroup?.groupName?:"Tất cả", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = if(selectedGroup == null)"" else selectedGroup?.users?.size.toString() + " người theo dõi",
+                                        color = Color.Gray,
+                                        fontSize = 10.sp
+                                    )
+                                }
+                            }
+                            Button(
+                                onClick = { navigator.navigate(ChooseGroupScreenDestination) },
+                                modifier = Modifier
+                                    .weight(4f)
+                                    .padding(start = 10.dp),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = BackgroundBlue),
+                                shape = RoundedCornerShape(40)
+                            ) {
+                                Text(
+                                    text = "Xem thêm",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colors.primary,
+                                    maxLines = 1
+                                )
                             }
                         }
-                        else
-                        items(postList.size) {
-                            if (it >= postList.size - 1 && !endReached) {
-                                postViewModel.loadPostPaginated()
+                        if (postList.isEmpty()){
+                            Text(text = "Hiện chưa có bài đăng nào ", fontSize = 20.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxSize())
+                        }
+                        LazyColumn(state = scrollState, modifier = Modifier.padding(bottom=50.dp)
+                        ) {
+                            if (postList.isEmpty()&&isLoading){
+                                items(10) {
+                                    ShimmerLoading()
+                                }
                             }
-                            PostEntry(
-                                post = postList[it],
-                                navigator,
-                                postViewModel = postViewModel,
-                                avatar = avatar?:""
-                            )
+                            else
+                                items(postList.size) {
+                                    if (it >= postList.size - 1 && !endReached) {
+                                        postViewModel.loadPostPaginated()
+                                    }
+                                    PostEntry(
+                                        post = postList[it],
+                                        navigator,
+                                        postViewModel = postViewModel,
+                                        avatar = avatar?:""
+                                    )
+                                }
                         }
                     }
                 }

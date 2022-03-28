@@ -78,7 +78,7 @@ import java.text.NumberFormat
 @Composable
 fun SavePostScreen(
     navigator: DestinationsNavigator,
-    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>,
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String?>,
     scaffoldState: ScaffoldState,
     postViewModel: PostViewModel = hiltViewModel(),
     groupViewModel: GroupViewModel = hiltViewModel()
@@ -97,8 +97,10 @@ fun SavePostScreen(
         mutableStateOf(false)
     }
     resultRecipient.onResult {
-        groupViewModel.onSelectedGroupId(it)
-        postViewModel.onGroupSelected(it)
+        if(it != null){
+            groupViewModel.onSelectedGroupId(it)
+            postViewModel.onGroupSelected(it)
+        }
     }
 
     if (isCameraOpen) {
@@ -201,7 +203,7 @@ fun SavePostContent(
     postModel: PostModel,
     selectedGroup: Topic?,
     coins :Long,
-    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>,
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String?>,
     onTitleChange: (String) -> Unit,
     onContentChange: (String) -> Unit,
     onCameraClick: (Boolean) -> Unit,

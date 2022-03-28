@@ -14,5 +14,6 @@ data class DataX(
     val user_id: String,
     val username: String,
     val type: String,
+    val typeTransfer: String,
     val accountBalance: Long
 )

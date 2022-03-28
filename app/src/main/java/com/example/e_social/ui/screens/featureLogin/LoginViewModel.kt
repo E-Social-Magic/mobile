@@ -23,7 +23,7 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
     val sessionManager: SessionManager
 ) : ViewModel() {
-    val email: MutableState<String> = mutableStateOf("long2000@gmail.com")
+    val email: MutableState<String> = mutableStateOf("huan2261@gmail.com")
     val password: MutableState<String> = mutableStateOf("123456")
     val userName = mutableStateOf("")
     val confirmPassword = mutableStateOf("")

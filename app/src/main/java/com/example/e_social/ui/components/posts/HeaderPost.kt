@@ -50,7 +50,7 @@ fun HeaderPost(
     Row(
         modifier = Modifier
             .background(Grey100)
-            .padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 8.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = rememberImagePainter(

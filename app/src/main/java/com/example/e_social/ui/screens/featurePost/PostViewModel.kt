@@ -45,7 +45,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     init {
         loadPostPaginated()
     }
-    fun refresh(groupById: String){
+    fun refresh(groupById: String?){
         postList.value =listOf()
         currentPage = 1
         loadPostPaginated(groupById)
@@ -58,7 +58,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
             when (result) {
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
-                    val postListEntry = result.data.posts.mapIndexed { index, entry ->
+                    val postListEntry = result.data.posts.filter { !postList.value.map {value -> value.id}.contains(it.id)  }.mapIndexed { index, entry ->
                         postResponse2PostEntry(postReponse = entry)
                     }
                     currentPage++

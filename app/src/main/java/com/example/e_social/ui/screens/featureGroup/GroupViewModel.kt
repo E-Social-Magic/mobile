@@ -33,13 +33,18 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    fun onSelectedGroup(selected: Topic) {
+    fun onSelectedGroup(selected: Topic?) {
         selectedGroup.value = selected
     }
 
-    fun onSelectedGroupId(selectedGroupId: String) {
-        val selected = allGroups.value?.groups?.find { selectedGroupId == it.id }
-        selectedGroup.value = selected
+    fun onSelectedGroupId(selectedGroupId: String?) {
+        if(selectedGroupId == null){
+            selectedGroup.value = null
+        }
+        else{
+            val selected = allGroups.value?.groups?.find { selectedGroupId == it.id }
+            selectedGroup.value = selected
+        }
     }
 
     fun queryAllGroup() {
@@ -50,7 +55,6 @@ class GroupViewModel @Inject constructor(
                 val response = groupRepository.getGroups(userId = userId)
                 if (response.data != null) {
                     allGroups.value = response.data
-                    Log.d("Group",allGroups.value.toString())
                 }
             }
             isLoading.value=false

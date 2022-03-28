@@ -9,8 +9,6 @@ data class Topic(
     val groupName: String,
     val subject: String,
     val posts:List<String>,
-    @SerializedName("private_dt")
-    val privateData: List<String>,
     val users:List<String>,
     val avatar: String,
     val updatedAt: String,

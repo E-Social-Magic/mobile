@@ -41,6 +41,7 @@ class PaymentViewModel @Inject constructor(
                 username = "",
                 phone = "",
                 type = "",
+                typeTransfer = "",
                 displayName = "",
                 accountBalance = 0L
             ), message = ""

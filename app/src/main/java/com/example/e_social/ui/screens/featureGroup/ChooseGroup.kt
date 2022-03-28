@@ -28,6 +28,7 @@ import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.screens.destinations.ChooseGroupScreenDestination
 import com.example.e_social.ui.screens.destinations.TopicListScreenDestination
 import com.example.e_social.ui.screens.featurePost.ImageBuilderCircle
+import com.example.e_social.ui.screens.featureProfile.HorizontalDivider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultBackNavigator
@@ -39,7 +40,7 @@ import kotlinx.coroutines.Job
 @Composable
 fun ChooseGroupScreen(
     navigator: DestinationsNavigator,
-    resultNavigator: ResultBackNavigator<String>,
+    resultNavigator: ResultBackNavigator<String?>,
     viewModel: GroupViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -91,7 +92,12 @@ fun ChooseGroupScreen(
                     if (groups != null)
                         Searchedgroups(navigator = navigator, groups = groups, modifier = modifier) {
                             viewModel.onSelectedGroup(it)
-                            resultNavigator.navigateBack(result = it.id)
+                            if (it != null) {
+                                resultNavigator.navigateBack(result = it.id)
+                            }
+                            else {
+                                resultNavigator.navigateBack(result = null)
+                            }
                         }
                     else
                         Row(
@@ -134,7 +140,7 @@ fun Searchedgroups(
     navigator: DestinationsNavigator,
     groups: TopicList,
     modifier: Modifier = Modifier,
-    onGroupClicked: (Topic) -> Unit,
+    onGroupClicked: (Topic?) -> Unit,
 
     ) {
     Groups(groups = groups, onGroupClicked = onGroupClicked)
@@ -169,31 +175,49 @@ fun ChooseGroupTopBar(navigator: DestinationsNavigator, modifier: Modifier = Mod
 }
 
 @Composable
-fun Groups(modifier: Modifier = Modifier, groups: TopicList, onGroupClicked: (Topic) -> Unit) {
+fun Groups(modifier: Modifier = Modifier, groups: TopicList, onGroupClicked: (Topic?) -> Unit) {
 
     Spacer(modifier = modifier.height(4.dp))
-
+    Group(null, onGroupClicked = onGroupClicked)
     groups.groups.forEach {
         Group(it, onGroupClicked = onGroupClicked)
     }
 }
 
 @Composable
-fun Group(group: Topic, modifier: Modifier = Modifier, onGroupClicked: (Topic) -> Unit = {}) {
-    Row(modifier = modifier
-        .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-        .fillMaxWidth()
-        .clickable { onGroupClicked.invoke(group) }
-    ) {
-        ImageBuilderCircle(30.dp, group.avatar)
-        Text(
-            fontSize = 16.sp,
-            text = group.groupName,
-            fontWeight = FontWeight.Bold,
-            modifier = modifier
-                .padding(start = 16.dp)
-                .align(Alignment.CenterVertically)
-        )
+fun Group(group: Topic?, modifier: Modifier = Modifier, onGroupClicked: (Topic?) -> Unit = {}) {
+    if(group == null){
+        Row(modifier = modifier
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+            .fillMaxWidth()
+            .clickable { onGroupClicked.invoke(null) }
+        ){
+            Text(
+                fontSize = 20.sp,
+                text = "Tất cả",
+                fontWeight = FontWeight.Bold,
+                modifier = modifier
+                    .padding(vertical = 16.dp)
+            )
+        }
+        HorizontalDivider()
+    }
+    else {
+        Row(modifier = modifier
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+            .fillMaxWidth()
+            .clickable { onGroupClicked.invoke(group) }
+        ) {
+            ImageBuilderCircle(50.dp, group.avatar)
+            Text(
+                fontSize = 20.sp,
+                text = group.groupName,
+                fontWeight = FontWeight.Bold,
+                modifier = modifier
+                    .padding(start = 16.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
     }
 }
 
@@ -215,7 +239,7 @@ fun BackgroundText(text: String) {
 fun GroupPicker(
     navigator: DestinationsNavigator,
     selectedGroup: Topic?,
-    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String>
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String?>
 ) {
     val selectedText = selectedGroup?.groupName ?: "Chọn nhóm"
     val avatar =

@@ -135,6 +135,7 @@ class UserViewModel @Inject constructor(
                 user_id = paymentResponse.user_id,
                 username = paymentResponse.username,
                 type = paymentResponse.type,
+                typeTransfer = paymentResponse.typeTransfer,
                 accountBalance = paymentResponse.accountBalance
             )
         }
