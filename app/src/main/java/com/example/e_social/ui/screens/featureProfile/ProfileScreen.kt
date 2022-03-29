@@ -40,10 +40,7 @@ import com.example.e_social.models.data.response.UserInfo
 import com.example.e_social.models.data.response.UserResponse
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.SnackBarController
-import com.example.e_social.ui.components.posts.HeaderPost
-import com.example.e_social.ui.components.posts.ImageContent
-import com.example.e_social.ui.components.posts.PostEntry
-import com.example.e_social.ui.components.posts.TitlePost
+import com.example.e_social.ui.components.posts.*
 import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureVideo.VideoCard
@@ -174,7 +171,7 @@ fun ProfileScreen(
                 when (selectedTabIndex) {
                     0 -> PostSection(
                         posts = images.value,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxSize()
                     )
                     2 -> ProfileTransactionHistory(
                         paymentList = paymentList.value,
@@ -536,7 +533,7 @@ fun PostSection(
             .padding(bottom = 80.dp)
     ) {
         items(posts.size) {index ->
-            ImageContent(
+            ImageContentGrid(
                 url = posts[index]
             )
         }

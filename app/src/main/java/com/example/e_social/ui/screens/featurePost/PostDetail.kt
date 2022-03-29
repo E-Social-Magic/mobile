@@ -39,6 +39,7 @@ fun PostDetail(
     val coroutineScope= rememberCoroutineScope()
     var post :PostEntry? by remember{ mutableStateOf(null)}
     var isLoading by remember{ mutableStateOf( true)}
+
     LaunchedEffect(key1 = true ){
              post = postViewModel.findPostById(id = postId)
              isLoading=false

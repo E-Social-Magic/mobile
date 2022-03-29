@@ -94,7 +94,8 @@ fun PostScreen(
                 navigator = navigator,
                 title = "E-Social",
                 icon = Icons.Outlined.Search,
-                scrollUpState = scrollUpState
+                scrollUpState = scrollUpState,
+                postViewModel = postViewModel
             ){};
         },
         floatingActionButton = {
