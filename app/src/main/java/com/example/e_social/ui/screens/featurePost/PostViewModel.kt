@@ -19,6 +19,8 @@ import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -30,6 +32,7 @@ import javax.inject.Inject
 class PostViewModel @Inject constructor(private val postRepository: PostRepository,private val sessionManager: SessionManager) : ViewModel() {
     private var currentPage = 1
     var postList = mutableStateOf<List<PostEntry>>(listOf())
+    var allposts = mutableStateOf<List<PostEntry>>(listOf())
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
@@ -48,6 +51,29 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var post = mutableStateOf<PostEntry?>(null)
     private var lastScrollIndex = 0
     private val _scrollUp = MutableLiveData(false)
+    var searchValue = mutableStateOf("")
+    var searchBarState = mutableStateOf(false)
+
+    fun onSearchBarStateChange(newValue:Boolean){
+        searchBarState.value = newValue
+    }
+
+
+    fun onSearchChange(newValue: String){
+        viewModelScope.launch {
+            searchValue.value = newValue
+            if (searchValue.value.isEmpty()) {
+                postList.value = allposts.value
+                return@launch
+            }
+            delay(1000)
+            val postsFormSearch = allposts.value.filter { data ->
+                data.title.contains(searchValue.value, true) || data.content.contains(searchValue.value, true)
+            }
+
+            postList.value = postsFormSearch
+        }
+    }
     val scrollUp: LiveData<Boolean>
         get() = _scrollUp
 
@@ -79,6 +105,7 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                     postList.value += postListEntry
                     delay(500L)
                     isLoading.value = false
+                    allposts.value = postList.value
                 }
                 is Resource.Error -> {
                     loadError.value = result.message!!
