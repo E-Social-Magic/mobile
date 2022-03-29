@@ -83,12 +83,7 @@ fun SavePostScreen(
     postViewModel: PostViewModel = hiltViewModel(),
     groupViewModel: GroupViewModel = hiltViewModel()
 ) {
-    val bottomDrawerState: BottomDrawerState =
-        rememberBottomDrawerState(initialValue = BottomDrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    val moveNoteToTrashDialogShownState: MutableState<Boolean> = rememberSaveable {
-        mutableStateOf(false)
-    }
     val context = LocalContext.current
     var postModel = postViewModel.newPost.value
     val coins = postViewModel.coins
@@ -121,15 +116,8 @@ fun SavePostScreen(
     } else
         Scaffold(
             topBar = {
-                val isEditingMode = false
                 SavePostTopAppBar(
-                    isEditingMode = isEditingMode,
                     onBackClick = { navigator.navigateUp() },
-                    onSaveNoteClick = { },
-                    onOpenColorPickerClick = {
-                        coroutineScope.launch { bottomDrawerState.open() }
-                    },
-                    onDeleteNoteClick = { moveNoteToTrashDialogShownState.value = true },
                     onPostClick = {
                         var check = true
                         if (selectedGroup == null) {
@@ -471,11 +459,7 @@ fun SavePostContent(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun SavePostTopAppBar(
-    isEditingMode: Boolean,
     onBackClick: () -> Unit,
-    onSaveNoteClick: () -> Unit,
-    onOpenColorPickerClick: () -> Unit,
-    onDeleteNoteClick: () -> Unit,
     onPostClick: () -> Unit
 
 ) {

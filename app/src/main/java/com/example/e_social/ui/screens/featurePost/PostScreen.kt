@@ -1,5 +1,6 @@
 package com.example.e_social.ui.screens.featurePost
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +18,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,7 +37,6 @@ import com.example.e_social.ui.screens.destinations.SavePostScreenDestination
 import com.example.e_social.ui.screens.featureGroup.GroupViewModel
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.theme.BackgroundBlue
-import com.example.e_social.ui.theme.Grey100
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.ramcosta.composedestinations.annotation.Destination
@@ -50,7 +49,7 @@ import kotlinx.coroutines.delay
 fun PostScreen(
     navigator: DestinationsNavigator,
     changeBarState: (Boolean) -> Unit,
-    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String?> ,
+    resultRecipient: ResultRecipient<ChooseGroupScreenDestination, String?>,
     postViewModel: PostViewModel = hiltViewModel(),
     loginViewModel: LoginViewModel,
     groupViewModel: GroupViewModel = hiltViewModel()
@@ -59,7 +58,7 @@ fun PostScreen(
     val postList = postViewModel.postList.value
     val endReached = postViewModel.endReached.value
     val loadError = postViewModel.loadError.value
-    val isLoading =postViewModel.isLoading.value
+    val isLoading = postViewModel.isLoading.value
     val scrollState = rememberLazyListState()
     val scrollUpState = postViewModel.scrollUp.observeAsState()
     val selectedGroup = groupViewModel.selectedGroup.value
@@ -73,6 +72,9 @@ fun PostScreen(
         if (refreshing) {
             if (selectedGroup != null) {
                 postViewModel.refresh(selectedGroup.id)
+            } else {
+                postViewModel.refresh(null)
+
             }
             delay(1500)
             refreshing = false
@@ -95,7 +97,7 @@ fun PostScreen(
                 title = "E-Social",
                 icon = Icons.Outlined.Search,
                 scrollUpState = scrollUpState
-            ){};
+            ) {}
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -162,10 +164,14 @@ fun PostScreen(
                                             },
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(text = selectedGroup?.groupName?:"Tất cả", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = selectedGroup?.groupName ?: "Tất cả",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = if(selectedGroup == null)"" else selectedGroup?.users?.size.toString() + " người theo dõi",
+                                        text = if (selectedGroup == null) "" else selectedGroup.users.size.toString() + " người theo dõi",
                                         color = Color.Gray,
                                         fontSize = 10.sp
                                     )
@@ -188,28 +194,42 @@ fun PostScreen(
                                 )
                             }
                         }
-                        if (postList.isEmpty()){
-                            Text(text = "Hiện chưa có bài đăng nào ", fontSize = 20.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxSize())
-                        }
-                        LazyColumn(state = scrollState, modifier = Modifier.padding(bottom=50.dp)
-                        ) {
-                            if (postList.isEmpty()&&isLoading){
-                                items(10) {
-                                    ShimmerLoading()
+                        when (isLoading) {
+                            true -> {
+                                LazyColumn{
+                                    items(10) {
+                                        ShimmerLoading()
+                                    }
                                 }
                             }
-                            else
-                                items(postList.size) {
-                                    if (it >= postList.size - 1 && !endReached) {
-                                        postViewModel.loadPostPaginated()
+                            else -> {
+                                if (postList.isNotEmpty()) {
+                                    LazyColumn(
+                                        state = scrollState,
+                                        modifier = Modifier.padding(bottom = 50.dp).background(color = Color.Transparent)
+                                    ) {
+                                        items(postList.size) {
+                                            if (it >= postList.size - 1 && !endReached) {
+                                                postViewModel.loadPostPaginated()
+                                            }
+                                            PostEntry(
+                                                post = postList[it],
+                                                navigator,
+                                                postViewModel = postViewModel,
+                                                avatar = avatar ?: ""
+                                            )
+                                        }
                                     }
-                                    PostEntry(
-                                        post = postList[it],
-                                        navigator,
-                                        postViewModel = postViewModel,
-                                        avatar = avatar?:""
+                                } else
+                                    Text(
+                                        text = "Hiện chưa có bài đăng nào ",
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxSize()
                                     )
-                                }
+
+                            }
+
                         }
                     }
                 }

@@ -55,7 +55,7 @@ fun PostEntry(
             )
             if (shouldShowComment) {
                 CommentInput(
-                    hint = "comment something",
+                    hint = "Viết bình luận... ",
                     postId=post.id,
                     onSubmit = {postId,comment-> postViewModel.submitComment(postId = post.id, message = comment) },
                     avatar =avatar

@@ -42,11 +42,6 @@ class UserViewModel @Inject constructor(
         )
     )
 
-    init {
-       viewModelScope.launch {
-           getUserInfo()
-       }
-    }
 
     suspend fun findUserById(id: String) {
         isLoading.value = true

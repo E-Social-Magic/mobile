@@ -1,6 +1,7 @@
 package com.example.e_social.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.MaterialTheme
@@ -16,8 +17,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun TextLogoApp() {
     Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(150.dp)){
+        .fillMaxSize()){
         Text(
             text = "E-Social",
             style = TextStyle(

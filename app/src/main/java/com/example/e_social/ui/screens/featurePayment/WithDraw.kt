@@ -41,7 +41,7 @@ fun WithDraw(
     val coroutineScope = rememberCoroutineScope()
     val phone = paymentViewModel.phone.value
     val name = paymentViewModel.name.value
-    val isEnable = remember{ mutableStateOf(true)}
+    val isEnable = remember { mutableStateOf(true) }
     Surface {
         Column {
             SimpleTopAppBar(title = "Rút tiền ", onIconBackClick = { navigator.navigateUp() })
@@ -105,25 +105,27 @@ fun WithDraw(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Button(enabled = phone.length == 10 && name.isNotEmpty()&&isEnable.value, onClick = {
-                        if (assumeBalance > coins) {
-                            Toast.makeText(context, "Số dư không đủ", Toast.LENGTH_SHORT).show()
-                        } else {
-                            isEnable.value=false
-                            paymentViewModel.withDraw(action = {
-                                if (it)
-                               navigator.navigate(SuccessPaymentDestination)
-                                else
-                                    Toast.makeText(
-                                        context,
-                                        "Đã có lỗi xảy ra vui Long kiểm tra thông tin",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                            })
-                        }
-
-                    }) {
-                        Text(text = "Rút", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Button(
+                        enabled = phone.length == 10 && name.isNotEmpty() && isEnable.value,
+                        onClick = {
+                            if (assumeBalance > coins) {
+                                Toast.makeText(context, "Số dư không đủ", Toast.LENGTH_SHORT).show()
+                            } else {
+                                isEnable.value = false
+                                paymentViewModel.withDraw(action = {
+                                    if (it)
+                                        navigator.navigate(SuccessPaymentDestination)
+                                    else
+                                        Toast.makeText(
+                                            context,
+                                            "Đã có lỗi xảy ra vui Long kiểm tra thông tin",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                })
+                            }
+                        },                        shape = RoundedCornerShape(24)
+                    ) {
+                        Text(text = "Rút", fontSize = 20.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(horizontal = 10.dp))
                     }
                 }
             }

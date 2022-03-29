@@ -26,6 +26,7 @@ import com.example.e_social.ui.screens.destinations.BalanceCoinDestination
 import com.example.e_social.ui.screens.destinations.DepositCoinsDestination
 import com.example.e_social.ui.screens.destinations.HistoryPaymentDestination
 import com.example.e_social.ui.screens.destinations.WithDrawDestination
+import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureProfile.HorizontalDivider
 import com.example.e_social.ui.screens.featureProfile.VerticalDivider
 import com.ramcosta.composedestinations.annotation.Destination
@@ -37,8 +38,10 @@ import java.text.NumberFormat
 @Composable
 fun BalanceCoin(
     navigator: DestinationsNavigator,
-    paymentViewModel: PaymentViewModel = hiltViewModel()
-) {
+    paymentViewModel: PaymentViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    ) {
+    loginViewModel.isShowBottomBar.value=false
     val formatter: NumberFormat = DecimalFormat("#,###")
     val coins = paymentViewModel.coins
     Box(Modifier.fillMaxSize()) {

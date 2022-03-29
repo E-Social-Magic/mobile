@@ -5,7 +5,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,48 +20,28 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
-import com.example.e_social.MessagesActivity
 import com.example.e_social.R
 import com.example.e_social.models.data.response.DataX
-import com.example.e_social.models.data.response.UserInfo
-import com.example.e_social.models.data.response.UserResponse
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.SnackBarController
-import com.example.e_social.ui.components.posts.HeaderPost
 import com.example.e_social.ui.components.posts.ImageContent
-import com.example.e_social.ui.components.posts.PostEntry
-import com.example.e_social.ui.components.posts.TitlePost
 import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
-import com.example.e_social.ui.screens.featureVideo.VideoCard
-import com.example.e_social.ui.screens.featureVideo.VideoItem
-import com.example.e_social.ui.screens.featureVideo.VideoPlayer
-import com.example.e_social.ui.screens.featureVideo.VideoThumbnail
 import com.example.e_social.ui.theme.Grey100
-import com.example.e_social.ui.theme.Shapes
 import com.example.e_social.util.TimeConverter
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
-import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Destination
@@ -69,35 +51,41 @@ fun ProfileScreen(
     scaffoldState: ScaffoldState,
     coroutineScope: CoroutineScope,
     snackBarController: SnackBarController,
+    changeBarState:(Boolean)->Unit,
     loginViewModel: LoginViewModel,
     userViewModel: UserViewModel,
 
-) {
 
+    ) {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
+    loginViewModel.isShowBottomBar.value=true
     val paymentList = userViewModel.payment
     var user = userViewModel.user
     var images = userViewModel.images
     var posts = userViewModel.posts
     var helped = userViewModel.helped
     var isLoading = userViewModel.isLoading
-    var coinsConvert : String by remember{ mutableStateOf("") }
-    coinsConvert =   if(user.value!!.coins > 1000000)
-        (user.value!!.coins/1000000).toString()+ "M" else
+    var coinsConvert: String by remember { mutableStateOf("") }
+    coinsConvert = if (user.value!!.coins > 1000000)
+        (user.value!!.coins / 1000000).toString() + "M" else
         if (user.value!!.coins > 10000)
-            (user.value!!.coins/1000).toString()+ "k"
+            (user.value!!.coins / 1000).toString() + "k"
         else user.value!!.coins.toString()
 
-    LaunchedEffect(key1 = true ){
+    LaunchedEffect(key1 = true) {
         userViewModel.getUserInfo()
     }
-    if (isLoading.value){
-        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+    if (isLoading.value) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
             CircularProgressBar(isDisplay = isLoading.value)
         }
-    } else{
+    } else {
         Scaffold(topBar = {
             Row(
                 modifier = Modifier
@@ -121,9 +109,10 @@ fun ProfileScreen(
                 )
                 Button(
                     onClick = {
-                        loginViewModel.isShowBottomBar.value=false
+                        loginViewModel.isShowBottomBar.value = false
                         loginViewModel.logOut()
-                        navigator.navigate(LoginScreenDestination) },
+                        navigator.navigate(LoginScreenDestination)
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .wrapContentWidth(Alignment.End), shape = RoundedCornerShape(8.dp)
@@ -133,21 +122,23 @@ fun ProfileScreen(
 
             }
         }) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 50.dp)) {
+            Column(
+                modifier = Modifier
+                    .padding(bottom = 50.dp)
+                    .fillMaxSize()
+            ) {
                 Spacer(modifier = Modifier.height(4.dp))
                 ProfileSection(
-                    navigator=navigator,
+                    navigator = navigator,
                     userName = user.value!!.userName,
                     description = user.value?.description,
                     avatar = user.value!!.avatar,
                     coins = coinsConvert,
                     posts = posts.value,
                     helped = helped.value,
-                    group = user.value!!.subjects?.size.toString() ,
+                    group = user.value!!.subjects?.size.toString(),
                     follower = user.value!!.follower?.size.toString(),
-                    following = user.value!!.following?.size.toString()
+                    following = user.value!!.following?.size.toString(),
                 )
                 Spacer(modifier = Modifier.height(25.dp))
                 Spacer(modifier = Modifier.height(25.dp))
@@ -159,10 +150,10 @@ fun ProfileScreen(
                             image = painterResource(id = R.drawable.ic_grid),
                             text = "Posts"
                         ),
-                        ImageWithText(
-                            image = painterResource(id = R.drawable.ic_reels),
-                            text = "Reels"
-                        ),
+//                        ImageWithText(
+//                            image = painterResource(id = R.drawable.ic_reels),
+//                            text = "Reels"
+//                        ),
                         ImageWithText(
                             image = painterResource(id = R.drawable.ic_igtv),
                             text = "IGTV"
@@ -176,7 +167,7 @@ fun ProfileScreen(
                         posts = images.value,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    2 -> ProfileTransactionHistory(
+                    1 -> ProfileTransactionHistory(
                         paymentList = paymentList.value,
                         avatar = user.value!!.avatar
                     )
@@ -188,9 +179,9 @@ fun ProfileScreen(
 
 @Composable
 fun ProfileSection(
-    navigator:DestinationsNavigator,
+    navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
-    userName:String,
+    userName: String,
     description: String?,
     avatar: String,
     coins: String,
@@ -198,7 +189,7 @@ fun ProfileSection(
     helped: Int,
     group: String,
     follower: String,
-    following: String
+    following: String,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Column(
@@ -221,18 +212,19 @@ fun ProfileSection(
             Column(
                 Modifier
                     .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)) {
+                    .align(Alignment.CenterHorizontally)
+            ) {
                 Text(text = userName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
             }
             Spacer(modifier = Modifier.width(16.dp))
             StatSection(
-                navigator =navigator,
+                navigator = navigator,
                 helped = helped.toString(),
                 posts = posts,
                 coins = coins,
                 group = group,
                 follower = follower,
-                following = following
+                following = following,
             )
         }
         HorizontalDivider()
@@ -267,59 +259,59 @@ fun StatSection(
     navigator: DestinationsNavigator,
     modifier: Modifier = Modifier,
     helped: String,
-    posts:Int,
+    posts: Int,
     coins: String,
     group: String,
     follower: String,
-    following: String
+    following: String,
 ) {
     Column(
         modifier = modifier
     ) {
-        ProfileHeader(navigator =navigator ,helped, posts, coins)
+        ProfileHeader(navigator = navigator, helped, posts, coins)
         HorizontalDivider()
         Row(
             modifier = Modifier.height(64.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround,
         ) {
-                Row(
-                    Modifier.fillMaxSize(),
+            Row(
+                Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                VerticalDivider()
+                Row(Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable { }
+                    .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    VerticalDivider()
-                    Row(Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clickable { }
-                        .padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ProfileStat(numberText = group, text = "Nhóm")
-                    }
-
-                    VerticalDivider()
-                    Row(Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clickable { }
-                        .padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ProfileStat(numberText = follower, text = "Follower")
-                    }
-                    VerticalDivider()
-                    Row(Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .clickable { }
-                        .padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ProfileStat(numberText = following, text = "Đang Follow")
-
-                    }
+                    ProfileStat(numberText = group, text = "Nhóm")
                 }
+
+                VerticalDivider()
+                Row(Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable { }
+                    .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ProfileStat(numberText = follower, text = "Follower")
+                }
+                VerticalDivider()
+                Row(Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable { }
+                    .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ProfileStat(numberText = following, text = "Đang Follow")
+
+                }
+            }
         }
 
     }
@@ -334,11 +326,13 @@ fun ProfileStat(
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(8.dp),horizontalAlignment = Alignment.CenterHorizontally) {
+            .padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(text = numberText, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         Text(text = text, color = Color.Gray, fontSize = 12.sp)
     }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileTransactionHistory(
@@ -346,76 +340,89 @@ fun ProfileTransactionHistory(
     avatar: String,
     modifier: Modifier = Modifier
 ) {
+    if (paymentList.isEmpty()) {
+        Row(
+            Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(text = "Danh sách rỗng")
+        }
+    }
     LazyColumn {
-        items(paymentList.size) { index->
+        items(paymentList.size) { index ->
             val payment = paymentList[index]
-            val color = if(index%2 == 0) Color.White else Grey100
-            val colorCoins = if(payment.type == "in") Color(0xFF41924B) else Color(0xFFCC0000)
-                Row(modifier = Modifier
+            val color = if (index % 2 == 0) Color.White else Grey100
+            val colorCoins = if (payment.type == "in") Color(0xFF41924B) else Color(0xFFCC0000)
+            Row(
+                modifier = Modifier
                     .background(color)
                     .padding(vertical = 8.dp, horizontal = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically)
-                {
-                    Image(
-                        painter = rememberImagePainter(
-                            ImageRequest.Builder(LocalContext.current)
-                                .data(data = avatar)
-                                .error(R.drawable.default_avatar)
-                                .apply(block = fun ImageRequest.Builder.() {
-                                    transformations(CircleCropTransformation())
-                                }).build()
-                        ),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(35.dp)
-                            .clip(CircleShape)
-                            .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape),
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                Image(
+                    painter = rememberImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(data = avatar)
+                            .error(R.drawable.default_avatar)
+                            .apply(block = fun ImageRequest.Builder.() {
+                                transformations(CircleCropTransformation())
+                            }).build()
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(35.dp)
+                        .clip(CircleShape)
+                        .border(1.5.dp, MaterialTheme.colors.secondaryVariant, CircleShape),
 
-                        )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(modifier = Modifier.weight(1f)) {
+                    )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = payment.username,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = payment.username,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black
+                            text = "Số tiền: " + if (payment.type == "in") "+ " else {
+                                "- "
+                            } + payment.amount.toString(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = colorCoins
                         )
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
+                        TimeConverter.getDateTime(payment.createdAt)?.let {
                             Text(
-                                text = "Số tiền: " + if(payment.type == "in") "+ " else {"- "} + payment.amount.toString(),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = colorCoins
+                                text = it,
+                                color = Color.Gray,
+                                fontWeight = FontWeight.Light,
+                                fontSize = 13.sp,
+                                modifier = Modifier
+                                    .align(Alignment.Bottom)
                             )
-                            TimeConverter.getDateTime(payment!!.createdAt)?.let {
-                                Text(
-                                    text = it,
-                                    color = Color.Gray,
-                                    fontWeight = FontWeight.Light,
-                                    fontSize = 13.sp,
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                )
-                            }
                         }
-                        Text(
-                            text = "Số dư ví: " + if(payment.resultCode == "7000") "?" else payment.accountBalance.toString(),
-                            fontWeight = FontWeight.W500,
-                            fontSize = 13.sp,
-                            modifier = Modifier
-                                .align(Alignment.Start)
-                        )
-                        Text(
-                            text = "Trạng thái giao dịch: " + payment.message,
-                            fontWeight = FontWeight.Light,
-                            fontSize = 13.sp,
-                            modifier = Modifier
-                                .align(Alignment.Start)
-                        )
                     }
+                    Text(
+                        text = "Số dư ví: " + if (payment.resultCode == "7000") "?" else payment.accountBalance.toString(),
+                        fontWeight = FontWeight.W500,
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                    )
+                    Text(
+                        text = "Trạng thái giao dịch: " + payment.message,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                    )
                 }
+            }
         }
     }
 }
@@ -529,13 +536,21 @@ fun PostSection(
     posts: List<String>,
     modifier: Modifier = Modifier
 ) {
+    if (posts.isEmpty()) {
+        Row(
+            Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(text = "Danh sách rỗng")
+        }
+    }
     LazyVerticalGrid(
         cells = GridCells.Fixed(3),
         modifier = modifier
             .scale(1.01f)
-            .padding(bottom = 80.dp)
     ) {
-        items(posts.size) {index ->
+        items(posts.size) { index ->
             ImageContent(
                 url = posts[index]
             )

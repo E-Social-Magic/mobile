@@ -6,10 +6,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.ColorFilter
@@ -64,7 +66,7 @@ fun TopApp(
     ) {
         if (searchBarState)
             SearchBar(
-                hint = "Search...",
+                hint = "Tìm kiếm...",
                 searchValue = searchValue,
                 onSearchValueChange = { userViewModel.onSearchChange(it) },
                 modifier = Modifier
@@ -120,7 +122,8 @@ fun TopApp(
                     }),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(32.dp)
+                    .clip(CircleShape)
                     .align(Alignment.CenterVertically)
                     .clickable {
                         navigator.navigate(ProfileScreenDestination)

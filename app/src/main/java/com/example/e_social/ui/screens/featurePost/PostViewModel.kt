@@ -18,12 +18,12 @@ import com.example.e_social.util.Resource
 import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
-import java.text.DecimalFormat
-import java.text.NumberFormat
+
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,10 +33,19 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
-    val newPost = mutableStateOf(PostModel(title = "", content = "", files = listOf(), groupId = "", coins = 100))
-    val groupId= mutableStateOf("")
-    val coins =sessionManager.fetchCoin()
+    val newPost = mutableStateOf(
+        PostModel(
+            title = "",
+            content = "",
+            files = listOf(),
+            groupId = "",
+            coins = 100
+        )
+    )
+    val groupId = mutableStateOf("")
+    val coins = sessionManager.fetchCoin()
     val userIdSesstion = sessionManager.fetchUserId()
+    var post = mutableStateOf<PostEntry?>(null)
     private var lastScrollIndex = 0
     private val _scrollUp = MutableLiveData(false)
     val scrollUp: LiveData<Boolean>
@@ -45,32 +54,40 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     init {
         loadPostPaginated()
     }
-    fun refresh(groupById: String?){
-        postList.value =listOf()
+
+    fun refresh(groupById: String?) {
+        postList.value = listOf()
         currentPage = 1
         loadPostPaginated(groupById)
     }
-    fun loadPostPaginated(groupById: String?=null) {
+
+    fun loadPostPaginated(groupById: String? = null) {
         viewModelScope.launch {
             isLoading.value = true
-            val searchBy= groupById ?: if (groupId.value.isEmpty()) null else groupId.value
-            val result = postRepository.getPosts(Constants.POST_SIZE, currentPage,searchBy)
+            val searchBy = groupById ?: if (groupId.value.isEmpty()) null else groupId.value
+            val result = postRepository.getPosts(Constants.POST_SIZE, currentPage, searchBy)
             when (result) {
                 is Resource.Success -> {
                     endReached.value = currentPage >= result.data!!.totalPages
-                    val postListEntry = result.data.posts.filter { !postList.value.map {value -> value.id}.contains(it.id)  }.mapIndexed { index, entry ->
+                    val postListEntry = result.data.posts.filter {
+                        !postList.value.map { value -> value.id }.contains(it.id)
+                    }.mapIndexed { index, entry ->
                         postResponse2PostEntry(postReponse = entry)
                     }
                     currentPage++
                     loadError.value = ""
-                    isLoading.value = false
                     postList.value += postListEntry
+                    delay(500L)
+                    isLoading.value = false
                 }
                 is Resource.Error -> {
                     loadError.value = result.message!!
+                    delay(500L)
+
                     isLoading.value = false
                 }
                 else -> {
+                    delay(500L)
                     isLoading.value = false
                 }
             }
@@ -79,168 +96,253 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
 
     fun voteUp(postId: String) {
         viewModelScope.launch {
-            var votes = 0
-            isLoading.value = true
-            val result = postRepository.voteUp(postId)
-            when (result) {
-                is Resource.Success -> {
-                    votes = result.data?.votes!!
-                }
-                is Resource.Error -> {
-                    votes = result.data?.votes!!
-                }
-                else -> {
+            viewModelScope.launch {
+                postRepository.voteUp(postId)
+                val getPostbyId = postRepository.getPostById(postId)
 
-                }
-            }
-            val replacement =
-                postList.value.map { if (it.id == postId) it.copy(votes = votes) else it }
-            postList.value = replacement
-            isLoading.value = false
-        }
-
-
-    }
-
-    fun voteDown(postId: String) {
-        var votes = 0
-        viewModelScope.launch {
-            isLoading.value = true
-            val result = postRepository.voteDown(postId)
-            when (result) {
-                is Resource.Success -> {
-                    votes = result.data?.votes ?: 0
-                }
-                is Resource.Error -> {
-                    votes = result.data?.votes ?: 0
-                    isLoading.value = false
-                }
-                else -> {
-
-                }
-            }
-            val replacement =
-                postList.value.map { if (it.id == postId) it.copy(votes = votes) else it }
-            postList.value = replacement
-            isLoading.value = false
-        }
-    }
-
-    fun onTitleChange(title: String) {
-        newPost.value = newPost.value.copy(title = title)
-    }
-
-    fun onContentChange(content: String) {
-        newPost.value = newPost.value.copy(content = content)
-    }
-    fun  onGroupSelected(groupId: String){
-        newPost.value= newPost.value.copy(groupId=groupId)
-    }
-    fun createPost() {
-        viewModelScope.launch(Dispatchers.IO) {
-            postRepository.newPost(postModel = newPost.value)
-            loadPostPaginated()
-        }
-    }
-    fun markAnswerIsCorrect(postId: String,commentId: String){
-        viewModelScope.launch {
-            postRepository.markAnswerIsCorrect(postId = postId, commentId = commentId)
-        }
-    }
-    fun loadPostByGroup(groupId:String){
-        viewModelScope.launch {
-            isLoading.value = true
-            val result = postRepository.getPosts(Constants.POST_SIZE, currentPage)
-            when (result) {
-                is Resource.Success -> {
-                    endReached.value = currentPage >= result.data!!.totalPages
-                    val postListEntry = result.data.posts.mapIndexed { index, entry ->
-                        postResponse2PostEntry(postReponse = entry)
-                    }
-                    currentPage++
-                    loadError.value = ""
-                    isLoading.value = false
-                    postList.value += postListEntry
-                }
-                is Resource.Error -> {
-                    loadError.value = result.message!!
-                    isLoading.value = false
-                }
-                else -> {}
-            }
-        }
-    }
-    suspend fun findPostById(id: String): PostEntry? {
-        var post: PostEntry? = null
-            isLoading.value = true
-            val result = postRepository.getPostById(id)
-            try {
-                when (result) {
+                when (getPostbyId) {
                     is Resource.Success -> {
-                        if (result.data!=null)
-                        post = postResponse2PostEntry(result.data)
+                        if (getPostbyId.data != null) {
+                            val postResponse = postResponse2PostEntry(getPostbyId.data!!)
+                            val replacement =
+                                postList.value.map { if (it.id == postId) postResponse else it }
+                            postList.value = replacement
+                            post.value = postResponse
+                        }
                     }
                     is Resource.Error -> {
-                        post = null
+                        isLoading.value = false
                     }
                     else -> {
-                        post = null
                     }
                 }
-            } catch (e: Exception) {
-                post = null
-            }
-            isLoading.value = false
-        return post
-    }
 
-    fun submitComment(postId: String, message: Message): Boolean {
-        viewModelScope.launch{
-            isLoading.value = true
-            val result = postRepository.newComment(postId = postId, comment = CommentRequest(
-                message.message.toRequestBody(
-                    MultipartBody.FORM
-                )
-            ), files = message.images?.map { File(it) })
-            try {
-                when (result) {
+
+                isLoading.value = false
+            }
+
+        }
+    }
+    fun voteUp(postId: String,commentId:String) {
+        viewModelScope.launch {
+            viewModelScope.launch {
+                postRepository.voteUp(postId, commentId = commentId)
+                val getPostbyId = postRepository.getPostById(postId)
+
+                when (getPostbyId) {
                     is Resource.Success -> {
-                        val post = postResponse2PostEntry(result.data!!.post)
-                        val replacement =
-                            postList.value.map { if (it.id == postId) it.copy(comments = post.comments) else it }
-                        postList.value = replacement
+                        if (getPostbyId.data != null) {
+                            val postResponse = postResponse2PostEntry(getPostbyId.data!!)
+                            val replacement =
+                                postList.value.map { if (it.id == postId) postResponse else it }
+                            postList.value = replacement
+                            post.value = postResponse
+                        }
+                    }
+                    is Resource.Error -> {
+                        isLoading.value = false
+                    }
+                    else -> {
+                    }
+                }
+
+
+                isLoading.value = false
+            }
+
+        }
+    }
+        fun voteDown(postId: String) {
+            viewModelScope.launch {
+                postRepository.voteDown(postId)
+                val getPostbyId = postRepository.getPostById(postId)
+
+                when (getPostbyId) {
+                    is Resource.Success -> {
+                        if (getPostbyId.data != null) {
+                            val postResponse = postResponse2PostEntry(getPostbyId.data!!)
+                            val replacement =
+                                postList.value.map { if (it.id == postId) postResponse else it }
+                            postList.value = replacement
+                            post.value = postResponse
+                        }
                     }
                     is Resource.Error -> {
 
+                        isLoading.value = false
                     }
                     else -> {
-
                     }
                 }
-            } catch (e: Exception) {
+                if (getPostbyId.data != null) {
+                    val postResponse = postResponse2PostEntry(getPostbyId.data!!)
+                    val replacement =
+                        postList.value.map { if (it.id == postId) postResponse else it }
+                    postList.value = replacement
+                    post.value = postResponse
+                }
 
+                isLoading.value = false
             }
-
-            isLoading.value = false
         }
-        return true
-    }
+
+        fun voteDown(postId: String, commentId: String) {
+            viewModelScope.launch {
+                postRepository.voteDown(postId, commentId = commentId)
+                val getPostbyId = postRepository.getPostById(postId)
+
+                when (getPostbyId) {
+                    is Resource.Success -> {
+                        if (getPostbyId.data != null) {
+                            val postResponse = postResponse2PostEntry(getPostbyId.data!!)
+                            val replacement =
+                                postList.value.map { if (it.id == postId) postResponse else it }
+                            postList.value = replacement
+                            post.value = postResponse
+                        }
+                    }
+                    is Resource.Error -> {
+
+                        isLoading.value = false
+                    }
+                    else -> {
+                    }
+                }
+                if (getPostbyId.data != null) {
+                    val postResponse = postResponse2PostEntry(getPostbyId.data!!)
+                    val replacement =
+                        postList.value.map { if (it.id == postId) postResponse else it }
+                    postList.value = replacement
+                    post.value = postResponse
+                }
+
+                isLoading.value = false
+            }
+        }
+
+        fun onTitleChange(title: String) {
+            newPost.value = newPost.value.copy(title = title)
+        }
+
+        fun onContentChange(content: String) {
+            newPost.value = newPost.value.copy(content = content)
+        }
+
+        fun onGroupSelected(groupId: String) {
+            newPost.value = newPost.value.copy(groupId = groupId)
+        }
+
+        fun createPost() {
+            viewModelScope.launch(Dispatchers.IO) {
+                postRepository.newPost(postModel = newPost.value)
+                loadPostPaginated()
+            }
+        }
+
+        fun markAnswerIsCorrect(postId: String, commentId: String) {
+            viewModelScope.launch {
+                postRepository.markAnswerIsCorrect(postId = postId, commentId = commentId)
+            }
+        }
+
+        fun loadPostByGroup(groupId: String) {
+            viewModelScope.launch {
+                isLoading.value = true
+                val result = postRepository.getPosts(Constants.POST_SIZE, currentPage)
+                when (result) {
+                    is Resource.Success -> {
+                        endReached.value = currentPage >= result.data!!.totalPages
+                        val postListEntry = result.data.posts.mapIndexed { index, entry ->
+                            postResponse2PostEntry(postReponse = entry)
+                        }
+                        currentPage++
+                        loadError.value = ""
+                        isLoading.value = false
+                        postList.value += postListEntry
+                    }
+                    is Resource.Error -> {
+                        loadError.value = result.message!!
+                        isLoading.value = false
+                    }
+                    else -> {}
+                }
+            }
+        }
+
+        fun findPostById(id: String) {
+            viewModelScope.launch {
+                isLoading.value = true
+                val result = postRepository.getPostById(id)
+                try {
+                    when (result) {
+                        is Resource.Success -> {
+                            if (result.data != null)
+                                post.value = postResponse2PostEntry(result.data)
+                        }
+                        is Resource.Error -> {
+                            post.value = null
+                        }
+                        else -> {
+                            post.value = null
+                        }
+                    }
+                } catch (e: Exception) {
+                    post.value = null
+                }
+                isLoading.value = false
+            }
+        }
+
+        fun submitComment(postId: String, message: Message): Boolean {
+            viewModelScope.launch {
+                isLoading.value = true
+                val result = postRepository.newComment(postId = postId, comment = CommentRequest(
+                    message.message.toRequestBody(
+                        MultipartBody.FORM
+                    )
+                ), files = message.images?.map { File(it) })
+                try {
+                    when (result) {
+                        is Resource.Success -> {
+                            val postResponse = postResponse2PostEntry(result.data!!.post)
+                            val replacement =
+                                postList.value.map { if (it.id == postId) postResponse else it }
+                            postList.value = replacement
+                            post.value = postResponse
+                        }
+                        is Resource.Error -> {
+
+                        }
+                        else -> {
+
+                        }
+                    }
+                } catch (e: Exception) {
+
+                }
+
+                isLoading.value = false
+            }
+            return true
+        }
 
 
-    companion object{
+    companion object {
         fun commentToMessage(comments: List<Comment>): List<Message> {
-            return comments.map{
+            return comments.map {
                 Message(
-                    id =it._id,
+                    id = it._id,
                     authorName = it.userName,
                     avatarAuthor = it.avatar,
                     message = it.comment,
                     images = it.images,
                     isCorrect = it.correct,
-                    userId = it.userId
+                    userId = it.userId,
+                    votes = it.votes
                 )
             }.reversed()
         }
+
         fun postResponse2PostEntry(postReponse: PostResponse): PostEntry {
             return PostEntry(
                 title = postReponse.title,
@@ -267,21 +369,27 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     fun onPostChange(newPostModel: PostModel) {
         newPost.value = newPostModel
     }
+
     fun updateScrollPosition(newScrollIndex: Int) {
         if (newScrollIndex == lastScrollIndex) return
         _scrollUp.value = newScrollIndex > lastScrollIndex
         lastScrollIndex = newScrollIndex
     }
-    fun  onCostSelected (costSelected :Boolean){
-        newPost.value= newPost.value.copy(costs = costSelected)
+
+    fun onCostSelected(costSelected: Boolean) {
+        newPost.value = newPost.value.copy(costs = costSelected)
     }
-    fun  onHideNameSelected(hideNameValue:Boolean){
-        newPost.value= newPost.value.copy(hideName = hideNameValue)
+
+    fun onHideNameSelected(hideNameValue: Boolean) {
+        newPost.value = newPost.value.copy(hideName = hideNameValue)
     }
-    fun onExpiredChange(newExpried:Long){
-        newPost.value= newPost.value.copy(expired = newExpried)
+
+    fun onExpiredChange(newExpried: Long) {
+        newPost.value = newPost.value.copy(expired = newExpried)
     }
-    fun  onCoinChange(newCoins:Int){
+
+    fun onCoinChange(newCoins: Int) {
         newPost.value = newPost.value.copy(coins = newCoins)
     }
+
 }

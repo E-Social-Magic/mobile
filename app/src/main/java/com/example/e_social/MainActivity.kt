@@ -24,6 +24,7 @@ import com.example.e_social.ui.screens.featureGroup.TopicListScreen
 import com.example.e_social.ui.screens.featureLogin.LoginScreen
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.screens.featureLogin.SignUpScreen
+import com.example.e_social.ui.screens.featurePayment.BalanceCoin
 import com.example.e_social.ui.screens.featurePost.PostScreen
 import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.example.e_social.ui.screens.featurePost.SavePostScreen
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
             val snackBarController = SnackBarController(coroutineScope)
             var navController = rememberNavController()
             val postViewModel: PostViewModel = hiltViewModel()
-            LaunchedEffect(key1 = loginViewModel.isLogin.value) {
+            LaunchedEffect(key1 = loginViewModel.isLogin.value){
                 val user = loginViewModel.user.value
                 if (user != null) {
                     ChatDomain.Builder(client, appContext = applicationContext).build()
@@ -127,6 +128,12 @@ class MainActivity : ComponentActivity() {
                                         loginViewModel = loginViewModel
                                     )
                                 }
+                                composable(BalanceCoinDestination) {
+                                    BalanceCoin(
+                                        navigator = destinationsNavigator,
+                                        loginViewModel = loginViewModel,
+                                    )
+                                }
                                 composable(ProfileScreenDestination) {
                                     ProfileScreen(
                                         navigator = destinationsNavigator,
@@ -135,6 +142,10 @@ class MainActivity : ComponentActivity() {
                                         snackBarController = snackBarController,
                                         loginViewModel = loginViewModel,
                                         userViewModel = userViewModel,
+                                        changeBarState = { bar ->
+                                            loginViewModel.isShowBottomBar.value = bar
+                                            loginViewModel.isShowTopBar.value = bar
+                                        },
                                     )
                                 }
                                 composable(VideosScreenDestination) {

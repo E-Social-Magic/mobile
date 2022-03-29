@@ -37,10 +37,10 @@ fun PostDetail(
 
     var shouldShowComment by remember { mutableStateOf(false) }
     val coroutineScope= rememberCoroutineScope()
-    var post :PostEntry? by remember{ mutableStateOf(null)}
     var isLoading by remember{ mutableStateOf( true)}
+    val post = postViewModel.post.value
     LaunchedEffect(key1 = true ){
-             post = postViewModel.findPostById(id = postId)
+        postViewModel.findPostById(id = postId)
              isLoading=false
 
     }
