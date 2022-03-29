@@ -27,6 +27,7 @@ import coil.transform.CircleCropTransformation
 import com.example.e_social.R
 import com.example.e_social.ui.screens.UserViewModel
 import com.example.e_social.ui.screens.destinations.ProfileScreenDestination
+import com.example.e_social.ui.screens.featurePost.PostViewModel
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 
@@ -34,19 +35,21 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 fun TopApp(
     navigator: DestinationsNavigator,
     userViewModel: UserViewModel = hiltViewModel(),
+    postViewModel: PostViewModel = hiltViewModel(),
     title: String,
     icon: ImageVector,
     scrollUpState: State<Boolean?>,
-    onIconClick: () -> Unit
+    onIconClick: () -> Unit,
 ) {
-    val searchBarState = userViewModel.searchBarState.value
-    val searchValue = userViewModel.searchValue.value
+    val searchBarState = postViewModel.searchBarState.value
+    val searchValue = postViewModel.searchValue.value
     val isLoading = userViewModel.isLoading.value
     val user = userViewModel.user.value
     val position by animateFloatAsState(if (scrollUpState.value == true) -150f else 0f)
 
     LaunchedEffect(key1 = true) {
         userViewModel.getUserInfo()
+        postViewModel.postList
     }
     var avatar by remember {
         mutableStateOf("https://gaplo.tech/content/images/2020/03/android-jetpack.jpg")
@@ -58,7 +61,7 @@ fun TopApp(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(56.dp)
-            .graphicsLayer { translationY = (position)}
+            .graphicsLayer { translationY = (position) }
             .background(color = MaterialTheme.colors.primarySurface)
             .shadow(elevation = 1.dp)
             .padding(horizontal = 16.dp)
@@ -68,11 +71,11 @@ fun TopApp(
             SearchBar(
                 hint = "Tìm kiếm...",
                 searchValue = searchValue,
-                onSearchValueChange = { userViewModel.onSearchChange(it) },
+                onSearchValueChange = { postViewModel.onSearchChange(it) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                onSearchBarStateChange = { userViewModel.onSearchBarStateChange(it) }
+                onSearchBarStateChange = { postViewModel.onSearchBarStateChange(it) }
             ) {
 
             }
@@ -96,7 +99,7 @@ fun TopApp(
                 modifier = Modifier
                     .clickable(onClick = {
                         onIconClick.invoke()
-                        userViewModel.onSearchBarStateChange(true)
+                        postViewModel.onSearchBarStateChange(true)
                     })
                     .padding(16.dp)
                     .align(Alignment.CenterVertically)

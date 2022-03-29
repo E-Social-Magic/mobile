@@ -35,6 +35,7 @@ import com.example.e_social.models.data.response.DataX
 import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.SnackBarController
 import com.example.e_social.ui.components.posts.ImageContent
+import com.example.e_social.ui.components.posts.*
 import com.example.e_social.ui.screens.destinations.LoginScreenDestination
 import com.example.e_social.ui.screens.featureLogin.LoginViewModel
 import com.example.e_social.ui.theme.Grey100
@@ -165,7 +166,7 @@ fun ProfileScreen(
                 when (selectedTabIndex) {
                     0 -> PostSection(
                         posts = images.value,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxSize()
                     )
                     1 -> ProfileTransactionHistory(
                         paymentList = paymentList.value,
@@ -550,8 +551,8 @@ fun PostSection(
         modifier = modifier
             .scale(1.01f)
     ) {
-        items(posts.size) { index ->
-            ImageContent(
+        items(posts.size) {index ->
+            ImageContentGrid(
                 url = posts[index]
             )
         }

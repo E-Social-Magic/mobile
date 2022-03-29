@@ -19,6 +19,8 @@ import com.example.e_social.util.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -30,6 +32,7 @@ import javax.inject.Inject
 class PostViewModel @Inject constructor(private val postRepository: PostRepository,private val sessionManager: SessionManager) : ViewModel() {
     private var currentPage = 1
     var postList = mutableStateOf<List<PostEntry>>(listOf())
+    var allposts = mutableStateOf<List<PostEntry>>(listOf())
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
@@ -48,6 +51,29 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     var post = mutableStateOf<PostEntry?>(null)
     private var lastScrollIndex = 0
     private val _scrollUp = MutableLiveData(false)
+    var searchValue = mutableStateOf("")
+    var searchBarState = mutableStateOf(false)
+
+    fun onSearchBarStateChange(newValue:Boolean){
+        searchBarState.value = newValue
+    }
+
+
+    fun onSearchChange(newValue: String){
+        viewModelScope.launch {
+            searchValue.value = newValue
+            if (searchValue.value.isEmpty()) {
+                postList.value = allposts.value
+                return@launch
+            }
+            delay(1000)
+            val postsFormSearch = allposts.value.filter { data ->
+                data.title.contains(searchValue.value, true) || data.content.contains(searchValue.value, true)
+            }
+
+            postList.value = postsFormSearch
+        }
+    }
     val scrollUp: LiveData<Boolean>
         get() = _scrollUp
 
@@ -56,18 +82,23 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     }
 
     fun refresh(groupById: String?) {
+        if (groupById != null) {
+            groupId.value=groupById
+        }
         postList.value = listOf()
+        allposts.value = listOf()
         currentPage = 1
         loadPostPaginated(groupById)
     }
 
     fun loadPostPaginated(groupById: String? = null) {
+        isLoading.value = true
         viewModelScope.launch {
-            isLoading.value = true
-            val searchBy = groupById ?: if (groupId.value.isEmpty()) null else groupId.value
+            val searchBy = groupById ?: groupId.value.ifEmpty { null }
             val result = postRepository.getPosts(Constants.POST_SIZE, currentPage, searchBy)
             when (result) {
                 is Resource.Success -> {
+
                     endReached.value = currentPage >= result.data!!.totalPages
                     val postListEntry = result.data.posts.filter {
                         !postList.value.map { value -> value.id }.contains(it.id)
@@ -77,21 +108,18 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                     currentPage++
                     loadError.value = ""
                     postList.value += postListEntry
-                    delay(500L)
                     isLoading.value = false
+                    allposts.value = postList.value
                 }
                 is Resource.Error -> {
                     loadError.value = result.message!!
-                    delay(500L)
-
-                    isLoading.value = false
                 }
                 else -> {
-                    delay(500L)
-                    isLoading.value = false
                 }
             }
         }
+        isLoading.value = false
+
     }
 
     fun voteUp(postId: String) {
