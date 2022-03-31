@@ -98,6 +98,7 @@ fun MessageCard(postViewModel: PostViewModel,msg: Message, isSolve: Boolean,isEd
                     .background(color = Color(0xFFDBECFE), shape = RoundedCornerShape(12.dp))
             ) {
                 Column(modifier = Modifier
+                     .weight(6f)
                     .clickable { isExpanded = !isExpanded }
                     .padding(8.dp)) {
                     Text(
@@ -123,7 +124,7 @@ fun MessageCard(postViewModel: PostViewModel,msg: Message, isSolve: Boolean,isEd
                         )
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(3f),verticalAlignment = Alignment.CenterVertically) {
                     if (msg.isCorrect) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_check_circle_24),
