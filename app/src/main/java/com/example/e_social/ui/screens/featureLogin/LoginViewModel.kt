@@ -68,6 +68,9 @@ class LoginViewModel @Inject constructor(
     fun logOut(){
         isLogin.value= false
         sessionManager.saveAuthToken("")
+        sessionManager.saveAuthCoins("0")
+        sessionManager.saveUserId("")
+
     }
     private fun getCoins() {
         viewModelScope.launch{
