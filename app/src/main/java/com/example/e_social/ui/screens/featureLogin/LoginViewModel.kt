@@ -23,8 +23,8 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
     val sessionManager: SessionManager
 ) : ViewModel() {
-    val email: MutableState<String> = mutableStateOf("huan2261@gmail.com")
-    val password: MutableState<String> = mutableStateOf("123456")
+    val email: MutableState<String> = mutableStateOf("")
+    val password: MutableState<String> = mutableStateOf("")
     val userName = mutableStateOf("")
     val confirmPassword = mutableStateOf("")
     val phone = mutableStateOf("0")
@@ -68,6 +68,9 @@ class LoginViewModel @Inject constructor(
     fun logOut(){
         isLogin.value= false
         sessionManager.saveAuthToken("")
+        sessionManager.saveAuthCoins("0")
+        sessionManager.saveUserId("")
+
     }
     private fun getCoins() {
         viewModelScope.launch{

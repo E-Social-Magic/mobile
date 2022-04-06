@@ -82,18 +82,23 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
     }
 
     fun refresh(groupById: String?) {
+        if (groupById != null) {
+            groupId.value=groupById
+        }
         postList.value = listOf()
+        allposts.value = listOf()
         currentPage = 1
         loadPostPaginated(groupById)
     }
 
     fun loadPostPaginated(groupById: String? = null) {
+        isLoading.value = true
         viewModelScope.launch {
-            isLoading.value = true
-            val searchBy = groupById ?: if (groupId.value.isEmpty()) null else groupId.value
+            val searchBy = groupById ?: groupId.value.ifEmpty { null }
             val result = postRepository.getPosts(Constants.POST_SIZE, currentPage, searchBy)
             when (result) {
                 is Resource.Success -> {
+
                     endReached.value = currentPage >= result.data!!.totalPages
                     val postListEntry = result.data.posts.filter {
                         !postList.value.map { value -> value.id }.contains(it.id)
@@ -103,22 +108,18 @@ class PostViewModel @Inject constructor(private val postRepository: PostReposito
                     currentPage++
                     loadError.value = ""
                     postList.value += postListEntry
-                    delay(500L)
                     isLoading.value = false
                     allposts.value = postList.value
                 }
                 is Resource.Error -> {
                     loadError.value = result.message!!
-                    delay(500L)
-
-                    isLoading.value = false
                 }
                 else -> {
-                    delay(500L)
-                    isLoading.value = false
                 }
             }
         }
+        isLoading.value = false
+
     }
 
     fun voteUp(postId: String) {

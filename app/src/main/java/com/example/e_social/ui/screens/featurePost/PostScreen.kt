@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import com.example.e_social.R
+import com.example.e_social.ui.components.CircularProgressBar
 import com.example.e_social.ui.components.ShimmerLoading
 import com.example.e_social.ui.components.TopApp
 import com.example.e_social.ui.components.posts.PostEntry
@@ -74,9 +75,7 @@ fun PostScreen(
                 postViewModel.refresh(selectedGroup.id)
             } else {
                 postViewModel.refresh(null)
-
             }
-            delay(1500)
             refreshing = false
         }
     }
@@ -168,13 +167,15 @@ fun PostScreen(
                                     Text(
                                         text = selectedGroup?.groupName ?: "Tất cả",
                                         fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = if (selectedGroup == null) "" else selectedGroup.users.size.toString() + " người theo dõi",
                                         color = Color.Gray,
-                                        fontSize = 10.sp
+                                        fontSize = 10.sp,
+                                        maxLines = 1
                                     )
                                 }
                             }
@@ -197,17 +198,15 @@ fun PostScreen(
                         }
                         when (isLoading) {
                             true -> {
-                                LazyColumn{
-                                    items(10) {
-                                        ShimmerLoading()
-                                    }
-                                }
+                                        CircularProgressBar(isDisplay = isLoading)
                             }
                             else -> {
                                 if (postList.isNotEmpty()) {
                                     LazyColumn(
                                         state = scrollState,
-                                        modifier = Modifier.padding(bottom = 50.dp).background(color = Color.Transparent)
+                                        modifier = Modifier
+                                            .padding(bottom = 50.dp)
+                                            .background(color = Color.Transparent)
                                     ) {
                                         items(postList.size) {
                                             if (it >= postList.size - 1 && !endReached) {

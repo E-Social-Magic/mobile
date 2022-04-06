@@ -55,13 +55,10 @@ fun ProfileScreen(
     changeBarState:(Boolean)->Unit,
     loginViewModel: LoginViewModel,
     userViewModel: UserViewModel,
-
-
     ) {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
-    loginViewModel.isShowBottomBar.value=true
     val paymentList = userViewModel.payment
     var user = userViewModel.user
     var images = userViewModel.images
@@ -76,6 +73,8 @@ fun ProfileScreen(
         else user.value!!.coins.toString()
 
     LaunchedEffect(key1 = true) {
+        if (loginViewModel.isLogin.value)
+            loginViewModel.isShowBottomBar.value=true
         userViewModel.getUserInfo()
     }
     if (isLoading.value) {
